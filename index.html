@@ -1,26 +1,19 @@
 <html xmanifest="manifest.appcache">
 <title>itty bitty</title>
 <meta name="viewport" content="width=device-width">
-<style type="text/css">
-  #edit { position:absolute; z-index:100;font-family:sans-serif;text-decoration:none;position:absolute;top:20px;right:20px; color:black; display:none; } 
-  iframe { border:none;position:absolute;top:0;left:0;width:100%;height:100% }
-</style>
 <script type="text/javascript">  
 var hash = window.location.hash.substring(1)
 if (hash.length) {
   window.onload = function() {
     if (hash.startsWith('!')) {
       var link = document.getElementById('edit');
-      var editLink = "/edit#" + hash
-      link.onclick = function() {
-        location.href = editLink
-      }
-      link.style.display = "block";  
-      var style = "PG1ldGEgY2hhcnNldD0idXRmLTgiPjxtZXRhIG5hbWU9InZpZXdwb3J0IiBjb250ZW50PSJ3aWR0aD1kZXZpY2Utd2lkdGgiPjxiYXNlIHRhcmdldD0iX3RvcCI+PHN0eWxlIHR5cGU9InRleHQvY3NzIj5ib2R5e21hcmdpbjowIGF1dG87cGFkZGluZzoxMnZtaW4gMTB2bWluO21heC13aWR0aDozNWVtO2xpbmUtaGVpZ2h0OjEuNWVtO2ZvbnQtZmFtaWx5OiAtYXBwbGUtc3lzdGVtLEJsaW5rTWFjU3lzdGVtRm9udCxzYW5zLXNlcmlmO3dvcmQtd3JhcDogYnJlYWstd29yZDt9PC9zdHlsZT4g"
-      hash = style + hash.substring(1)
+      link.onclick = function() { location.href = "/edit#" + hash }
+      link.style.display = "block";
+      var preamble = "PG1ldGEgY2hhcnNldD0idXRmLTgiPjxtZXRhIG5hbWU9InZpZXdwb3J0IiBjb250ZW50PSJ3aWR0aD1kZXZpY2Utd2lkdGgiPjxiYXNlIHRhcmdldD0iX3RvcCI+PHN0eWxlIHR5cGU9InRleHQvY3NzIj5ib2R5e21hcmdpbjowIGF1dG87cGFkZGluZzoxMnZtaW4gMTB2bWluO21heC13aWR0aDozNWVtO2xpbmUtaGVpZ2h0OjEuNWVtO2ZvbnQtZmFtaWx5OiAtYXBwbGUtc3lzdGVtLEJsaW5rTWFjU3lzdGVtRm9udCxzYW5zLXNlcmlmO3dvcmQtd3JhcDogYnJlYWstd29yZDt9PC9zdHlsZT4g"
+      hash = preamble + hash.substring(1)
     }
     if (!hash.startsWith("data:")) hash = 'data:text/html;charset=utf-8;base64,' + hash;
-    // location.href = hash
+    // location.href = hash // Redirect to data URI in supported browsers
     var iframe = document.getElementById('iframe');
     iframe.src = hash;
     document.body.appendChild(iframe);
@@ -29,5 +22,6 @@ if (hash.length) {
  location.href = "/edit"
 }
 </script>
-<iframe id="iframe"></iframe><button id="edit">Edit</button>
+<iframe id="iframe" style="border:none;position:absolute;top:0;left:0;width:100%;height:100%"></iframe>
+<button id="edit" style="position:absolute;z-index:100;position:absolute;top:20px;right:20px;display:none;">Edit</button>
 </html>
