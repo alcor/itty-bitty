@@ -1,30 +1,34 @@
-var $ = document.querySelector.bind(document)
-var $$ = document.querySelectorAll.bind(document)
+// var $ = document.querySelector.bind(document)
+// var $$ = document.querySelectorAll.bind(document)
 
 var DATA_PREFIX = 'data:text/html;base64,'
 var DATA_PREFIX_8 = 'data:text/html;charset=utf-8;base64,'
+var DATA_PREFIX_BAZE = 'data:text/html;charset=utf-8;baze64,'
 
 var content = undefined
 window.onload = function() {
   window.onpopstate = function(e) { setContent(e.state) }
 
-  content = document.getElementById("content");
-  content.ondrop = dropEvent;
   document.body.ondragenter = function(e) { document.body.classList.add("drag"); };
   document.body.ondragleave = function(e) { document.body.classList.remove("drag"); };
-  document.body.onclick = function() { content.focus()};
-  content.oninput = handleInput;
-  content.onkeydown = handleKey;
+  document.body.onclick = function(e) { if (e.target == document.body) content.focus() };
+  content = document.getElementById("content");
+  content.addEventListener('keydown', handleKey);
+  content.addEventListener('keyup', handleInput);
+  content.addEventListener('drop', handleDrop);
+  content.addEventListener('paste', handlePaste)
   content.contentEditable = 'true';
   content.focus();
-  $('#qrcode').onclick = makeQRCode
-  $('#copy').onclick = copyLink
+  document.execCommand('selectAll',false,null);
+  $('#qrcode')[0].onclick = makeQRCode
+  $('#copy')[0].onclick = copyLink
   var hash = window.location.hash.substring(1)
   if (hash.length) {
     updateLink(hash)
-    if (hash.startsWith('!')) { hash = hash.substring(1) }
-    if (!hash.startsWith("data:")) { hash = 'data:text/html;charset=utf-8;base64,' + hash; }
-    dataToString(hash, setContent);
+    if (hash.startsWith('!')) {
+      hash = hash.substring(1)
+      zipToString(hash, setContent);
+    }
   } else {
     updateBodyClass()
   }
@@ -41,7 +45,7 @@ function updateBodyClass() {
   document.body.classList.toggle("placeholder", !length)
 }
 
-function dropEvent(e) {
+function handleDrop(e) {
   e.preventDefault();
   if (e.dataTransfer.files) {
     var file = e.dataTransfer.files[0]
@@ -49,8 +53,13 @@ function dropEvent(e) {
     reader.addEventListener("load", function () {
       var url = reader.result;
       url = url.replace(DATA_PREFIX, DATA_PREFIX_8)
-      updateLink(url, true)
-      setContent('&nbsp;<span class="ib-file" contentEditable="false">📄' +  file.name + '</span><br><br>');
+      var length = url.length;
+      compressDataURI(url, function(url){
+        console.log("Compressed to", url.length / length)
+        if (e.altKey) url = url.replace(DATA_PREFIX_BAZE, "!")
+        updateLink(url, true)
+        setContent('&nbsp;<span class="ib-file" contentEditable="false">📄' +  file.name + '</span><br><br>'); 
+      })
     }, false);
     reader.readAsDataURL(file);
   }
@@ -59,7 +68,9 @@ function dropEvent(e) {
 
 function handleKey(e) {
   var code = e.which;
+  var handled = false;
   if (e.metaKey && e.altKey) {
+    handled = true;
     if (code == '1'.charCodeAt(0)) {
       document.execCommand("formatBlock", true, "<h1>");
     } else if (code == '2'.charCodeAt(0)) {
@@ -68,41 +79,42 @@ function handleKey(e) {
       document.execCommand("removeFormat");
     } else if (code == '0'.charCodeAt(0)) {
       document.execCommand("formatBlock", true, "");
+    } else {
+      handled = false
     }
-    e.preventDefault()
+
   } else if (e.metaKey) {
     if (code == 'K'.charCodeAt(0)) {
+      handled = true;
       var url = prompt("Add a link", "")
       if (url) { document.execCommand("createLink", true, url); };
     }
   }
+  if (handled) e.preventDefault()
 };
 
-function stringToData(string, callback) {
-  if (!string.length) return callback("");
-  var a = new FileReader();
-  a.onload = function(e) { callback(e.target.result.replace()) }
-  a.readAsDataURL(new Blob([string], {encoding:"UTF-8",type:"text/html;charset=UTF-8"}));
-}
-
-function dataToString(data, callback) {
-  var blob = dataURItoBlob(data)
-  var reader = new FileReader();
-  reader.onload = function(e) { callback(reader.result) }
-  reader.readAsText(blob);
-}
-
-function dataURItoBlob(dataURI) {
-  var byteString = atob(dataURI.split(',')[1]);
-  var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-  var arrayBuffer = new ArrayBuffer(byteString.length);
-  var _ia = new Uint8Array(arrayBuffer);
-  for (var i = 0; i < byteString.length; i++) {
-      _ia[i] = byteString.charCodeAt(i);
+var codepenRE = /(https:\/\/codepen\.io\/[\w]+\/(\w+)\/(\w+))/
+function handlePaste(e) {
+  var clipboard = window.clipboardData || e.clipboardData
+  var text = clipboard.getData('Text') || clipboard.getData('text/plain')
+  if (match = text.match(codepenRE)) {
+    console.log(match)
+    fetchCodepen(match[0])
   }
-  var dataView = new DataView(arrayBuffer);
-  var blob = new Blob([dataView], { type: mimeString });
-  return blob;
+}
+
+function fetchCodepen(url) {
+  var h, c, j;
+  $.when(
+    $.get(url + ".html", function(html) { h = html; }),
+    $.get(url + ".css", function(css) { c = css; }),
+    $.get(url + ".js", function(js) { j = js; })
+  ).then(function() {
+    var string = '<style type="text/css">' + c + '</style>' +  h + '<script type="text/javascript">' + j + '</script>'
+    content.innerText = string
+    updateBodyClass()
+    handleInput()
+  });
 }
 
 function stripPrefix(url) {
@@ -125,10 +137,9 @@ function handleInput(e) {
     text = content.innerHTML
     strip = true
   }
-  stringToData(text, function(hash) {
-    var plain = encodeURIComponent(text)
-    if (strip) hash = stripPrefix(hash);
-    updateLink(hash)
+   
+  stringToZip(text, function(zip) {
+    updateLink("!" + zip)
   });
 }
 
@@ -137,6 +148,7 @@ var maxLengths = {
   "#qrcode": 2610,
   "#bitly": 2048,
 }
+
 function updateLink(url, push) {
   url = "/#" + url
   var hash = location.hash
@@ -145,13 +157,13 @@ function updateLink(url, push) {
   } else {
     window.history.replaceState(content.innerHTML, null, url);
   }
-
   var length = location.href.length
-  $('#length').innerText = length + " bytes"
-  $('#length').href = url
+console.log(length)
+  $('#length')[0].innerText = length + " bytes"
+  $('#length')[0].href = url
   for (var key in maxLengths) {
     var maxLength = maxLengths[key]
-    $(key).classList.toggle("invalid", length > maxLength)
+    $(key)[0].classList.toggle("invalid", length > maxLength)
   };
   
 }

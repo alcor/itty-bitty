@@ -2,4 +2,6 @@ CACHE MANIFEST
 
 CACHE:
 /
+/data.js
 /favicon.ico 
+/src/lzma-d-min.js

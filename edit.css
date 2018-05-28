@@ -1,8 +1,9 @@
 body {
-  margin: 0 auto;padding:12vmin 10vmin; 
+  margin: 0 auto;padding:12vh 10vmin; 
   max-width:35em; 
-  line-height:1.5em; 
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height:1.5em; 
+  color:rgba(0,0,0,0.87);
 }
 
 h1 { font-weight:400; }
@@ -30,7 +31,7 @@ body.drag #content {
 #content, #placeholder{
   width:100%;
   margin:-1em; padding: 1em;
-  min-height:50vh
+  min-height:2em
 }
 
 #content {
@@ -77,29 +78,31 @@ body.has-content #toolbar {
   position:fixed; 
   top:0;
   right:0;
-  padding:1em;
+  padding:3px 10px 5px 30px;
   transition: opacity 218ms ease-in;
-  text-align:center;
-  background-color:white;
-  border-bottom-left-radius:1em;
+  text-align:right;
+  background-color:#f1f1f1;
+  border-bottom-left-radius:10em;
+  font-family:monospace;
+  font-weight:bold;
+  border
 }
 
 #toolbar button {
   vertical-align: baseline;
-  margin-bottom:11px;
+
+  font-family:monospace;
 }
 
 #toolbar a.invalid {
   text-decoration: line-through;
 }
 
-#length {
-  border:1px solid transparent
-}
 
 
 
-#toolbar a {font-size:11px; margin-right:0.5em; cursor: pointer; text-decoration:none; color:gray;}
-#toolbar a:hover { text-decoration: underline; color:blue;}
+
+#toolbar a {font-size:11px; margin-right:0.5em; cursor: pointer; text-decoration:none; color:#333;}
+#toolbar a:hover { text-decoration: underline; color:#111;}
 
 *[contenteditable="true"]{display: inline-block;}
