@@ -8,7 +8,7 @@ var DATA_PREFIX_BAZE = 'data:text/html;charset=utf-8;baze64,'
 var content = undefined
 window.onload = function() {
   window.onpopstate = function(e) { setContent(e.state) }
-
+  window.onhashchange = function(e) { console.log("hash", e); location.reload() }
   document.body.ondragenter = function(e) { document.body.classList.add("drag"); };
   document.body.ondragleave = function(e) { document.body.classList.remove("drag"); };
   document.body.onclick = function(e) { if (e.target == document.body) content.focus() };
@@ -58,12 +58,16 @@ function handleDrop(e) {
         console.log("Compressed to", url.length / length)
         if (e.altKey) url = url.replace(DATA_PREFIX_BAZE, "!")
         updateLink(url, true)
-        setContent('&nbsp;<span class="ib-file" contentEditable="false">📄' +  file.name + '</span><br><br>'); 
+        setFileContent('📄' + file.name)
       })
     }, false);
     reader.readAsDataURL(file);
   }
   document.body.classList.remove("drag")
+}
+
+function setFileContent(name) {
+  setContent('&nbsp;<span class="ib-file" contentEditable="false">' + name + '</span><br><br>'); 
 }
 
 function handleKey(e) {
@@ -98,11 +102,12 @@ function handlePaste(e) {
   var clipboard = window.clipboardData || e.clipboardData
   var text = clipboard.getData('Text') || clipboard.getData('text/plain')
   if (match = text.match(codepenRE)) {
-    console.log(match)
     fetchCodepen(match[0])
   }
 }
 
+
+var TEMPLATE_MARKER = "/*use-itty-bitty-template*/"
 function fetchCodepen(url) {
   var h, c, j;
   $.when(
@@ -110,10 +115,15 @@ function fetchCodepen(url) {
     $.get(url + ".css", function(css) { c = css; }),
     $.get(url + ".js", function(js) { j = js; })
   ).then(function() {
+    var useTemplate = c.indexOf(TEMPLATE_MARKER) >= 0
     var string = '<style type="text/css">' + c + '</style>' +  h + '<script type="text/javascript">' + j + '</script>'
-    content.innerText = string
-    updateBodyClass()
-    handleInput()
+    console.log(c, c.indexOf(TEMPLATE_MARKER))
+    stringToZip(string, function(zip) {
+      setFileContent('✒️' + url)
+      setTimeout(function() {
+          updateLink((useTemplate ? "," : DATA_PREFIX_BAZE) + zip)
+      }, 300);
+    });
   });
 }
 
@@ -158,7 +168,7 @@ function updateLink(url, push) {
     window.history.replaceState(content.innerHTML, null, url);
   }
   var length = location.href.length
-console.log(length)
+
   $('#length')[0].innerText = length + " bytes"
   $('#length')[0].href = url
   for (var key in maxLengths) {

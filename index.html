@@ -12,6 +12,7 @@
 <button id="edit">Edit</button>
 
 <script type="text/javascript">  
+
 function showEdit() {
   var link = document.getElementById('edit');
   link.onclick = function() { location.href = "/edit" + location.hash }
@@ -19,34 +20,31 @@ function showEdit() {
 }
 
 var HEAD_TAGS = "PG1ldGEgY2hhcnNldD0idXRmLTgiPjxtZXRhIG5hbWU9InZpZXdwb3J0IiBjb250ZW50PSJ3aWR0aD1kZXZpY2Utd2lkdGgiPjxiYXNlIHRhcmdldD0iX3RvcCI+PHN0eWxlIHR5cGU9InRleHQvY3NzIj5ib2R5e21hcmdpbjowIGF1dG87cGFkZGluZzoxMnZtaW4gMTB2bWluO21heC13aWR0aDozNWVtO2xpbmUtaGVpZ2h0OjEuNWVtO2ZvbnQtZmFtaWx5OiAtYXBwbGUtc3lzdGVtLEJsaW5rTWFjU3lzdGVtRm9udCxzYW5zLXNlcmlmO3dvcmQtd3JhcDogYnJlYWstd29yZDt9PC9zdHlsZT4g"
+window.onhashchange = window.onload = function() {
+  var hash = window.location.hash.substring(1)
+  if (!hash.length) {
+    location.href = "/edit"
+  } else {
+    var iframe = document.getElementById('iframe');
+    var link = document.getElementById('edit');
+    var preamble = undefined;
+    var editable = hash.charAt(0) == '!'
+    var compressed = editable || hash.charAt(0) == ','
 
-var hash = window.location.hash.substring(1)
-if (!hash.length) {
-  location.href = "/edit"
-} else {
-  var iframe = document.getElementById('iframe');
-  var editable = false;
-  var compressed = false;
-  var preamble = undefined;
-
-  if (hash.charAt(0) == '!') {
-    compressed = true;
-    editable = true;
-    hash = hash.substring(1)
-    preamble = HEAD_TAGS
-  }
-
-  if (!hash.startsWith("data:")) hash = 'data:text/html;charset=utf-8;' + (compressed ? 'baze64,' : 'base64,') + hash;
-  // location.href = hash // Redirect to data URI in supported browsers
-  
-  decompressDataURI(hash, preamble, function(hash) {
-    if (hash) iframe.src = hash;
-    if (editable) {
-      var link = document.getElementById('edit');
-      link.onclick = function() { location.href = "/edit" + location.hash }
-      link.style.display = "block";
+    if (compressed || editable) {
+      hash = hash.substring(1)
+      preamble = HEAD_TAGS
     }
-  });
+
+    if (!hash.startsWith("data:")) hash = 'data:text/html;charset=utf-8;' + (compressed ? 'baze64,' : 'base64,') + hash;
+    // location.href = hash // Redirect to data URI in supported browsers
+    
+    decompressDataURI(hash, preamble, function(hash) {
+      if (hash) iframe.src = hash;
+      link.onclick = function() { location.href = "/edit" + location.hash }
+      link.style.display = editable ? "block" : "none";
+    });
+  }
 }
 
 
