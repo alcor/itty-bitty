@@ -9,7 +9,7 @@ body {
 h1 { font-weight:400; }
 h2 { font-weight:500; }
 
-body.placeholder #placeholder {
+body:not(.edited) #placeholder {
   display:block;
 }
 
@@ -67,7 +67,7 @@ body.drag #content {
 }
 */
 
-body.has-content #toolbar {
+body.edited #toolbar {
   opacity:1.0;
   transition: opacity 2s ease-out;
 

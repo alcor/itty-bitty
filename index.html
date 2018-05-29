@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html xmanifest="manifest.appcache">
 <title>itty bitty</title>
 <meta name="viewport" content="width=device-width">
@@ -12,11 +13,10 @@
 <button id="edit">Edit</button>
 
 <script type="text/javascript">  
-
-function showEdit() {
+function showEdit(editable) {
   var link = document.getElementById('edit');
   link.onclick = function() { location.href = "/edit" + location.hash }
-  link.style.display = "block";
+  link.style.display = editable ? "block" : "none";
 }
 
 var HEAD_TAGS = "PG1ldGEgY2hhcnNldD0idXRmLTgiPjxtZXRhIG5hbWU9InZpZXdwb3J0IiBjb250ZW50PSJ3aWR0aD1kZXZpY2Utd2lkdGgiPjxiYXNlIHRhcmdldD0iX3RvcCI+PHN0eWxlIHR5cGU9InRleHQvY3NzIj5ib2R5e21hcmdpbjowIGF1dG87cGFkZGluZzoxMnZtaW4gMTB2bWluO21heC13aWR0aDozNWVtO2xpbmUtaGVpZ2h0OjEuNWVtO2ZvbnQtZmFtaWx5OiAtYXBwbGUtc3lzdGVtLEJsaW5rTWFjU3lzdGVtRm9udCxzYW5zLXNlcmlmO3dvcmQtd3JhcDogYnJlYWstd29yZDt9PC9zdHlsZT4g"
@@ -35,14 +35,27 @@ window.onhashchange = window.onload = function() {
       hash = hash.substring(1)
       preamble = HEAD_TAGS
     }
-
-    if (!hash.startsWith("data:")) hash = 'data:text/html;charset=utf-8;' + (compressed ? 'baze64,' : 'base64,') + hash;
+    if (hash.indexOf("data:") != 0) hash = 'data:text/html;charset=utf-8;' + (compressed ? 'baze64,' : 'base64,') + hash;
     // location.href = hash // Redirect to data URI in supported browsers
+
+    link.onclick = function() { location.href = "/edit" + location.hash }
     
+    showEdit(editable)
+
+    var useData = !navigator.userAgent.match(/rv:11/); // ||  /Edge/.test(navigator.userAgent)
     decompressDataURI(hash, preamble, function(hash) {
-      if (hash) iframe.src = hash;
-      link.onclick = function() { location.href = "/edit" + location.hash }
-      link.style.display = editable ? "block" : "none";
+      if (!hash) return;
+      if (useData) {     
+       if (hash) iframe.src = hash;
+      } else{
+        dataToString(hash, function(content){
+          var doc = iframe.contentWindow.document;
+          doc.open();
+          doc.write(content);
+          doc.close();
+        })
+
+      }
     });
   }
 }

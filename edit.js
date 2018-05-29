@@ -41,8 +41,11 @@ function setContent(html) {
 
 function updateBodyClass() {
   var length = content.innerText.length;
-  document.body.classList.toggle("has-content", length)
-  document.body.classList.toggle("placeholder", !length)
+  if (length) {
+    $('body').addClass("edited")
+  } else {
+    $('body').removeClass("edited")
+  }
 }
 
 function handleDrop(e) {
@@ -140,7 +143,7 @@ function handleInput(e) {
   updateBodyClass();
   var text = content.innerText
   var strip = false;
-  if (text.includes("</")) {
+  if (text.indexOf("</") > 0) {
     text = text.replace(/[\n|\t]+/g,' ').replace(/> +</g, '> <')
   } else {
     var title = text.split("\n")[0]
@@ -173,7 +176,12 @@ function updateLink(url, push) {
   $('#length')[0].href = url
   for (var key in maxLengths) {
     var maxLength = maxLengths[key]
-    $(key)[0].classList.toggle("invalid", length > maxLength)
+    if (length > maxLength) {
+      $(key).addClass("invalid")
+    } else {
+      $(key).removeClass("invalid")
+    }
+    
   };
   
 }

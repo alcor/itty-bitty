@@ -72,6 +72,6 @@ function dataURItoBlob(dataURI) {
       _ia[i] = byteString.charCodeAt(i);
   }
   var dataView = new DataView(arrayBuffer);
-  var blob = new Blob([dataView], { type: mimeString });
+  var blob = new Blob([dataView.buffer], { type: mimeString });
   return blob;
 }
