@@ -42,8 +42,9 @@ function decompressDataURI(dataURI, preamble, callback) {
 }
 
 function zipToString(data, callback) {
-  var array = base64ToByteArray(data); //new Uint8Array([...atob(data)].map(char => char.charCodeAt(0)));
+  var array = base64ToByteArray(data); 
   LZMA.decompress(array, function(result, error) {
+    if (!(typeof result === 'string')) result = new Uint8Array(result)
     if (error) console.error(error);
     callback(result);
   });

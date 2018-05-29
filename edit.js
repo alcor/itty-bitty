@@ -56,11 +56,15 @@ function handleDrop(e) {
     reader.addEventListener("load", function () {
       var url = reader.result;
       url = url.replace(DATA_PREFIX, DATA_PREFIX_8)
-      var length = url.length;
-      compressDataURI(url, function(url){
-        console.log("Compressed to", url.length / length)
-        if (e.altKey) url = url.replace(DATA_PREFIX_BAZE, "!")
-        updateLink(url, true)
+      compressDataURI(url, function(url2){
+        var ratio = url2.length / url.length
+        console.log("Compressed to", ratio)
+         if (e.ctrlKey) decompressDataURI(url2, undefined, function(url3) {
+          console.log("Verified", url == url3,)
+        })
+        if (ratio > 0.95) url2 = url;
+        if (e.altKey) url2 = url2.replace(DATA_PREFIX_BAZE, "!")
+        updateLink(url2, true)
         setFileContent('📄' + file.name)
       })
     }, false);
