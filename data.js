@@ -1,5 +1,5 @@
 var BASE64_MARKER = ';base64,';
-var LZMA64_MARKER = ';baze64,';
+var LZMA64_MARKER = ';bxze64,';
 
 function compressDataURI(dataURI, callback) {
   var base64Index = dataURI.indexOf(BASE64_MARKER);
@@ -33,6 +33,7 @@ function decompressDataURI(dataURI, preamble, callback) {
     var base64 = dataURI.substring(base64Index + LZMA64_MARKER.length);
     zipToString(base64, function(result) {
       stringToData(result, function(data) {
+        if (!data) return callback(undefined);
         callback(dataURI.substring(0, base64Index) + BASE64_MARKER + (preamble || '') + data.split(',')[1])     
       })
     })

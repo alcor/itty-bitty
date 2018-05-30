@@ -5,24 +5,22 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src https://codepen.io">
 <title>itty.bitty</title>
 <script src="src/lzma_worker-min.js"></script>
-<script src="jquery-3.3.1.min.js"></script>
 <script src="data.js"></script>
 <script src="edit.js"></script>
 <link rel="stylesheet" type="text/css" href="edit.css">
 <body>
-<span id="toolbar">
-  <a target="_blank" id="length"></a>
-  <a target="_blank" id="bitly" href="https://bitly.com/">Bitly</a>
-  <a target="_blank" id="qrcode" href="https://zxing.appspot.com/generator/">QR Code</a>
-  <a target="_blank" id="twitter" href="https://twitter.com/">Twitter</a>
-  <button id="copy">Copy Link</button><br>
-</span>
+
 <div id="placeholder">
 Itty bitty things<br>
-can be shared within a link&ndash;<br>
-type to get started.
-<p><a id="ib-info" contenteditable=false href="http://about.bitty.site">Learn more</a><br>
+can be shared within a link&mdash;<br>
+type here to compose.
+<p><a id="ib-info" contenteditable=false href="http://about.bitty.site" target="_blank">Learn more</a><br>
 </div>
 <div id="content"> </div>
+<span id="toolbar">
+  <a target="_blank" id="length"></a>
+  <a target="_blank" id="qrcode" href="https://zxing.appspot.com/generator/">QR Code</a>
+  <button id="copy">Copy Link</button><br>
+</span>
 </body>
 </html>

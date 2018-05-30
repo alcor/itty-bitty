@@ -1,5 +1,5 @@
-// var $ = document.querySelector.bind(document)
-// var $$ = document.querySelectorAll.bind(document)
+var $ = document.querySelector.bind(document)
+var $$ = document.querySelectorAll.bind(document)
 
 var DATA_PREFIX = 'data:text/html;base64,'
 var DATA_PREFIX_8 = 'data:text/html;charset=utf-8;base64,'
@@ -20,8 +20,8 @@ window.onload = function() {
   content.contentEditable = 'true';
   content.focus();
   document.execCommand('selectAll',false,null);
-  $('#qrcode')[0].onclick = makeQRCode
-  $('#copy')[0].onclick = copyLink
+  $('#qrcode').onclick = makeQRCode
+  $('#copy').onclick = copyLink
   var hash = window.location.hash.substring(1)
   if (hash.length) {
     updateLink(hash)
@@ -42,16 +42,16 @@ function setContent(html) {
 function updateBodyClass() {
   var length = content.innerText.length;
   if (length) {
-    $('body').addClass("edited")
+    document.body.classList.add("edited")
   } else {
-    $('body').removeClass("edited")
+    document.body.classList.remove("edited")
   }
 }
 
 function handleDrop(e) {
   e.preventDefault();
   if (e.dataTransfer.files) {
-    var file = e.dataTransfer.files[0]
+    var file = e.dataTransfer.files[0];
     var reader = new FileReader();
     reader.addEventListener("load", function () {
       var url = reader.result;
@@ -155,15 +155,18 @@ function handleInput(e) {
     strip = true
   }
    
-  stringToZip(text, function(zip) {
-    updateLink("!" + zip)
-  });
+  if (text.trim().length) {
+    stringToZip(text, function(zip) {
+      updateLink("!" + zip)
+    });
+  } else {
+    updateLink("")
+  }
+
 }
 
 var maxLengths = {
-  "#twitter": 4088,
   "#qrcode": 2610,
-  "#bitly": 2048,
 }
 
 function updateLink(url, push) {
@@ -176,14 +179,14 @@ function updateLink(url, push) {
   }
   var length = location.href.length
 
-  $('#length')[0].innerText = length + " bytes"
-  $('#length')[0].href = url
+  $('#length').innerText = length + " bytes"
+  $('#length').href = url
   for (var key in maxLengths) {
     var maxLength = maxLengths[key]
     if (length > maxLength) {
-      $(key).addClass("invalid")
+      $(key).classList.add("invalid")
     } else {
-      $(key).removeClass("invalid")
+      $(key).classList.remove("invalid")
     }
     
   };

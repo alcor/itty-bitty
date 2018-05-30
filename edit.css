@@ -9,6 +9,9 @@ body {
 h1 { font-weight:400; }
 h2 { font-weight:500; }
 
+a {
+  color:#0070E0;
+}
 body:not(.edited) #placeholder {
   display:block;
 }
@@ -69,7 +72,6 @@ body.drag #content {
 
 body.edited #toolbar {
   opacity:1.0;
-  transition: opacity 2s ease-out;
 
 }
 
@@ -79,7 +81,6 @@ body.edited #toolbar {
   top:0;
   right:0;
   padding:3px 10px 5px 30px;
-  transition: opacity 218ms ease-in;
   text-align:right;
   background-color:#f1f1f1;
   border-bottom-left-radius:10em;

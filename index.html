@@ -32,29 +32,28 @@ window.onhashchange = window.onload = function() {
     var compressed = editable || hash.charAt(0) == ','
 
     if (compressed || editable) {
-      hash = hash.substring(1)
-      preamble = HEAD_TAGS
+      hash = hash.substring(1);
+      preamble = HEAD_TAGS;
     }
-    if (hash.indexOf("data:") != 0) hash = 'data:text/html;charset=utf-8;' + (compressed ? 'baze64,' : 'base64,') + hash;
+    if (hash.indexOf("data:") != 0) hash = 'data:text/html;charset=utf-8;' + (compressed ? 'bxze64,' : 'base64,') + hash;
     // location.href = hash // Redirect to data URI in supported browsers
 
     link.onclick = function() { location.href = "/edit" + location.hash }
     
     showEdit(editable)
 
-    var useData = !navigator.userAgent.match(/rv:11/); // ||  /Edge/.test(navigator.userAgent)
+    var isIE11 = navigator.userAgent.match(/rv:11/);
     decompressDataURI(hash, preamble, function(hash) {
       if (!hash) return;
-      if (useData) {     
+      if (!isIE11) {     
        if (hash) iframe.src = hash;
-      } else{
+      } else {
         dataToString(hash, function(content){
           var doc = iframe.contentWindow.document;
           doc.open();
           doc.write(content);
           doc.close();
         })
-
       }
     });
   }
