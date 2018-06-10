@@ -1,9 +1,11 @@
-var $ = document.querySelector.bind(document)
-var $$ = document.querySelectorAll.bind(document)
+var QS = document.querySelector.bind(document)
+var QSS = document.querySelectorAll.bind(document)
 
 var DATA_PREFIX = 'data:text/html;base64,'
 var DATA_PREFIX_8 = 'data:text/html;charset=utf-8;base64,'
-var DATA_PREFIX_BAZE = 'data:text/html;charset=utf-8;baze64,'
+var DATA_PREFIX_BXZE = 'data:text/html;charset=utf-8;bxze64,'
+
+var b = document.documentElement.setAttribute('data-useragent',  navigator.userAgent);
 
 var content = undefined
 window.onload = function() {
@@ -15,17 +17,25 @@ window.onload = function() {
   content = document.getElementById("content");
   content.addEventListener('keydown', handleKey);
   content.addEventListener('keyup', handleInput);
+  QS("#doc-title").addEventListener('keyup', handleInput);
   content.addEventListener('drop', handleDrop);
   content.addEventListener('paste', handlePaste)
   content.contentEditable = 'true';
   content.focus();
   document.execCommand('selectAll',false,null);
-  $('#qrcode').onclick = makeQRCode
-  $('#copy').onclick = copyLink
+  QS('#qrcode').onclick = makeQRCode
+  QS('#twitter').onclick = copyThenLink
+  QS('#copy').onclick = copyLink
+  QS('#menu').onclick = toggleMenu
   var hash = window.location.hash.substring(1)
+  
   if (hash.length) {
-    updateLink(hash)
-    if (hash.startsWith('!')) {
+    var slashIndex = hash.indexOf("/");
+    var title = hash.substring(0, slashIndex)
+    if (title.length) QS("#doc-title").innerText = document.title = decodeURIComponent(title.replace(/_/g, " "));
+    hash = hash.substring(slashIndex + 1);
+    updateLink(hash, title)
+    if (hash.startsWith('?')) {
       hash = hash.substring(1)
       zipToString(hash, setContent);
     }
@@ -46,6 +56,7 @@ function updateBodyClass() {
   } else {
     document.body.classList.remove("edited")
   }
+  document.body.classList.add("loaded")
 }
 
 function handleDrop(e) {
@@ -63,8 +74,8 @@ function handleDrop(e) {
           console.log("Verified", url == url3,)
         })
         if (ratio > 0.95) url2 = url;
-        if (e.altKey) url2 = url2.replace(DATA_PREFIX_BAZE, "!")
-        updateLink(url2, true)
+        if (e.altKey) url2 = url2.replace(DATA_PREFIX_BXZE, "!")
+        updateLink(url2, file.name, true)
         setFileContent('📄' + file.name)
       })
     }, false);
@@ -77,6 +88,8 @@ function setFileContent(name) {
   setContent('&nbsp;<span class="ib-file" contentEditable="false">' + name + '</span><br><br>'); 
 }
 
+
+// TODO Command+Shift+T for title (H1), Command+Shift+H for headline (H2), Command+Shift+B for body text (remove any of the above)
 function handleKey(e) {
   var code = e.which;
   var handled = false;
@@ -93,7 +106,6 @@ function handleKey(e) {
     } else {
       handled = false
     }
-
   } else if (e.metaKey) {
     if (code == 'K'.charCodeAt(0)) {
       handled = true;
@@ -128,36 +140,37 @@ function fetchCodepen(url) {
     stringToZip(string, function(zip) {
       setFileContent('✒️' + url)
       setTimeout(function() {
-          updateLink((useTemplate ? "," : DATA_PREFIX_BAZE) + zip)
+          updateLink((useTemplate ? "" : DATA_PREFIX_BXZE) + zip)
       }, 300);
     });
   });
 }
 
-function stripPrefix(url) {
-  if (url) {
-    var dataRE = /data:(text\/html[^,]*)(;base64),(.*)/
-    var match = url.match(dataRE);
-    if (match) return "!" + match[3];
-  }
-  return url;
-}
+// function stripPrefix(url) {
+//   if (url) {
+//     var dataRE = /data:(text\/html[^,]*)(;base64),(.*)/
+//     var match = url.match(dataRE);
+//     if (match) return "!" + match[3];
+//   }
+//   return url;
+// }
 
 function handleInput(e) {
   updateBodyClass();
-  var text = content.innerText
+  var text = content.innerText;
+  var title = QS("#doc-title").innerText;
+
   var strip = false;
   if (text.indexOf("</") > 0) {
     text = text.replace(/[\n|\t]+/g,' ').replace(/> +</g, '> <')
   } else {
-    var title = text.split("\n")[0]
     text = content.innerHTML
     strip = true
   }
    
   if (text.trim().length) {
     stringToZip(text, function(zip) {
-      updateLink("!" + zip)
+      updateLink("?" + zip, title)
     });
   } else {
     updateLink("")
@@ -166,11 +179,18 @@ function handleInput(e) {
 }
 
 var maxLengths = {
-  "#qrcode": 2610,
+  // "#twitter": 4088,
+  // "#bitly": 2048,
+  "#qrcode": 2953,
 }
 
-function updateLink(url, push) {
-  url = "/#" + url
+function updateLink(url, title, push) {
+  if (title) title = encodeURIComponent(title.trim().replace(/\s/g, "_"))
+  if (url.length) {
+    url = "/#" + (title || "") + "/" + url
+  } else {
+    url = "/edit"
+  }
   var hash = location.hash
   if (push || !hash || !hash.length) {
     window.history.pushState(content.innerHTML, null, url);
@@ -179,14 +199,14 @@ function updateLink(url, push) {
   }
   var length = location.href.length
 
-  $('#length').innerText = length + " bytes"
-  $('#length').href = url
+  QS('#length').innerText = length + " bytes"
+  QS('#length').href = url
   for (var key in maxLengths) {
     var maxLength = maxLengths[key]
     if (length > maxLength) {
-      $(key).classList.add("invalid")
+      QS(key).classList.add("invalid")
     } else {
-      $(key).classList.remove("invalid")
+      QS(key).classList.remove("invalid")
     }
     
   };
@@ -207,6 +227,13 @@ function makeQRCode() {
   //https://developers.google.com/chart/infographics/docs/qr_codes
 }
 
+function toggleMenu() {
+  QS("#toolbar").classList.toggle("menu-visible")
+}
+function copyThenLink() {
+  copyLink()
+  return confirm("Copied your link to the clipboard. Paste it to share.")
+}
 function copyLink() {
   var text = location.href
   var dummy = document.createElement("input");
@@ -215,6 +242,11 @@ function copyLink() {
   dummy.select();
   document.execCommand("copy");
   document.body.removeChild(dummy);
+
+  document.body.addClass("copied")
+  setTimeout(function() {
+    document.body.removeClass("copied")
+  }, 300);
 }
 
 function saveLink() {
