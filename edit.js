@@ -7,6 +7,8 @@ var DATA_PREFIX_BXZE = 'data:text/html;charset=utf-8;bxze64,'
 
 var b = document.documentElement.setAttribute('data-useragent',  navigator.userAgent);
 
+var importedFileData = undefined;
+
 var content = undefined
 window.onload = function() {
   window.onpopstate = function(e) { setContent(e.state) }
@@ -49,9 +51,18 @@ function setContent(html) {
   updateBodyClass()
 }
 
+function setFileName(name) {
+  QS("#doc-file").innerText = name
+  if (name.length) {
+    setContent(''); 
+    document.body.classList.add("edited")
+  }
+}
+
+
 function updateBodyClass() {
   var length = content.innerText.length;
-  if (length) {
+  if (length || importedFileData) {
     document.body.classList.add("edited")
   } else {
     document.body.classList.remove("edited")
@@ -75,19 +86,16 @@ function handleDrop(e) {
         })
         if (ratio > 0.95) url2 = url;
         if (e.altKey) url2 = url2.replace(DATA_PREFIX_BXZE, "!")
+        
+        importedFileData = url2
         updateLink(url2, file.name, true)
-        setFileContent('📄' + file.name)
+        setFileName('📄' + file.name)
       })
     }, false);
     reader.readAsDataURL(file);
   }
   document.body.classList.remove("drag")
 }
-
-function setFileContent(name) {
-  setContent('&nbsp;<span class="ib-file" contentEditable="false">' + name + '</span><br><br>'); 
-}
-
 
 // TODO Command+Shift+T for title (H1), Command+Shift+H for headline (H2), Command+Shift+B for body text (remove any of the above)
 function handleKey(e) {
@@ -136,11 +144,12 @@ function fetchCodepen(url) {
     var useTemplate = c.indexOf(TEMPLATE_MARKER) >= 0
     var string = '<style type="text/css">' + c + '</style>' +  h + '<script type="text/javascript">' + j + '</script>'
     stringToZip(string, function(zip) {
-      setFileContent('✒️' + url)
+      setFileName('✒️' + url)
       var title = QS("#doc-title").innerText;
-
       setTimeout(function() {
-          updateLink((useTemplate ? "" : DATA_PREFIX_BXZE) + zip, title)
+          var data = (useTemplate ? "" : DATA_PREFIX_BXZE) + zip;
+          importedFileData = data;
+          updateLink(data, title)
       }, 300);
     });
   });
@@ -163,6 +172,9 @@ function handleInput(e) {
     stringToZip(text, function(zip) {
       updateLink("?" + zip, title)
     });
+    setFileName("")
+  } else if (importedFileData) {
+    updateLink(importedFileData, title)
   } else {
     updateLink("")
   }

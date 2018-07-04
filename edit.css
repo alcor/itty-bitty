@@ -76,11 +76,15 @@ body.drag #content {
   color: rgba(0, 0, 0, 0.2);
   background: transparent;
 }
-.ib-file {
+#doc-file {
   border-radius: 1em;
   background: #ebeff9;
   padding: 0.25em 1em;
   font-size:smaller;
+  margin-bottom:2em;
+}
+#doc-file:empty {
+  display:none;
 }
 
 #ib-info {
