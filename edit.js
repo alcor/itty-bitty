@@ -11,10 +11,10 @@ var content = undefined
 window.onload = function() {
   window.onpopstate = function(e) { setContent(e.state) }
   window.onhashchange = function(e) { console.log("hash", e); location.reload() }
-  document.body.ondragenter = function(e) { document.body.classList.add("drag"); };
-  document.body.ondragleave = function(e) { document.body.classList.remove("drag"); };
   document.body.onclick = function(e) { if (e.target == document.body) content.focus() };
   content = document.getElementById("content");
+  content.ondragenter = function(e) { document.body.classList.add("drag"); };
+  content.ondragleave = function(e) { document.body.classList.remove("drag"); };
   content.addEventListener('keydown', handleKey);
   content.addEventListener('keyup', handleInput);
   QS("#doc-title").addEventListener('keyup', handleInput);
@@ -71,7 +71,7 @@ function handleDrop(e) {
         var ratio = url2.length / url.length
         console.log("Compressed to", ratio)
          if (e.ctrlKey) decompressDataURI(url2, undefined, function(url3) {
-          console.log("Verified", url == url3,)
+          console.log("Verified", url == url3)
         })
         if (ratio > 0.95) url2 = url;
         if (e.altKey) url2 = url2.replace(DATA_PREFIX_BXZE, "!")
@@ -125,35 +125,26 @@ function handlePaste(e) {
   }
 }
 
-
 var TEMPLATE_MARKER = "/*use-itty-bitty-template*/"
 function fetchCodepen(url) {
   var h, c, j;
   $.when(
-    $.get(url + ".html", function(html) { h = html; }),
-    $.get(url + ".css", function(css) { c = css; }),
-    $.get(url + ".js", function(js) { j = js; })
+    $.get({ url:url + ".html", cache: false }, function(html) { h = html; }),
+    $.get({ url:url + ".css", cache: false }, function(css) { c = css; }),
+    $.get({ url:url + ".js", cache: false }, function(js) { j = js; })
   ).then(function() {
     var useTemplate = c.indexOf(TEMPLATE_MARKER) >= 0
     var string = '<style type="text/css">' + c + '</style>' +  h + '<script type="text/javascript">' + j + '</script>'
-    console.log(c, c.indexOf(TEMPLATE_MARKER))
     stringToZip(string, function(zip) {
       setFileContent('✒️' + url)
+      var title = QS("#doc-title").innerText;
+
       setTimeout(function() {
-          updateLink((useTemplate ? "" : DATA_PREFIX_BXZE) + zip)
+          updateLink((useTemplate ? "" : DATA_PREFIX_BXZE) + zip, title)
       }, 300);
     });
   });
 }
-
-// function stripPrefix(url) {
-//   if (url) {
-//     var dataRE = /data:(text\/html[^,]*)(;base64),(.*)/
-//     var match = url.match(dataRE);
-//     if (match) return "!" + match[3];
-//   }
-//   return url;
-// }
 
 function handleInput(e) {
   updateBodyClass();
@@ -213,18 +204,9 @@ function updateLink(url, title, push) {
   
 }
 
-
-function makeShortLink() {
-
-}
-
 function makeQRCode() {
   var url = "https://zxing.org/w/chart?cht=qr&chs=548x548&chld=L|1&choe=UTF-8&chl=" + encodeURIComponent(location.href)
   this.href = url
-
-  // window.open(url, '_blank');
-  // return false;
-  //https://developers.google.com/chart/infographics/docs/qr_codes
 }
 
 function toggleMenu() {

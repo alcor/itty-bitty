@@ -36,7 +36,7 @@ body.drag #content {
 
 #content, #placeholder{
   margin:-1em; padding: 1em;
-  min-height:2em
+  min-height:7em
 }
 
 #content {
@@ -180,7 +180,7 @@ body.drag #content {
 
 #toolbar.menu-visible #menu {
   opacity:0.54;
-  }
+}
 
 .menu hr {
   border:none;
