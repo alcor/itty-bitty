@@ -160,17 +160,20 @@ function handleInput(e) {
   var text = content.innerText;
   var title = QS("#doc-title").innerText;
 
-  var strip = false;
-  if (text.indexOf("</") > 0) {
+  var rawHTML = (text.indexOf("</") > 0);
+  if (rawHTML) {
     text = text.replace(/[\n|\t]+/g,' ').replace(/> +</g, '> <')
   } else {
     text = content.innerHTML
-    strip = true
   }
    
   if (text.trim().length) {
     stringToZip(text, function(zip) {
-      updateLink("?" + zip, title)
+      if (rawHTML) {
+        updateLink(DATA_PREFIX_BXZE + zip, title)
+      } else {
+        updateLink("?" + zip, title)
+      }
     });
     setFileName("")
   } else if (importedFileData) {
