@@ -48,7 +48,6 @@ body.drag #content {
 }
 
 #doc-title {
-  opacity:0.333;
   outline:none;
   min-width:180px;
   top:0;
@@ -57,19 +56,20 @@ body.drag #content {
   font-family:monospace;
   font-weight:bold;
 }
+
+body.edited #doc-title:empty:before,
+#doc-title:focus:empty:before  {
+  content: 'untitled';
+  color: rgba(0, 0, 0, 0.333);
+}
+
 #doc-title:focus {
-  opacity:1.0;
   border-bottom:1px solid #ccc;
 }
 
 #doc-title:empty:before {
   background: transparent;
 }
-#doc-title:focus:empty:before {
-  color: rgba(0, 0, 0, 0.333);
-  content: 'title';
-}
-
 
 #content:empty:before {
   content: attr(placeholder);
