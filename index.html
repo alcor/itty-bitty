@@ -8,9 +8,12 @@
   #iframe {border:none;position:absolute;top:0;left:0;width:100%;height:100%}
   #edit {font-family:monospace; font-weight:bold;color:rgba(0,0,0,0.54); position:absolute;z-index:100;position:absolute;top:0.85em; right:1em; display:none;}
   #edit:not(:hover) {text-decoration:none;}
+  #warning {position: absolute;border-radius:4px;background-color:#feecc2;padding:1em;font-size:16px;font-family:sans-serif;width:20em;z-index:100;top:10vh;left:50vw;margin-left:-10em;}
+  #warning:empty {display:none;}
 </style>
-<iframe id="iframe" sandbox="allow-scripts allow-forms allow-top-navigation allow-popups allow-modals"></iframe>
+<iframe id="iframe"></iframe>
 <a id="edit">edit</a>
+<div id="warning"></div>
 <script type="text/javascript">  
 function showEdit(editable) {
   var link = document.getElementById('edit');
@@ -36,21 +39,24 @@ window.onhashchange = window.onload = function() {
     if (editable) {
       hash = hash.substring(1);
     }
-
     if (hash.indexOf("data:") != 0) {
       let compressed = true;
       preamble = HEAD_TAGS;
       hash = 'data:text/html;charset=utf-8;' + (compressed ? 'bxze64,' : 'base64,') + hash;
     }
 
-    // location.href = hash // Redirect to data URI in supported browsers
     link.onclick = function() { location.href = "/edit" + location.hash }
 
-    var isIE11 = navigator.userAgent.match(/rv:11/);
+    var isIE = navigator.userAgent.match(/rv:11/);
+    var isEdge = navigator.userAgent.match(/Edge\//);
+    if ((isEdge || isIE) && location.href.length >= 2083) {
+      document.getElementById('warning').innerHTML = 'Internet Explorer and Edge only support shorter URLs (maximum 2083 bytes).<br>Larger sites may require a different browser.<br><a href="http://reference.bitty.site">Learn more</a>'
+    }
     decompressDataURI(hash, preamble, function(hash) {
       if (!hash) return;
-      if (!isIE11) {     
-       if (hash) iframe.src = hash;
+      iframe.sandbox="allow-scripts allow-forms allow-top-navigation allow-popups allow-modals"
+      if (!isIE) {
+        if (hash) iframe.src = hash;
       } else {
         dataToString(hash, function(content){
           var doc = iframe.contentWindow.document;
