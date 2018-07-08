@@ -26,7 +26,7 @@ window.onload = function() {
   content.focus();
   document.execCommand('selectAll',false,null);
   QS('#qrcode').onclick = makeQRCode
-  QS('#twitter').onclick = copyThenLink
+  QS('#twitter').onclick = tweetLink
   QS('#copy').onclick = copyLink
   QS('#menu').onclick = toggleMenu
   var hash = window.location.hash.substring(1)
@@ -240,7 +240,7 @@ function copyLink() {
   document.execCommand("copy");
   document.body.removeChild(dummy);
 
-  document.body.addClass("copied")
+  document.body.addClass("copied");
   setTimeout(function() {
     document.body.removeClass("copied")
   }, 300);
