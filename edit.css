@@ -164,6 +164,23 @@ body.edited #doc-title:empty:before,
   cursor:pointer;
 }
 
+
+#copy-message {
+  background:#2d2d2d;
+  color:white;
+  top:0.5em;
+  right:0.5em;
+  position:absolute;
+  padding:0.5em 1em;
+  z-index:100;
+  font-family:monospace;
+  font-weight:bold;
+}
+
+body:not(.copied) #copy-message {
+  display:none;
+}
+
 #menus-share-hint {
   content:'hello';
 }
