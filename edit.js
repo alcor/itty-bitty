@@ -255,4 +255,5 @@ function saveLink() {
 function tweetLink() {
   var url = "https://twitter.com/intent/tweet?url=" + encodeURIComponent(location.href);
   window.open(url, '_blank');
+  return false;
 }
