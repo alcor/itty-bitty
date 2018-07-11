@@ -52,7 +52,7 @@ window.onhashchange = window.onload = function() {
     decompressDataURI(hash, preamble, function(hash) {
       if (!hash) return;
       iframe.sandbox =
-        "allow-scripts allow-forms allow-top-navigation allow-popups allow-modals";
+        "allow-scripts allow-forms allow-top-navigation allow-popups allow-modals allow-popups-to-escape-sandbox";
       if (!isIE) {
         if (hash) iframe.src = hash;
       } else {
