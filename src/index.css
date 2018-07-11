@@ -38,3 +38,25 @@ body {
 #warning:empty {
   display: none;
 }
+body.toasting #iframe,
+body.toasting #edit {
+  opacity: 0.5;
+  pointer-events: none;
+}
+body.toasting #toast {
+  box-sizing: border-box;
+  background-color: #feecc2;
+  border-radius: 4px;
+  font-size: 13px;
+  left: 50%;
+  top: 10px;
+  margin-left: -160px;
+  padding: 1em;
+  position: absolute;
+  max-width: 320px;
+  z-index: 101;
+}
+body:not(.toasting) #toast,
+body.toasting #warning {
+  display: none;
+}

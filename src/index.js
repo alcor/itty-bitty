@@ -1,11 +1,19 @@
 var HEAD_TAGS = "PGJhc2UgdGFyZ2V0PSJfdG9wIj4K";
 var HEAD_TAGS_EXTENDED =
   "PG1ldGEgY2hhcnNldD0idXRmLTgiPjxtZXRhIG5hbWU9InZpZXdwb3J0IiBjb250ZW50PSJ3aWR0aD1kZXZpY2Utd2lkdGgiPjxiYXNlIHRhcmdldD0iX3RvcCI+PHN0eWxlIHR5cGU9InRleHQvY3NzIj5ib2R5e21hcmdpbjowIGF1dG87cGFkZGluZzoxMnZtaW4gMTB2bWluO21heC13aWR0aDozNWVtO2xpbmUtaGVpZ2h0OjEuNWVtO2ZvbnQtZmFtaWx5OiAtYXBwbGUtc3lzdGVtLEJsaW5rTWFjU3lzdGVtRm9udCxzYW5zLXNlcmlmO3dvcmQtd3JhcDogYnJlYWstd29yZDt9PC9zdHlsZT4g";
+
+function dismiss() {
+  if (document.getElementById("never").checked) window.localStorage.setItem('toasted', true);
+  document.body.classList.remove("toasting")
+}
+
 window.onhashchange = window.onload = function() {
   var hash = window.location.hash.substring(1);
   if (hash.length < 3) {
     location.href = "/edit";
   } else {
+    if (!window.localStorage.getItem('toasted')) document.body.classList.add("toasting");
+
     var iframe = document.getElementById("iframe");
     var link = document.getElementById("edit");
     var preamble = undefined;
