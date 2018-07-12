@@ -199,7 +199,7 @@ function handleInput(e) {
 
   var rawHTML = text.indexOf("</") > 0;
   if (rawHTML) {
-    text = text.replace(/[\n|\t]+/g, " ").replace(/> +</g, "> <");
+    text = text.replace(/[ |\t]+/g, " ").replace(/> +</g, "> <");
   } else {
     text = content.innerHTML;
   }
