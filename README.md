@@ -41,6 +41,10 @@ Encoding (Python)
 
 `base64.b64encode(lzma.compress(bytes("hello world",encoding="utf-8"), format=lzma.FORMAT_ALONE, preset=9))`
 
+Encoding (Node.js)
+
+`'https://itty.bitty.site/#/'+Buffer.from(require("lzma").compress("Hello World", 9)).toString('base64')`
+
 Decoding (Mac)
 
 `echo -n "[URL]" | sed -E 's/^.*#[^\/]*\/\??//g' | base64 -D | lzma -d `
@@ -49,6 +53,6 @@ Decoding (Linux)
 
 `echo -n "[URL]" | sed -E 's/^.*#[^\/]*\/\??//g' | base64 -d | lzma -d`
 
-Decoding (Win)
+Decoding (Win Git/WSL)
 
 `echo -n "[URL]" | sed 's/^.*#[^\/]*\///g' | base64 -d | xz --format=lzma -d`  
