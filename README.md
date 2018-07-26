@@ -43,7 +43,7 @@ Encoding (Python)
 
 Encoding (Node.js)
 
-`'https://itty.bitty.site/#/'+Buffer.from(require("lzma").compress("Hello World", 9)).toString('base64')`
+`'https://itty.bitty.site/#/'+Buffer.from(lzma.compress("Hello World", 9)).toString('base64')`
 
 Decoding (Mac)
 
