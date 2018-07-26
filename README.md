@@ -43,11 +43,11 @@ Encoding (Python)
 
 Decoding (Mac)
 
-`echo -n "[URL]" | sed  's/^.*#[^\/]*\///g' | base64 -D | lzma -d `
+`echo -n "[URL]" | sed -E 's/^.*#[^\/]*\/\??//g' | base64 -D | lzma -d `
 
 Decoding (Linux)
 
-`echo -n "[URL]" | sed 's/^.*#[^\/]*\///g' | base64 -d | lzma -d`
+`echo -n "[URL]" | sed -E 's/^.*#[^\/]*\/\??//g' | base64 -d | lzma -d`
 
 Decoding (Win)
 
