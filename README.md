@@ -24,7 +24,7 @@ While most sites support 2000 bytes, [some can handle more](http://reference.bit
 
 One simple way to host is to [forward a domain](https://support.google.com/domains/answer/4522141?hl=en). Just paste the itty.bitty url in the redirect.
 
-## Generating links programatically
+## Generating links programmatically
 Encoding (Mac)
 
 ```echo -n 'hello world' | lzma -9 | base64 | printf "https://itty.bitty.site/#/%s\n" "$(cat -)"```
