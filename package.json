@@ -1,0 +1,28 @@
+{
+  "name": "notes-diwank",
+  "version": "1.0.0",
+  "description": "itty.bitty takes html (or other data), compresses it into a URL fragment, and provides a link that can be shared. When it is opened, it inflates that data on the receiver’s side.",
+  "main": "data.js",
+  "dependencies": {
+    "pwa-installer": "^0.0.1",
+    "workbox": "^0.0.0"
+  },
+  "devDependencies": {
+    "firebase-tools": "^6.0.1",
+    "meow": "^5.0.0",
+    "workbox-build": "^3.6.3"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/creatorrr/itty-bitty.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/creatorrr/itty-bitty/issues"
+  },
+  "homepage": "https://github.com/creatorrr/itty-bitty#readme"
+}
