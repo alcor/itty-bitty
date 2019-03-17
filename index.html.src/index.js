@@ -30,6 +30,11 @@ window.onhashchange = window.onload = function() {
       hash = hash.substring(1);
     }
     if (hash.indexOf("data:") != 0) {
+      var colon = hash.indexOf(":");
+      if ( colon > 0 && colon < 15) {
+        document.body.classList.remove("toasting");
+        return window.location.replace(hash);
+      }
       var compressed = true;
       preamble = HEAD_TAGS_EXTENDED;
       hash =
