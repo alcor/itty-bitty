@@ -39,7 +39,7 @@ Encoding (Win Git/WSL)
 
 Encoding (Python)
 
-`base64.b64encode(lzma.compress(bytes("hello world",encoding="utf-8"), format=lzma.FORMAT_ALONE, preset=9))`
+`'https://itty.bitty.site/#/'+base64.b64encode(lzma.compress(bytes("hello world",encoding="utf-8"), format=lzma.FORMAT_ALONE, preset=9)).decode("utf-8")`
 
 Encoding (Node.js)
 
