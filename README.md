@@ -27,11 +27,11 @@ One simple way to host is to [forward a domain](https://support.google.com/domai
 ## Generating links programatically
 Encoding (Mac)
 
-```echo -n 'hello world' | lzma -9 | base64 | printf "https://itty.bitty.site/#/%s\n" "$(cat -)"```
+```echo -n 'hello world' | lzma -9 | base64 | xargs -0 printf "https://itty.bitty.site/#/%s\n"```
 
 Encoding (Linux)
 
-```echo -n 'hello world' | lzma -9 | base64 -w0 | printf "https://itty.bitty.site/#/%s\n" "$(cat -)"```
+```echo -n 'hello world' | lzma -9 | base64 -w0 | xargs -0 printf "https://itty.bitty.site/#/%s\n"```
 
 Encoding (Win Git/WSL)
 
