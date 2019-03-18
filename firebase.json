@@ -10,7 +10,8 @@
       "LICENSE",
       "**.md",
       "**/.git/**",
-      "**.sh"
+      "**.sh",
+      "index.src/**"
     ],
     "rewrites": [
       {
