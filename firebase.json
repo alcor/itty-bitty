@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": ".",
+    "public": "public",
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -9,7 +9,8 @@
       "src/**",
       "LICENSE",
       "**.md",
-      "**/.git/**"
+      "**/.git/**",
+      "**.sh"
     ],
     "rewrites": [
       {
