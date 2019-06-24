@@ -12,7 +12,7 @@ window.onhashchange = window.onload = function() {
   if (hash.length < 3) {
     location.href = "/edit";
   } else {
-    if (!window.localStorage.getItem('toasted')) document.body.classList.add("toasting");
+    // if (!window.localStorage.getItem('toasted')) document.body.classList.add("toasting");
 
     var iframe = document.getElementById("iframe");
     var link = document.getElementById("edit");
