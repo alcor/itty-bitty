@@ -43,6 +43,8 @@ window.onhashchange = window.onload = function() {
         hash;
     } else if (hash.indexOf("data:text/html;") == 0) {
       preamble = HEAD_TAGS;
+    } else if (hash.indexOf("data:text/plain;") == 0) {
+      preamble = HEAD_TAGS_EXTENDED;
     }
     link.onclick = function() {
       location.href = "/edit" + location.hash;
