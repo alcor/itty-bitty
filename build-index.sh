@@ -1,5 +1,5 @@
 #! /bin/bash
-cd public
+cd docs
 terser    data.js > data-min.js
 
 cd index.src
