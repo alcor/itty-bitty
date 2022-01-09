@@ -12,9 +12,9 @@ Detailed workings [how.bitty.site](http://how.bitty.site)
 
 Drag one into the editor to convert it.
 
-**Using Codepen.io**
+**Using Codepen.io - Pro Accounts**
 
-Paste a codepen URL into the editor. Get started with a [template](https://codepen.io/pen?template=MXgrEr) or look at [some samples](https://codepen.io/collection/XprVQL/).
+Paste a codepen URL into the editor. Get started with a [template](https://codepen.io/pen?template=MXgrEr) or look at [some samples](https://codepen.io/collection/XprVQL/). This must be a Pro account to work.
 
 **Size Limits**
 
