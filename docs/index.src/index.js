@@ -7,6 +7,8 @@ function dismiss() {
   document.body.classList.remove("toasting")
 }
 
+var validTypes = ["image/svg+xml"]
+
 window.onhashchange = window.onload = function() {
   var hash = window.location.hash.substring(1);
   if (hash.length < 3) {
@@ -17,6 +19,7 @@ window.onhashchange = window.onload = function() {
     var iframe = document.getElementById("iframe");
     var link = document.getElementById("edit");
     var preamble = undefined;
+    var download = undefined;
 
     var slashIndex = hash.indexOf("/");
     var title = hash.substring(0, slashIndex);
@@ -45,6 +48,19 @@ window.onhashchange = window.onload = function() {
       preamble = HEAD_TAGS;
     } else if (hash.indexOf("data:text/plain;") == 0) {
       preamble = HEAD_TAGS_EXTENDED;
+    } else {
+      let match = hash.match(/data:([^;]+)/)
+      let type = match[1];
+      console.log("match", match, type)
+
+      if (!validTypes.includes(type)) {
+        console.log("unknown type, rendering as download")
+        let extension = title.split(".")
+        document.querySelector("#dl-name").innerText = title;
+        if (extension.length > 1) document.querySelector("#dl-image").innerText = extension.pop();
+        download = document.querySelector("#download");
+        download.download = title;  
+      }
     }
     link.onclick = function() {
       location.href = "/edit" + location.hash;
@@ -56,14 +72,22 @@ window.onhashchange = window.onload = function() {
       document.getElementById("warning").innerHTML =
         'Edge only supports shorter URLs (maximum 2083 bytes).<br>Larger sites may require a different browser.<br><a href="http://reference.bitty.site">Learn more</a>';
     }
-    decompressDataURI(hash, preamble, function(hash) {
-      if (!hash) return;
-      iframe.sandbox =
-        "allow-downloads allow-scripts allow-forms allow-top-navigation allow-popups allow-modals allow-popups-to-escape-sandbox";
-      if (!isIE) {
-        if (hash) iframe.src = hash;
+    decompressDataURI(hash, preamble, function(dataURL) {
+      if (!dataURL) return;
+      iframe.sandbox = "allow-downloads allow-scripts allow-forms allow-top-navigation allow-popups allow-modals allow-popups-to-escape-sandbox";
+      
+      if (download) {
+        try {
+          download.href = dataURL
+          download.click();
+          document.body.classList.add("download");  
+        } catch (e) {
+          iframe.src = dataURL;
+        }
+      } else if (!isIE) {
+        iframe.src = dataURL;
       } else {
-        dataToString(hash, function(content) {
+        dataToString(dataURL, function(content) {
           var doc = iframe.contentWindow.document;
           doc.open();
           doc.write(content);
