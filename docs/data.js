@@ -38,6 +38,7 @@ function decompressDataURI(dataURI, preamble, callback) {
       })
     })
   } else {
+    if (preamble) dataURI = dataURI.replace(BASE64_MARKER, BASE64_MARKER + preamble)
     callback(dataURI)
   }
 }

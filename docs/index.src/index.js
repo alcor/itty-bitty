@@ -2,12 +2,14 @@ var HEAD_TAGS = "PGJhc2UgdGFyZ2V0PSJfdG9wIj4K";
 var HEAD_TAGS_EXTENDED =
   "PG1ldGEgY2hhcnNldD0idXRmLTgiPjxtZXRhIG5hbWU9InZpZXdwb3J0IiBjb250ZW50PSJ3aWR0aD1kZXZpY2Utd2lkdGgiPjxiYXNlIHRhcmdldD0iX3RvcCI+PHN0eWxlIHR5cGU9InRleHQvY3NzIj5ib2R5e21hcmdpbjowIGF1dG87cGFkZGluZzoxMnZtaW4gMTB2bWluO21heC13aWR0aDozNWVtO2xpbmUtaGVpZ2h0OjEuNWVtO2ZvbnQtZmFtaWx5OiAtYXBwbGUtc3lzdGVtLEJsaW5rTWFjU3lzdGVtRm9udCxzYW5zLXNlcmlmO3dvcmQtd3JhcDogYnJlYWstd29yZDt9PC9zdHlsZT4g";
 
+let dataRE = /^data:(?<type>[^;,]+)?(?<attrs>(?:;[^;,]+=[^;,]+)*)?(?:;(?<encoding>\w+64))?,(?<data>.*)$/
+
 function dismiss() {
   if (document.getElementById("never").checked) window.localStorage.setItem('toasted', true);
   document.body.classList.remove("toasting")
 }
 
-var validTypes = ["image/svg+xml"]
+var validTypes = ["image/svg+xml", "application/ld+json"]
 
 window.onhashchange = window.onload = function() {
   var hash = window.location.hash.substring(1);
@@ -49,11 +51,11 @@ window.onhashchange = window.onload = function() {
     } else if (hash.indexOf("data:text/plain;") == 0) {
       preamble = HEAD_TAGS_EXTENDED;
     } else {
-      let match = hash.match(/data:([^;]+)/)
-      let type = match[1];
-      console.log("match", match, type)
-
-      if (!validTypes.includes(type)) {
+      let match = hash.match(dataRE);
+      let type = match?.groups.type;
+      if (validTypes.includes(type)) {
+        preamble = btoa(`<script src="http://127.0.0.1:5000/render/recipe.js"></script> `);
+      } else {
         console.log("unknown type, rendering as download")
         let extension = title.split(".")
         document.querySelector("#dl-name").innerText = title;
@@ -76,6 +78,7 @@ window.onhashchange = window.onload = function() {
       if (!dataURL) return;
       iframe.sandbox = "allow-downloads allow-scripts allow-forms allow-top-navigation allow-popups allow-modals allow-popups-to-escape-sandbox";
       
+      dataURL = dataURL.replace("application/ld+json", "text/html");
       if (download) {
         try {
           download.href = dataURL
