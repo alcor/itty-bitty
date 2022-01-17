@@ -79,7 +79,13 @@ function render() {
   let image = json.image;
   if (Array.isArray(image)) image = image.shift();
   image = image.url || image;
-
+  instructions = json.recipeInstructions;
+  if (Array.isArray(instructions)) {
+    if (Array.isArray(instructions[0])) instructions = instructions.flat()
+  } else {
+    instructions = [{text:instructions}];
+  }
+  console.log(instructions);
   document.body.appendChild(
     m("article.recipe",{},
     m("img.publisher", {src:json.publisher?.image[0]?.url}),
@@ -89,11 +95,13 @@ function render() {
         m(".metadata",
             json.nutrition?.calories ? m("div", (json.nutrition?.calories) + " calories") : null,
             m("div", json.recipeYield),
-            m("div", formatTime(json.totalTime)),
+            json.totalTime ? m("div", formatTime(json.totalTime)) : undefined,
             json.author?.name ? m(".author", (json.author?.name)) : null,
             "\u2605".repeat(json.aggregateRating?.ratingValue) + " " + parseFloat(json.aggregateRating?.ratingValue).toFixed(1) + " (" + json.aggregateRating?.ratingCount + ")",
             // m(".rating", (json.aggregateRating?.ratingValue), (json.aggregateRating?.ratingCount)),
-            m("button.noprint", {onclick:() => window.print()},"print")
+            m("button.noprint", {onclick:() => window.print()},"print"),
+            m("a", {href:json.mainEntityOfPage}, "LINK"),
+
           ),
           m(".description", json.description),
 
@@ -103,7 +111,7 @@ function render() {
           json.recipeIngredient?.map(i => m("div.ingredient", {onclick:markIngredient}, FRACTION_MAP.replace(i)))
         ),
         m(".instructions",
-          json.recipeInstructions?.map(i => m("div.step", {onclick:highlightStep}, i.text))
+          instructions.map(i => m("div.step", {onclick:highlightStep}, i.text))
         )
       )
     )

@@ -54,7 +54,10 @@ window.onhashchange = window.onload = function() {
       let match = hash.match(dataRE);
       let type = match?.groups.type;
       if (validTypes.includes(type)) {
-        preamble = btoa(`<script src="https://gitty.bitty.site/render/recipe.js"></script> `);
+        let script = '<script src="' + location.origin + '/render/recipe.js"></script>'
+        script = script + " ".repeat(3 - (script.length % 3))
+        console.log("script", script.length)
+        preamble = btoa(script);
       } else {
         console.log("unknown type, rendering as download")
         let extension = title.split(".")
