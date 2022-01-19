@@ -26,7 +26,7 @@ exports.index = functions.https.onRequest((request, response) => {
         for (const char of image) {
           codepoints.push(char.codePointAt(0).toString(16));
         }
-        content += `<link rel="icon" type="image/png" href="https://fonts.gstatic.com/s/e/notoemoji/14.0/${codepoints.join("_")}/128.png">
+        content += `<link rel="icon" type="image/png" href="https://fonts.gstatic.com/s/e/notoemoji/14.0/${codepoints.join("_")}/128.png">`
       }
     }
     response.send(content);
