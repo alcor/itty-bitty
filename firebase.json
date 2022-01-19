@@ -2,24 +2,23 @@
   "hosting": {
     "public": "docs",
     "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**",
-      "samples/**",
-      "src/**",
-      "LICENSE",
       "**.md",
-      "**/.git/**",
       "**.sh",
-      "index.src/**"
+      "**/.*",
+      "**/.git/**",
+      "**/node_modules/**",
+      "firebase.json",
+      "index.src/**",
+      "LICENSE",
+      "samples/**",
+      "src/**"
     ],
     "rewrites": [
       {
-        "source": "**",
-        "destination": "/index.html"
+        "source": "/**/",
+        "function": "index"
       }
-    ],
-    "cleanUrls": true,
-    "trailingSlash": false
+    ]
   }
 }
+

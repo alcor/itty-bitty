@@ -9,10 +9,25 @@ function dismiss() {
   document.body.classList.remove("toasting")
 }
 
-var validTypes = ["image/svg+xml", "application/ld+json"]
+function setFavicon(favicon) {
+  document.getElementById("favicon").href = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em"><text y=".9em">'+ favicon + '</text></svg>'
+}
 
-window.onhashchange = window.onload = function() {
+var validTypes = ["image/svg+xml", "application/ld+json"]
+window.addEventListener("message", (e) => {
+  if (e.origin == 'null') {
+    if (e.data.title) document.title = e.data.title;
+    if (e.data.favicon) setFavicon(e.data.favicon);
+    }
+}, false);
+
+window.onhashchange = window.onload = function() {  
   var hash = window.location.hash.substring(1);
+  if (window.location.search) {
+    console.log("window.location.search.substring(1)", window.location.search.substring(1))
+   window.history.replaceState(null, null, window.location.search.substring(1) + "#" + hash) 
+  }
+
   if (hash.length < 3) {
     location.href = "/edit";
   } else {
@@ -56,7 +71,6 @@ window.onhashchange = window.onload = function() {
       if (validTypes.includes(type)) {
         let script = '<script src="' + location.origin + '/render/recipe.js"></script>'
         script = script + " ".repeat(3 - (script.length % 3))
-        console.log("script", script.length)
         preamble = btoa(script);
       } else {
         console.log("unknown type, rendering as download")

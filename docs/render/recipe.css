@@ -1,0 +1,154 @@
+* {
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  margin: 0;
+}
+
+.thumbnail {
+  width: 100%;
+  padding-top: 56.25%;
+  background-color: gray;
+  background-size: cover;
+  background-position: center;
+}
+
+img.publisher {
+  max-width: 12em;
+  float: right;
+  margin-top: -0.5em;
+}
+
+.recipe {
+  max-width: 40em;
+  margin: auto;
+  line-height: 133%;
+}
+
+.columns {
+  display: flex;
+  gap: 2em;
+  margin-bottom: 4em;
+  align-content: center;
+  justify-content: center;
+}
+
+header {
+  gap: 2em;
+  margin-bottom: 2em;
+}
+
+h1 {
+  margin-top: 2em;
+}
+
+.metadata {
+  align: right;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1em;
+  margin-bottom: 1em;
+  line-height: 2em;
+}
+
+.metadata div:after {
+  content: "-";
+  margin-left: 1em;
+}
+
+.ingredients {
+  font-weight: 600;
+  font-size: 100%;
+  padding-top: 1em;
+  flex: 0 1 35%;
+}
+
+.instructions {
+  white-space: pre-wrap;
+  line-height: 125%;
+  font-size: 100%;
+  flex: 0 1 65%;
+}
+
+.ingredient {
+  padding: 0.625em 1em;
+  margin: 0 -1em;
+  line-height: 1.25em;
+  opacity: 0.75;
+  cursor: pointer;
+}
+
+.ingredient.complete,
+.step.complete {
+  text-decoration: line-through;
+  opacity: 0.33;
+}
+
+.ingredient:hover {
+  opacity: 1.0;
+  background-color: rgba(128, 128, 128, 0.1)
+}
+
+.step {
+  padding-top: 2em;
+  max-width: 40em;
+  cursor: pointer;
+}
+
+.step:before {
+  content: "";
+  width: 100px;
+  float: left;
+  margin-top: -1em;
+  height: 0.5px;
+  background-color: currentColor;
+  opacity: 0.54;
+}
+
+a.action {
+  border: none;
+  background: none;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: currentColor;
+  cursor: pointer;
+  border-radius: 1em;
+  line-height: 2em;
+  padding: 0 1em;
+}
+
+a.action:hover {
+  background-color: rgba(128, 128, 128, 0.1)
+}
+
+@media screen and (max-width: 480px) {
+  /* some CSS here */
+  .columns {
+    flex-direction: column;
+  }
+  .ingredient,
+  .instructions,
+  header {
+    padding: 0 1em;
+  }
+  .ingredient {
+    margin: 0;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #222;
+    color: white;
+  }
+}
+
+@media print {
+  body {
+    font-size: 14px;
+  }
+  .noprint {
+    display: none;
+  }
+}
