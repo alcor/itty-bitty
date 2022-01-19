@@ -26,9 +26,7 @@ exports.index = functions.https.onRequest((request, response) => {
         for (const char of image) {
           codepoints.push(char.codePointAt(0).toString(16));
         }
-        content += `<link rel="apple-touch-icon" href="https://fonts.gstatic.com/s/e/notoemoji/14.0/${codepoints.join("_")}/72.png">`;
-        // https://fonts.gstatic.com/s/e/notoemoji/14.0/1f468_1f3fd_200d_1f91d_200d_1f468_1f3fc/72.png
-        // https://fonts.gstatic.com/s/e/notoemoji/14.0/1f468-1f3fd-200d-1f91d-200d-1f468-1f3fc/72.png
+        content += `<link rel="icon" type="image/png" href="https://fonts.gstatic.com/s/e/notoemoji/14.0/${codepoints.join("_")}/128.png">
       }
     }
     response.send(content);
