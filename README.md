@@ -15,10 +15,6 @@ Drag one into the editor to convert it.
 **Using Codepen.io (Pro Accounts)**
 
 Paste a codepen URL into the editor. Get started with a [template](https://codepen.io/pen?template=MXgrEr) or look at [some samples](https://codepen.io/collection/XprVQL/). This must be a Pro account to work.
-
-**Size Limits**
-
-While most sites support 2000 bytes, [some can handle more](http://reference.bitty.site).
       
 **Hosting**
 
@@ -56,3 +52,25 @@ Decoding (Linux)
 Decoding (Win Git/WSL)
 
 `echo -n "[URL]" | sed 's/^.*#[^\/]*\///g' | base64 -d | xz --format=lzma -d`  
+
+
+**Size Limits**
+
+While most sites support 2000 bytes, some can handle more.
+Maximum sizes for links in various apps & Browsers (approximate, size in bytes)
+
+| App	 | Max bytes | Notes|
+| - | - | - |
+| Twitter |  	4,088	|
+| Slack	 | 4,000	|
+| iMessage	 | 4,000	|
+| QR Code	 | 2,953	|
+| Bitly	 | 2,048	|
+| Browser		
+| Google Chrome	(win)  | 32,779|
+| (mac)  | 10,000	| Will not display, but larger links work|
+| Firefox	 | >64,000	|
+| Microsoft IE 11	 | 4,043 |	Will not show more than 2,083|
+| Microsoft Edge	 | 2,083 |	Anything over 2083 will fail|
+| Android	 | 8,192	|
+| Safari | 	Lots	|
