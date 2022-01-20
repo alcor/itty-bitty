@@ -8,9 +8,9 @@ exports.index = functions.https.onRequest((request, response) => {
     let components = path.split("/");
     components.shift();
     components.pop();
-    let title = components.shift().replace("_", " ");
-    let desc = components.shift().replace("_", " ");
-    let image = components.join("/");
+    let title = decodeURIComponent(components.shift()).replace("_", " ");
+    let desc = decodeURIComponent(components.shift()).replace("_", " ");
+    let image = decodeURIComponent(components.join("/"));
     console.log("components", title, desc, image)
 
     let content = "";

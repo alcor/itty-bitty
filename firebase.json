@@ -8,11 +8,12 @@
       "**/.git/**",
       "**/node_modules/**",
       "firebase.json",
-      "index.src/**",
       "LICENSE",
       "samples/**",
       "src/**"
     ],
+    "cleanUrls": true,
+    "trailingSlash": false,
     "rewrites": [
       {
         "source": "/**/",
