@@ -61,16 +61,17 @@ Maximum sizes for links in various apps & Browsers (approximate, size in bytes)
 
 | App	 | Max bytes | Notes|
 | - | - | - |
-| Twitter |  	4,088	|
+| Twitter    | 4,088	|
 | Slack	 | 4,000	|
+| Discord	 | 4,000	|
 | iMessage	 | 4,000	|
 | QR Code	 | 2,953	|
 | Bitly	 | 2,048	|
 | Browser		
 | Google Chrome	(win)  | 32,779|
-| (mac)  | 10,000	| Will not display, but larger links work|
+| (mac)  | Lots	| Only shows 10,000 |
 | Firefox	 | >64,000	|
-| Microsoft IE 11	 | 4,043 |	Will not show more than 2,083|
-| Microsoft Edge	 | 2,083 |	Anything over 2083 will fail|
+| Microsoft IE 11	 | 4,043 |	Only shows 2,083 |
+| Microsoft Edge	 | 2,083 |	Anything over 2083 will fail |
 | Android	 | 8,192	|
-| Safari | 	Lots	|
+| Safari | 	Lots	| Only shows 5211 |
