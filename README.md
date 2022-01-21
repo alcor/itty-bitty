@@ -64,7 +64,7 @@ Maximum sizes for links in various apps & Browsers (approximate, size in bytes)
 | Twitter    | 4,088	|
 | Slack	 | 4,000	|
 | Discord	 | 4,000	|
-| iMessage	 | 4,000	|
+| iMessage	 | 4,000	| URLs with more than 300 nonbreaking characters in a row will be split.<br>LZMA compression usually fixes this, but raw data urls may fail. |
 | QR Code	 | 2,953	|
 | Bitly	 | 2,048	|
 | Browser		
