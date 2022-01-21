@@ -4,7 +4,7 @@ exports.index = functions.https.onRequest((request, response) => {
   functions.logger.info("Hello logs!", );
   const agent = request.headers["user-agent"];
   let path = request.path;
-  if (agent.indexOf("Twitterbot") != -1 || agent.indexOf("facebookexternalhit") != -1) {
+  if (agent.indexOf("Twitterbot") != -1 || agent.indexOf("facebookexternalhit") != -1 || agent.indexOf("Slackbot-LinkExpanding") != -1 || agent.indexOf("Discordbot") != -1) {
     let components = path.split("/");
     components.shift();
     components.pop();

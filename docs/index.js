@@ -36,7 +36,7 @@ window.onhashchange = window.onload = function() {
     var iframe = document.getElementById("iframe");
     var link = document.getElementById("edit");
     var preamble = undefined;
-    var download = undefined;
+    var renderMode = "data";
 
     var slashIndex = hash.indexOf("/");
     var title = hash.substring(0, slashIndex);
@@ -72,13 +72,13 @@ window.onhashchange = window.onload = function() {
         let script = '<script src="' + location.origin + '/render/recipe.js"></script>'
         script = script + " ".repeat(3 - (script.length % 3))
         preamble = btoa(script);
+        renderMode = "frame";
       } else {
         console.log("unknown type, rendering as download")
         let extension = title.split(".")
         document.querySelector("#dl-name").innerText = title;
         if (extension.length > 1) document.querySelector("#dl-image").innerText = extension.pop();
-        download = document.querySelector("#download");
-        download.download = title;  
+        renderMode = "download";
       }
     }
     link.onclick = function() {
@@ -87,6 +87,7 @@ window.onhashchange = window.onload = function() {
 
     var isIE = navigator.userAgent.match(/rv:11/);
     var isEdge = navigator.userAgent.match(/Edge\//);
+    var isWatch = (window.outerWidth < 200);
     if ((isEdge || isIE) && location.href.length == 2083) {
       document.getElementById("warning").innerHTML =
         'Edge only supports shorter URLs (maximum 2083 bytes).<br>Larger sites may require a different browser.<br><a href="http://reference.bitty.site">Learn more</a>';
@@ -95,23 +96,38 @@ window.onhashchange = window.onload = function() {
       if (!dataURL) return;
       iframe.sandbox = "allow-downloads allow-scripts allow-forms allow-top-navigation allow-popups allow-modals allow-popups-to-escape-sandbox";
       
-      dataURL = dataURL.replace("application/ld+json", "text/html");
-      if (download) {
+      if (isIE && renderMode == "data") renderMode = "frame";
+      if (isWatch) {
+        renderMode = "rewrite";
+      }
+      console.log("rendermode", renderMode)
+      dataURL = dataURL.replace("application/ld+json", "text/plain");
+      if (renderMode == "download") {
         try {
-          download.href = dataURL
-          download.click();
+          let dl = document.querySelector("#download");
+          dl.href = dataURL;
+          dl.title = title;
+          dl.click();
           document.body.classList.add("download");  
         } catch (e) {
           iframe.src = dataURL;
         }
-      } else if (!isIE) {
+      } else if (renderMode == "data") {
         iframe.src = dataURL;
-      } else {
+      } else if (renderMode == "url") {
+        location.href = dataURL;
+      } else if (renderMode == "frame") {
         dataToString(dataURL, function(content) {
           var doc = iframe.contentWindow.document;
           doc.open();
           doc.write(content);
           doc.close();
+        });
+      } else if (renderMode == "rewrite") {
+        dataToString(dataURL, function(content) {
+          document.open();
+          document.write(content);
+          document.close();
         });
       }
     });
