@@ -1,0 +1,19 @@
+<!DOCTYPE html><html x-manifest="manifest.appcache"><meta name="viewport" content="width=device-width, viewport-fit=cover"><meta name="description" content="itty bitty things can be conveyed in a link.">
+<script type="text/javascript">
+@include ../js/lzma/lzma-d-min.js
+
+@include data-min.js
+@include index-min.js
+</script>
+<style type="text/css">
+@include index-min.css
+</style>
+<noscript>To use itty.bitty, please enable JavaScript.</noscript>
+<div id="toast">itty.bitty is experimental technology that renders linked content from outside sources. <a href="http://toast.bitty.site" target="_blank">Learn&nbsp;more</a>.
+<br><br>This content is only as trustworthy as its source, and it should be treated with the caution
+you would show any insecure web page.
+<br><br><button onclick="dismiss()">I understand</button> <input id="never" type="checkbox"><label for="never">Never show this</label></div>
+<iframe id="iframe"></iframe>
+<div id="warning"></div>
+<a id="edit">edit</a>
+</html>
