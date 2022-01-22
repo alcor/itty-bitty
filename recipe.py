@@ -10,7 +10,7 @@ recipe = {
   'totalTime': scraper.total_time(),
   'recipeYield': scraper.yields(),
   'recipeIngredient': scraper.ingredients(),
-  'recipeInstructions': [{'text': scraper.instructions()}],
+  'recipeInstructions': scraper.instructions(),
   'image': [scraper.image()],
   'host': scraper.host(),
   'nutrition': scraper.nutrients()
