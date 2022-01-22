@@ -15,7 +15,7 @@ exports.index = functions.https.onRequest((request, response) => {
 
     let content = "";
     if (title) content += `<title>${title}</title><meta property="og:title" content="${title}"/>`;
-    if (desc) content += `<meta name="description" content="${desc}"/><meta property="og:description" content="${desc}"/>`;
+    if (desc && desc.length > 1) content += `<meta name="description" content="${desc}"/><meta property="og:description" content="${desc}"/>`;
     if (image) {
       if (image.startsWith("http")) {
         content += `<meta property="og:image" content="${image}"/>`;

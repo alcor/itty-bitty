@@ -1,5 +1,4 @@
 #! /bin/bash
-cd docs/legacy
 terser    data.js > data-min.js
 terser    index.js > index-min.js
 uglifycss index.css > index-min.css
