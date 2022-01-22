@@ -68,12 +68,12 @@ window.onhashchange = window.onload = function() {
     } else {
       let match = hash.match(dataRE);
       let type = match?.groups.type;
-      if (validTypes.includes(type)) {
+      if (type == "application/ld+json") {
         let script = '<script src="' + location.origin + '/render/recipe.js"></script>'
         script = script + " ".repeat(3 - (script.length % 3))
         preamble = btoa(script);
         renderMode = "frame";
-      } else {
+      } else if (!validTypes.includes(type)) {
         console.log("unknown type, rendering as download")
         let extension = title.split(".")
         document.querySelector("#dl-name").innerText = title;

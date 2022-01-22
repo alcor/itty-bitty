@@ -45,6 +45,20 @@ function decompressDataURI(dataURI, preamble, callback) {
 
 function zipToString(data, callback) {
   var array = base64ToByteArray(data); 
+  if (array[0] == 31) { // Handle Brotli
+    var script= document.createElement('script');
+    script.type = "module"
+    script.innerHTML = `import {BrotliDecode} from "./js/brotli/decode.js";console.log("yo");window.brotli = BrotliDecode;`;
+    document.head.appendChild(script);
+    setTimeout(() => {
+      return callback((window.brotli(array)));
+    },100);
+    return;
+
+  }
+
+  
+
   LZMA.decompress(array, function(result, error) {
     if (!(typeof result === 'string')) result = new Uint8Array(result)
     if (error) console.error(error);
