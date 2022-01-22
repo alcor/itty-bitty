@@ -1,0 +1,1 @@
+javascript:((itty_bitty_recipes) => {let ldjson = document.querySelector('script[type=%22application/ld+json%22]').innerText.trim();var blob = new Blob([ldjson],{type : 'application/ld+json;charset=utf-8'}); var a = new FileReader();a.onload = function(e) { open(itty_bitty_recipes + '/#/'%20+%20e.target.result);};a.readAsDataURL(blob);})('https://gitty.bitty.site')
