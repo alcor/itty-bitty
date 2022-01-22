@@ -65,6 +65,8 @@ window.onhashchange = window.onload = function() {
       preamble = HEAD_TAGS;
     } else if (hash.indexOf("data:text/plain;") == 0) {
       preamble = HEAD_TAGS_EXTENDED;
+    } else if (hash.indexOf("data:text/") == 0) {
+    } else if (hash.indexOf("data:image/") == 0) {
     } else {
       let match = hash.match(dataRE);
       let type = match?.groups.type;
@@ -100,13 +102,13 @@ window.onhashchange = window.onload = function() {
       if (isWatch) {
         renderMode = "rewrite";
       }
-      console.log("rendermode", renderMode)
+      console.log("Rendering via", renderMode)
       dataURL = dataURL.replace("application/ld+json", "text/plain");
       if (renderMode == "download") {
         try {
           let dl = document.querySelector("#download");
           dl.href = dataURL;
-          dl.title = title;
+          dl.download = title;
           dl.click();
           document.body.classList.add("download");  
         } catch (e) {
