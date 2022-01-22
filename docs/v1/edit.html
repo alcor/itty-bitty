@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; connect-src https://codepen.io; style-src 'unsafe-inline' 'self'">
+<title>itty.bitty</title>
+<script src="js/lzma/lzma_worker-min.js"></script>
+<script src="js/jquery-3.3.1.min.js"></script>
+<script src="data.js"></script>
+<script src="edit.js"></script>
+<link rel="stylesheet" type="text/css" href="edit.css">
+<body>
+
+<div id="doc-title" contenteditable="true" placeholder="itty.bitty"></div>
+<div id="doc-file"></div>
+
+<div id="placeholder">
+itty bitty things<br>
+can be conveyed in a link.<br>
+type here &ndash; and then share!<p><a id="ib-info" href="http://about.bitty.site" target="_blank">about itty bitty</a><br>
+</div>
+<div id="copy-message">Link copied to clipboard.</div>
+<div id="content"></div>
+<span id="toolbar">
+  <a target="_blank" id="length"></a>&nbsp;<a target="_blank" id="qrcode" href="https://zxing.appspot.com/generator/">qr code</a>&nbsp;<a target="_blank" id="menu">menu</a>
+  <div id="menu-contents" class="menu">
+    <p><a id="copy">copy link</a><br>
+    ----<br>
+    <span id="menus-share-hint" class="disabled">share via</span><br>
+    <a target="_blank" id="twitter" href="https://twitter.com/">twitter</a><br>
+    <!--  <a target="_blank" id="bitly" href="https://bitly.com/">Bitly</a><br> -->
+
+    ----<br>
+    <a id="new" href="/edit">new site</a><br>
+    <a id="about" target="_blank" href="http://about.bitty.site" id="about">about itty</a>
+  </div>
+</span>
+</body>
+</html>
