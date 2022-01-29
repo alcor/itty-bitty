@@ -1,9 +1,11 @@
 let script = document.currentScript;
 
+console.log("data!", data);
+
 
 FRACTION_MAP = {
-  '1/2': '\u00BD',
   '1/4': '\u00BC',
+  '1/2': '\u00BD',
   '3/4': '\u00BE',
   '1/3': '\u2153',
   '2/3': '\u2154',
@@ -22,6 +24,16 @@ FRACTION_MAP = {
       return FRACTION_MAP[a];
     })
   }
+}
+
+function getStringProperty(stringOrArray, prop) {
+  if (Array.isArray(stringOrArray)) {
+    stringOrArray = stringOrArray.pop();
+  }
+  if (prop) {
+    stringOrArray = stringOrArray[prop]
+  }
+  return stringOrArray;
 }
 
 const m = (selector, ...args) => {
@@ -57,12 +69,23 @@ const m = (selector, ...args) => {
   return node;
 };
 
+function clean(html) {
+  let doc = new DOMParser().parseFromString(html, 'text/html');
+  return doc.body.textContent || "";
+}
+
 function formatTime(time) {
   const timeRE = /(?<sign>-)?P(?:(?<years>[.,\d]+)Y)?(?:(?<months>[.,\d]+)M)?(?:(?<weeks>[.,\d]+)W)?(?:(?<days>[.,\d]+)D)?T(?:(?<hours>[.,\d]+)H)?(?:(?<minutes>[.,\d]+)M)?(?:(?<seconds>[.,\d]+)S)?/
   let duration = time.match(timeRE).groups;
   console.log("match", duration)
   if (duration) {
     time = [];
+
+    if (duration.minutes > 60) {
+      duration.hours = Math.floor(duration.minutes / 60);
+      duration.minutes = duration.minutes % 60
+    }
+
     if (duration.hours > 0) time.push(duration.hours + "h");
     if (duration.minutes > 0) time.push(duration.minutes + "m");
     time = time.join(" ");
@@ -83,12 +106,25 @@ function highlightStep(e) {
 
 }
 
+const ingredientMatch = /^(?:A )?([\/0-9\u00BC-\u00BE\u2153-\u215E\u2009]+) ?(.*)/
+function ingredientEl(string, terms) {
+  //console.log("terms", terms);
+  
+  let match = FRACTION_MAP.replace(clean(string)).match(ingredientMatch);
+  //console.log("match",match )
+  if (match) {
+    let els = match[2].split(/\s/);
+    els = els.map(s => terms?.has(s) ? m("i", s + " ") : s + " ")
+    return [m("span.quantity", match[1]), els]
+  }
+  if (string == "-") return m("hr");
+  return [m("span.quantity", ""), (string)];
+}
+
 function render() {
-  let data = document.body.innerHTML;
-  document.body.innerText = "";
   delete document.documentElement.style.display;
   try {
-    var json = JSON.parse(data);
+    var json = data; //JSON.parse(data);
     if (json["@type"] != "Recipe") {
       json = (json["@graph"] ?? json).find((item) => item["@type"] == "Recipe")
     }
@@ -100,15 +136,25 @@ function render() {
   if (!json) return;
   let image = json.image;
   if (Array.isArray(image)) image = image.shift();
-  image = image.url || image;
+  image = image?.url || image;
   instructions = json.recipeInstructions;
   if (Array.isArray(instructions)) {
     if (Array.isArray(instructions[0])) instructions = instructions.flat()
   } else {
     instructions = [{ text: instructions }];
   }
+  
   parent.postMessage({title:json.name, favicon:"🍳"}, "*");
+console.log("post message")
+  instructions = instructions.map(i => i.text || i);
 
+  let text = instructions.join(" ");
+  var terms = new Set(text.split(/\s/).filter(s => s.length > 2));
+  instructions = instructions.map(i => m("div.step", { onclick: highlightStep }, i))
+  
+  let rating = json.aggregateRating;
+  
+  
   document.body.appendChild(
     m("article.recipe", {},
       image ? m(".thumbnail.noprint", { style: "background-image:url(" + image + ");" }) : null,
@@ -118,30 +164,39 @@ function render() {
         m("h1", json.name),
         m(".metadata",
           // json.nutrition?.calories ? m("div", (json.nutrition?.calories) + (parseFloat(json.nutrition?.calories) != NaN ? " calories" : "")) : null,
-          json.totalTime ? m("div", formatTime(json.totalTime)) : undefined,
-          m("div", json.recipeYield),
-          json.author?.name ? m(".author", (json.author?.name)) : null,
-          (rating = json.aggregateRating) ? [
-            parseFloat(rating.ratingValue).toFixed(1),
-            "\u2606".repeat(1),
-            rating.ratingCount ? " (" + rating.ratingCount + ")" : null
-          ].join(" ") : null,
+          
           // m(".rating", (json.aggregateRating?.ratingValue), (json.aggregateRating?.ratingCount)),
-          m("a.action.noprint", { onclick: () => window.print() }, "print"),
-          m("a.action.noprint", { href: json.mainEntityOfPage }, "link"),
 
         ),
-        m(".description", json.description),
+        m(".description", 
+          clean(json.description),
+          json.author?.name ? m("span.author", (" —⁠" + json.author?.name)) : null,
+
+          m("p"),
+
+          (rating && rating.ratingCount != 0) ? [
+            " • ",
+            "\u2606".repeat(rating.ratingValue), " ",
+            parseFloat(rating.ratingValue).toFixed(1), " ",
+            rating.ratingCount ? m("span.count", `(${rating.ratingCount.toString()})`) : null
+          ] : null,
+          " • ", m("a.action.noprint", { onclick: () => window.print() }, "print"),
+          " • ", m("a.action.noprint", { href: json.mainEntityOfPage || json.url, target:"_blank"}, "link"),
+
+        ),
 
       ),
       m(".columns",
         m(".ingredients",
-          json.recipeIngredient?.map(i => m("div.ingredient", { onclick: markIngredient }, FRACTION_MAP.replace(i)))
+          m("div.yield", ingredientEl(getStringProperty(json.recipeYield))),
+
+          json.recipeIngredient?.map(i => m("div.ingredient", { onclick: markIngredient }, ingredientEl(i, terms)))
         ),
         m(".instructions",
-          instructions.map(i => m("div.step", { onclick: highlightStep }, i.text))
+        json.totalTime ? m("div", formatTime(json.totalTime)) : undefined,
+          instructions
         )
-      )
+      ),
     )
   )
 

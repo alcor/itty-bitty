@@ -1,5 +1,5 @@
 * {
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family:  -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 body {
@@ -12,12 +12,15 @@ body {
   background-color: gray;
   background-size: cover;
   background-position: center;
+  margin-bottom:2em;
 }
 
 img.publisher {
-  max-width: 12em;
-  float: right;
-  margin-top: -0.5em;
+  max-width: 5em;
+  /* margin-top: -0.5em; */
+  /* transform:scale(0.7); */
+
+  float:right;
 }
 
 .recipe {
@@ -37,10 +40,15 @@ img.publisher {
 header {
   gap: 2em;
   margin-bottom: 2em;
+/* 
+  padding-left:15em; */
 }
 
 h1 {
-  margin-top: 2em;
+  margin-top: 0.3em;
+  margin-bottom:0.3em;
+  line-height:125%;
+  font-weight:500;
 }
 
 .metadata {
@@ -77,6 +85,21 @@ h1 {
   line-height: 1.25em;
   opacity: 0.75;
   cursor: pointer;
+  padding-left:3em;
+}
+
+.ingredients .yield {
+  margin-bottom:2em;
+  font-weight:bold;
+  text-transform: uppercase;
+
+  margin-left:2em;
+}
+.ingredients .quantity {
+  float:left;
+  margin-left:-2.5em;
+  width:2em;
+  text-align:center;
 }
 
 .ingredient.complete,
@@ -105,6 +128,13 @@ h1 {
   background-color: currentColor;
   opacity: 0.54;
 }
+hr {
+  /* width: 100px;
+  float: left;
+  height: 0.5px;
+  background-color: currentColor;
+  opacity: 0.54; */
+}
 
 a.action {
   border: none;
@@ -112,14 +142,14 @@ a.action {
   text-transform: uppercase;
   text-decoration: none;
   color: currentColor;
+  opacity:0.4;
   cursor: pointer;
-  border-radius: 1em;
-  line-height: 2em;
-  padding: 0 1em;
 }
 
 a.action:hover {
-  background-color: rgba(128, 128, 128, 0.1)
+  opacity:1.0;
+
+  text-decoration: underline;
 }
 
 @media screen and (max-width: 480px) {
@@ -134,6 +164,11 @@ a.action:hover {
   }
   .ingredient {
     margin: 0;
+    margin-left:2em;
+    margin-bottom:0.67em;
+  }
+  .ingredients .yield {
+   margin-left:3em;
   }
 }
 
