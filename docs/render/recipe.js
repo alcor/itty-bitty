@@ -1,7 +1,5 @@
 let script = document.currentScript;
 
-console.log("data!", data);
-
 
 FRACTION_MAP = {
   '1/4': '\u00BC',
@@ -86,8 +84,8 @@ function formatTime(time) {
       duration.minutes = duration.minutes % 60
     }
 
-    if (duration.hours > 0) time.push(duration.hours + "h");
-    if (duration.minutes > 0) time.push(duration.minutes + "m");
+    if (duration.hours > 0) time.push(duration.hours + "hr");
+    if (duration.minutes > 0) time.push(duration.minutes + "min");
     time = time.join(" ");
   }
   return time;
@@ -102,7 +100,7 @@ function highlightStep(e) {
   //   e.target.parent.children.forEach((i,el) => {
   //     el.classList.toggle("complete", )
   //   }
-  e.target.classList.toggle("complete")
+  e.target.closest(".step").classList.toggle("complete")
 
 }
 
@@ -138,19 +136,36 @@ function render() {
   if (Array.isArray(image)) image = image.shift();
   image = image?.url || image;
   instructions = json.recipeInstructions;
-  if (Array.isArray(instructions)) {
-    if (Array.isArray(instructions[0])) instructions = instructions.flat()
-  } else {
-    instructions = [{ text: instructions }];
+
+
+
+  function parseInstructions(instruction) {
+    
+    if (instruction.itemListElement) {
+      return m(".section", m("hr"), m("h3", instruction.name), parseInstructions(instruction.itemListElement));
+    }
+    
+    if (Array.isArray(instruction)) {
+      if (Array.isArray(instruction[0])) instruction = instruction.flat();
+      return instruction.map(i => parseInstructions(i));
+    }
+    let text = (instruction.text || instruction);
+    // text = text.split(". ").map((t, i) => m("div.substep", t))
+    console.log("text",text);
+    return m("div.step", { onclick: highlightStep }, m("hr"), text)
   }
+
+  instructions = m(".instructions",parseInstructions(instructions));
+  
   
   parent.postMessage({title:json.name, favicon:"🍳"}, "*");
-console.log("post message")
-  instructions = instructions.map(i => i.text || i);
 
-  let text = instructions.join(" ");
-  var terms = new Set(text.split(/\s/).filter(s => s.length > 2));
-  instructions = instructions.map(i => m("div.step", { onclick: highlightStep }, i))
+
+  // let text = instructions.join(" ");
+  var terms = new Set(instructions.textContent.split(/\s/).filter(s => s.length > 2));
+  console.log("instructions.innerText", terms)
+
+  // instructions = instructions.map(i => m("div.step", { onclick: highlightStep }, i))
   
   let rating = json.aggregateRating;
   
@@ -163,6 +178,21 @@ console.log("post message")
         m("img.publisher", { src: json.publisher?.image ?.[0]?.url ?? json.publisher ?.logo ?.url }),
         m("h1", json.name),
         m(".metadata",
+          m(".time",
+            json.totalTime ? m("span", formatTime(json.totalTime)) : undefined,
+            json.prepTime ? m("span",  " - ", formatTime(json.prepTime), " prep") : undefined,
+            json.cookTime ? m("span",  " - ",  formatTime(json.cookTime), " cook") : undefined,
+          ),
+
+          (rating && rating.ratingCount != 0) ? [
+            " • ",
+            "\u2606".repeat(rating.ratingValue), " ",
+            parseFloat(rating.ratingValue).toFixed(1), " ",
+            rating.ratingCount ? m("span.count", `(${rating.ratingCount.toString()})`) : null
+          ] : null,
+          " • ", m("a.action.noprint", { onclick: () => window.print() }, "print"),
+          " • ", m("a.action.noprint", { href: json.mainEntityOfPage || json.url, target:"_blank"}, "link"),
+
           // json.nutrition?.calories ? m("div", (json.nutrition?.calories) + (parseFloat(json.nutrition?.calories) != NaN ? " calories" : "")) : null,
           
           // m(".rating", (json.aggregateRating?.ratingValue), (json.aggregateRating?.ratingCount)),
@@ -174,15 +204,6 @@ console.log("post message")
 
           m("p"),
 
-          (rating && rating.ratingCount != 0) ? [
-            " • ",
-            "\u2606".repeat(rating.ratingValue), " ",
-            parseFloat(rating.ratingValue).toFixed(1), " ",
-            rating.ratingCount ? m("span.count", `(${rating.ratingCount.toString()})`) : null
-          ] : null,
-          " • ", m("a.action.noprint", { onclick: () => window.print() }, "print"),
-          " • ", m("a.action.noprint", { href: json.mainEntityOfPage || json.url, target:"_blank"}, "link"),
-
         ),
 
       ),
@@ -190,10 +211,9 @@ console.log("post message")
         m(".ingredients",
           m("div.yield", ingredientEl(getStringProperty(json.recipeYield))),
 
-          json.recipeIngredient?.map(i => m("div.ingredient", { onclick: markIngredient }, ingredientEl(i, terms)))
+          json.recipeIngredient?.map(i => m("div.ingredient", { onclick: markIngredient }, ingredientEl(clean(i), terms)))
         ),
-        m(".instructions",
-        json.totalTime ? m("div", formatTime(json.totalTime)) : undefined,
+        m(".instructions",  
           instructions
         )
       ),

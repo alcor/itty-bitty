@@ -26,7 +26,7 @@ img.publisher {
 .recipe {
   max-width: 40em;
   margin: auto;
-  line-height: 133%;
+  line-height: 125%;
 }
 
 .columns {
@@ -57,7 +57,7 @@ h1 {
   flex-wrap: wrap;
   gap: 0 1em;
   margin-bottom: 1em;
-  line-height: 2em;
+  /* line-height: 2em; */
 }
 
 .metadata div:after {
@@ -65,22 +65,32 @@ h1 {
   margin-left: 1em;
 }
 
+.time {
+  text-transform: uppercase;
+  /* margin-bottom: 1em; */
+}
+
 .ingredients {
   font-weight: 600;
   font-size: 100%;
-  padding-top: 1em;
+  /* padding-top: 1em; */
   flex: 0 1 35%;
 }
 
 .instructions {
   white-space: pre-wrap;
-  line-height: 125%;
-  font-size: 100%;
+  /* line-height: 125%; */
+  /* font-size: 100%; */
   flex: 0 1 65%;
+  margin-top: -1px;
 }
 
+.substep {
+  margin-bottom: 1em;
+  /* display: inline; */
+}
 .ingredient {
-  padding: 0.625em 1em;
+  padding: 0.5em 1em;
   margin: 0 -1em;
   line-height: 1.25em;
   opacity: 0.75;
@@ -89,10 +99,9 @@ h1 {
 }
 
 .ingredients .yield {
-  margin-bottom:2em;
+  margin-bottom: 1.5em;
   font-weight:bold;
   text-transform: uppercase;
-
   margin-left:2em;
 }
 .ingredients .quantity {
@@ -114,19 +123,19 @@ h1 {
 }
 
 .step {
-  padding-top: 2em;
   max-width: 40em;
   cursor: pointer;
+  /* border:1px solid red; */
+  margin-bottom: 1em;
 }
 
-.step:before {
-  content: "";
+.instructions hr {
   width: 100px;
-  float: left;
-  margin-top: -1em;
   height: 0.5px;
   background-color: currentColor;
   opacity: 0.54;
+  border:none;
+  margin: 0 0 1em 0;
 }
 hr {
   /* width: 100px;

@@ -1,18 +1,31 @@
 javascript:((itty_bitty_recipes) => {
-let l=document.querySelector('script[type="application/ld+json"]');
-if (!l) return alert("No Recipe element found in HTML")
-let ldjson = l.innerText.trim();
-let json = JSON.parse(ldjson);
-if (Array.isArray(json)) json = json.find((o)=>o['@type']=="Recipe")
-console.log(json)
-var blob = new Blob([JSON.stringify(json)],{type : 'application/ld+json;charset=utf-8'});
-var a = new FileReader();
-a.onload = function(e) {
-  let url = itty_bitty_recipes + '/#/' + e.target.result;
-  console.log("URL", url.length, url)
-  open(url);
-};
-a.readAsDataURL(blob);
+  try {
+
+    let l=document.querySelector('script[type="application/ld+json"]');
+
+    if (!l) throw ("No metadata found in HTML.")
+    let ldjson = l.innerText.trim();
+    let json = JSON.parse(ldjson);
+
+    console.log("Found metadata:", json)
+    if (json["@graph"]) json = json["@graph"];
+    if (!Array.isArray(json)) json = [json];
+    json = json.find((o)=>o['@type']=="Recipe")
+
+    if (!json?.recipeInstructions?.length) throw ("Incomplete recipe information.")
+
+    var blob = new Blob([JSON.stringify(json)],{type : 'application/ld+json;charset=utf-8'});
+    var a = new FileReader();
+    a.onload = function(e) {
+      let url = itty_bitty_recipes + '/#/' + e.target.result;
+      console.log("URL", url.length, url)
+      open(url);
+    };
+    a.readAsDataURL(blob);
+
+  } catch (e) {
+    alert("itty.bitty.recipes: Failed\n" + e)
+  }
 })('http://localhost')
 
 
