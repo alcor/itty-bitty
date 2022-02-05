@@ -75,3 +75,5 @@ Maximum sizes for links in various apps & Browsers (approximate, size in bytes)
 | Microsoft Edge	 | 2,083 |	Anything over 2083 will fail |
 | Android	 | 8,192	|
 | Safari | 	Lots	| Only shows 5211 |
+| Tinyurl | 15,996 | 16,000 bytes and more get an error msg |
+
