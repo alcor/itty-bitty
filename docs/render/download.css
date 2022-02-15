@@ -1,0 +1,59 @@
+
+* {
+  font-family:  -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  text-align: center;
+}
+
+body:not(.download) #download {
+  display:none;
+}
+
+#download {
+  background:#fafafa;
+  width:100vw;
+  height:100vh;
+  position:absolute;
+  top:0;
+  left:0;
+  display:flex;
+  text-decoration: none;
+  color:black;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  font-size:14px;
+}
+
+#dl-image {
+  width:128px;
+  height:128px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-image: url("data:image/svg+xml,%0A%3Csvg width='128' height='128' viewBox='0 0 128 128' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cmask id='path-1-outside-1_116_2' maskUnits='userSpaceOnUse' x='27' y='15' width='74' height='98' fill='black'%3E%3Crect fill='white' x='27' y='15' width='74' height='98'/%3E%3Cpath d='M80 16H28V112H100V36L80 16Z'/%3E%3C/mask%3E%3Cpath d='M80 16H28V112H100V36L80 16Z' fill='white'/%3E%3Cpath d='M28 16V15H27V16H28ZM80 16L80.7071 15.2929L80.4142 15H80V16ZM28 112H27V113H28V112ZM100 112V113H101V112H100ZM100 36H101V35.5858L100.707 35.2929L100 36ZM28 17H80V15H28V17ZM29 112V16H27V112H29ZM100 111H28V113H100V111ZM99 36V112H101V36H99ZM100.707 35.2929L80.7071 15.2929L79.2929 16.7071L99.2929 36.7071L100.707 35.2929Z' fill='black' fill-opacity='0.15' mask='url(%23path-1-outside-1_116_2)'/%3E%3C/svg%3E%0A");
+  padding: 20px 32px;
+  box-sizing: border-box;
+  display:flex;
+  justify-content: center;
+  align-items: center;;
+  color:rgba(0,0,0,0.3);
+  font-weight:bold;
+}
+
+#dl-button {
+  text-decoration:none;
+  background:gray;
+  color:white;
+  padding:0.5em 1em;
+  border-radius:2em;
+  display:none;
+}
+
+#dl-button:hover {
+  background:black;
+}
+#dl-name {
+  margin-bottom:2em;
+}

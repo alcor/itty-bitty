@@ -1,3 +1,5 @@
+import * as bitty from './bitty.js';
+
 var QS = document.querySelector.bind(document);
 var QSS = document.querySelectorAll.bind(document);
 
@@ -96,11 +98,11 @@ function handleDrop(e) {
       function() {
         var url = reader.result;
         url = url.replace(DATA_PREFIX, DATA_PREFIX_8);
-        compressDataURI(url, function(url2) {
+        bitty.compressDataURL(url, function(url2) {
           var ratio = url2.length / url.length;
-          console.log("Compressed to", ratio);
+          console.log("Compressed to", Math.round(ratio * 100) + "%", url2, url);
           if (e.ctrlKey)
-            decompressDataURI(url2, undefined, function(url3) {
+            bitty.decompressDataURL(url2, undefined, function(url3) {
               console.log("Verified", url == url3);
             });
           if (ratio > 0.95) url2 = url;
@@ -152,7 +154,9 @@ var codepenRE = /(https:\/\/codepen\.io\/[\w]+\/(\w+)\/(\w+))/;
 function handlePaste(e) {
   var clipboard = window.clipboardData || e.clipboardData;
   var text = clipboard.getData("Text") || clipboard.getData("text/plain");
-  if ((match = text.match(codepenRE))) {
+  if (!text) return;
+  let match =  text.match(codepenRE);
+  if (match) {
     fetchCodepen(match[0]);
   }
 }
@@ -205,7 +209,13 @@ function handleInput(e) {
   }
 
   if (text.trim().length) {
-    stringToZip(text, function(zip) {
+    const t0 = performance.now();
+    bitty.compressString(text, bitty.GZIP64_MARKER, function(zip) {
+      const t1 = performance.now();
+      bitty.compressString(text, bitty.LZMA64_MARKER, function(zip2) {
+        const t2 = performance.now();
+        console.log("\ngz", Math.round(zip.length/text.length*100), Math.round((t1-t0)),"ms", "\nlz", Math.round(zip2.length/text.length*100), Math.round((t2-t1)), "ms");
+      });
       if (rawHTML) {
         updateLink(DATA_PREFIX_BXZE + zip, title);
       } else {

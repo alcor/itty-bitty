@@ -7,7 +7,7 @@ scraper = scrape_me(sys.argv[1])
 
 recipe = {
   'name': scraper.title(),
-  'totalTime': scraper.total_time(),
+  'totalTime': "PT" + str(scraper.total_time()) + "M",
   'recipeYield': scraper.yields(),
   'recipeIngredient': scraper.ingredients(),
   'recipeInstructions': scraper.instructions(),

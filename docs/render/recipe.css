@@ -3,16 +3,19 @@
 }
 
 body {
-  margin: 0;
+  margin: 0 5vw;
 }
 
 .thumbnail {
   width: 100%;
-  padding-top: 56.25%;
+  /* padding-top: 56.25%; */
+  padding-top:28.125%;
+  max-height:1vh;
   background-color: gray;
   background-size: cover;
   background-position: center;
   margin-bottom:2em;
+  box-sizing: border-box;
 }
 
 img.publisher {
@@ -24,9 +27,10 @@ img.publisher {
 }
 
 .recipe {
-  max-width: 40em;
+  max-width: 50em;
   margin: auto;
   line-height: 125%;
+  
 }
 
 .columns {
@@ -50,31 +54,108 @@ h1 {
   line-height:125%;
   font-weight:500;
 }
-
+.noun.hovered {
+  background-color:rgba(255, 221, 0, 0.608);
+}
+.step.hovered,
+.substep.hovered ~ *,
+.ingredient.hovered {
+background-color:#f1f1f1;
+}
 .metadata {
-  align: right;
   display: flex;
   flex-wrap: wrap;
-  gap: 0 1em;
+  gap: 0.5em 1em;
   margin-bottom: 1em;
+  line-height:24px;
   /* line-height: 2em; */
 }
 
-.metadata div:after {
-  content: "-";
-  margin-left: 1em;
+ul.step {
+  padding-inline-start: 0;
+  list-style-type:none;
+
 }
 
+.instructions:not(.numbered) .number {
+  display: none;
+}
+span.number {
+  margin-left: -24px;
+  float:left;
+  border: 2px solid currentColor;
+  font-weight: 800;
+  border-radius:10em;
+  width: 16px;
+  height: 16px;
+  text-align: center;
+  font-size: 10px;
+  line-height: 16px;
+  opacity:0.7
+}
+.number.big {
+  font-size:8px;
+}
+
+
+li {
+  margin-bottom: 1em;
+}
+li:hover {
+  background-color:rgba(0,0,0,0.1);
+}
+
+.spacer {
+  flex-grow: 1000;
+}
+.metadata img {
+  width:16px;
+  vertical-align: middle;
+  margin-top: -4px;
+  margin-right: 4px;
+  opacity:0.6;
+}
+
+/* .metadata div:after {
+  content: "•";
+  margin-left: 1em;
+  margin-right: 1em;
+} */
+
+/* .yield:before {
+  background-image: url("recipe/restaurant_black_24dp.svg");
+} 
+
+.time:before,
+.yield:before {
+  content:" ";
+  width: 16px;
+  /* height:16px; */
+  /* background-size: contain;
+  float:left;
+  margin-right:4px;
+  background-repeat: no-repeat;
+  background-position: center;
+} */
+.time:before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='22' fill='none' viewBox='0 0 18 22'%3E%3Cpath fill='%23000' d='M4.031 17.953C5.406 19.328 7.063 20.016 9 20.016c1.938 0 3.578-.688 4.922-2.063 1.375-1.375 2.062-3.031 2.062-4.969 0-1.937-.687-3.578-2.062-4.921C12.578 6.687 10.937 6 9 6c-1.938 0-3.594.688-4.969 2.063-1.343 1.343-2.015 2.984-2.015 4.921 0 1.938.671 3.594 2.015 4.97zm12-10.547c.532.688.985 1.578 1.36 2.672.406 1.063.609 2.031.609 2.906 0 2.47-.875 4.594-2.625 6.375-1.75 1.75-3.875 2.625-6.375 2.625s-4.625-.875-6.375-2.625C.875 17.58 0 15.453 0 12.984c0-2.468.875-4.578 2.625-6.328C4.375 4.875 6.5 3.984 9 3.984c.844 0 1.813.204 2.906.61C13.031 5 13.937 5.469 14.625 6l1.406-1.453c.5.406.969.875 1.407 1.406L16.03 7.406zm-8.015 6.61v-6h1.968v6H8.016zM12 .984V3H6V.984h6z'/%3E%3C/svg%3E%0A");
+} */
+
 .time {
-  text-transform: uppercase;
+  background-size:18px;
+  background-repeat:no-repeat;
+  /* text-transform: uppercase; */
   /* margin-bottom: 1em; */
 }
 
 .ingredients {
-  font-weight: 600;
+  font-weight: 400;
   font-size: 100%;
   /* padding-top: 1em; */
   flex: 0 1 35%;
+}
+.noun {
+  font-weight:600 ;
 }
 
 .instructions {
@@ -106,7 +187,7 @@ h1 {
 }
 .ingredients .quantity {
   float:left;
-  margin-left:-2.5em;
+  margin-left:-2em;
   width:2em;
   text-align:center;
 }
@@ -123,7 +204,7 @@ h1 {
 }
 
 .step {
-  max-width: 40em;
+  max-width: 80em;
   cursor: pointer;
   /* border:1px solid red; */
   margin-bottom: 1em;
@@ -146,19 +227,28 @@ hr {
 }
 
 a.action {
-  border: none;
+  /* border: none;
   background: none;
   text-transform: uppercase;
   text-decoration: none;
   color: currentColor;
-  opacity:0.4;
+  opacity: 0.;
   cursor: pointer;
+  border: 1px solid currentColor;
+  padding: 0 0.6em;
+  border-radius: 1em;
+  /* line-height: 16px; 
+  font-size: 14px;
+  box-sizing: border-box;
+  line-height: 17px; */
+  border-radius:1em;
 }
 
-a.action:hover {
+a.action:hover:not(:active) img {
   opacity:1.0;
-
-  text-decoration: underline;
+  /*  text-decoration: none;
+  box-shadow: 0 1px 1px currentColor;
+  margin-top: -1px; */
 }
 
 @media screen and (max-width: 480px) {
@@ -169,7 +259,7 @@ a.action:hover {
   .ingredient,
   .instructions,
   header {
-    padding: 0 1em;
+    padding: 0 0em;
   }
   .ingredient {
     margin: 0;

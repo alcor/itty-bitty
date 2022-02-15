@@ -1,0 +1,47 @@
+
+* {
+  font-family:  -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  text-align: center;
+}
+
+a {
+  font-size:12px;
+  line-height:3em;
+  border: 2px solid currentColor;
+  background-color:rgba(0,0,0,0.05);
+  color:currentColor;
+  padding:0.2em .75em;
+  border-radius:1em;
+  text-decoration:none;
+  cursor:grab;
+  user-select: none;
+}
+
+a:hover {
+  border: 2px solid currentColor;
+  background-color:rgba(0,0,0,0.1);
+}
+
+div#content {
+  max-width:300px;
+  margin:10vh auto;
+}
+#emoji {
+  font-size: 300%;
+  filter:grayscale() brightness(1.1);
+}
+
+:root { color-scheme: light dark; }
+@media (prefers-color-scheme: dark) {
+  /* Dark theme styles go here */
+  body {
+    background-color:#111111;
+    color:white;
+  }
+  #emoji {
+    filter:grayscale() brightness(0.8);
+  }
+}
