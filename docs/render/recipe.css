@@ -91,7 +91,8 @@ span.number {
   text-align: center;
   font-size: 10px;
   line-height: 16px;
-  opacity:0.7
+  opacity:0.7;
+  display:none;
 }
 .number.big {
   font-size:8px;

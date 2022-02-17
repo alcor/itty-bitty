@@ -26,8 +26,9 @@
   }
 
   const renderers = {
-    "application/ld+json": "recipe",
-    "javascript": "bookmarklet",
+    "application/ld+json": {script:"recipe"},
+    "javascript": {script:"bookmarklet"},
+    "web3": {script:"web3", mode:"frame"},
 }
 
   window.addEventListener("message", function(e) {
@@ -95,7 +96,7 @@
         renderMode = "download";
       }
 
-      const renderer = info.params?.render || renderers[info.mediatype];
+      const renderer = info.params?.render || renderers[info.mediatype].script;
       if (renderer) {
         var script = renderer;
         if (script.indexOf("/") == -1)  script = location.origin + '/render/' + script + '.js'
@@ -116,7 +117,7 @@
         let scheme = fragment.substring(0,colon);
         let renderer = renderers[scheme];
         if (renderer) {
-          return renderContentWithScript(renderer, title, fragment, fragment);
+          return renderContentWithScript(renderer.script, title, fragment, fragment);
         }
         return window.location.replace(fragment);
       }
@@ -177,14 +178,16 @@
 
   };
 
-  const SCRIPT_LOADER = `data:text/html,<!doctype html><meta charset=utf-8><script src="${location.origin}/render.js"></script>`
+  const SCRIPT_LOADER = `<!doctype html><meta charset=utf-8><script src="${location.origin}/render.js"></script>`
   function renderContentWithScript(script, title, body, url) {
     if (script.indexOf("/") == -1)  script = location.origin + '/render/' + script + '.js'
     iframe.onload = (() => {
       iframe.contentWindow.postMessage({script, url, title, body}, "*");
       delete iframe.onload
     });
-    iframe.src = SCRIPT_LOADER;
+    // writeDocContent(iframe.contentWindow.document, SCRIPT_LOADER)
+    // iframe.srcdoc = SCRIPT_LOADER;
+    iframe.src = "data:text/html," + SCRIPT_LOADER;
   }
 
   function writeDocContent(doc, content) {
