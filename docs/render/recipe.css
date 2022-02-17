@@ -44,8 +44,7 @@ img.publisher {
 header {
   gap: 2em;
   margin-bottom: 2em;
-/* 
-  padding-left:15em; */
+  /* padding-left: 18em; */
 }
 
 h1 {
@@ -172,12 +171,12 @@ li:hover {
   /* display: inline; */
 }
 .ingredient {
-  padding: 0.5em 1em;
+  padding: .25em 0em;
   margin: 0 -1em;
   line-height: 1.25em;
   opacity: 0.75;
   cursor: pointer;
-  padding-left:3em;
+  padding-left: 1em;
 }
 
 .ingredients .yield {
@@ -188,9 +187,9 @@ li:hover {
 }
 .ingredients .quantity {
   float:left;
-  margin-left:-2em;
+  margin-left:-2.5em;
   width:2em;
-  text-align:center;
+  text-align:right;
 }
 
 .ingredient.complete,
@@ -215,7 +214,7 @@ li:hover {
   width: 100px;
   height: 0.5px;
   background-color: currentColor;
-  opacity: 0.54;
+  opacity: .3;
   border:none;
   margin: 0 0 1em 0;
 }

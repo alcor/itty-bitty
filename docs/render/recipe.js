@@ -71,7 +71,7 @@ function getStringProperty(stringOrArray, prop) {
   if (prop) {
     stringOrArray = stringOrArray[prop]
   }
-  return stringOrArray.toString();
+  return stringOrArray?.toString();
 }
 
 const m = (selector, ...args) => {
@@ -143,7 +143,7 @@ function highlightStep(e) {
 
 }
 
-const ingredientMatch = /^(?:A )?([\/0-9\u00BC-\u00BE\u2153-\u215E\u2009]+) ?(.*)/
+const ingredientMatch = /^(?:A )?([\/0-9 \-\u00BC-\u00BE\u2153-\u215E\u2009]*) ?(.*)/
 function ingredientEl(string, terms) {
   if (string == "-") return m("hr");
 
