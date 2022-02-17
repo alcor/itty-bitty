@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, viewport-fit=cover">
+<meta name="description" content="itty bitty things can be conveyed in a link.">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.1-rc.0/web3.min.js"></script>
+<script src="js/util.js"></script>
+<base target="_blank">
+<style>
+  body {
+    font-family:sans-serif;
+  }
+  img {
+    margin-bottom:0.5em;
+  }
+  .assets { 
+    display:flex;
+    flex-wrap: wrap;
+    gap: 1em;
+  }
+  a {
+    text-decoration:none;
+    display:block;
+    display:flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    color:black;
+    width:10em;
+  }
+  .collection {
+    font-size:10px;
+  }
+</style>
+<script type="module">
+
+window.onhashchange = function() {
+    window.location.reload()
+}
+  async function render() {
+    let address = location.hash.substring(1)
+    console.log("web3", Web3, address)
+    const web3 = new Web3(Web3.givenProvider)
+
+    if (!address.startsWith("0x")) address = await web3.eth.ens.getAddress(address);
+    document.body.appendChild(m("code", {}, address))
+
+    web3.eth.getBalance(address, (err, wei) => {
+      let balance = web3.utils.fromWei(wei, 'ether')
+      document.body.appendChild(m("div", {}, "Balance: " + (Math.round(balance * 1000) / 1000)))
+    
+      console.log("bal", balance);
+      fetchOpenSea(address);
+    })
+
+  }
+  window.onload = render
+
+
+function fetchOpenSea(owner) {
+  fetch("https://api.opensea.io/api/v1/assets?owner=" + owner)
+  .then(response => response.json())
+  .then(data => {
+    console.log(data)
+    document.body.appendChild(
+      m(".assets", data.assets.map((a) =>   
+        m("a", {className:"image", href:a.permalink}, 
+            m("img", {src: a.image_thumbnail_url} ),
+            m("span.name", a.name ),
+            m("span.collection", a.collection?.name )
+        )
+      )));
+
+  });
+}
+</script>
+
+</html>
