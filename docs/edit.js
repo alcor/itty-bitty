@@ -6,6 +6,7 @@ var QSS = document.querySelectorAll.bind(document);
 var DATA_PREFIX = "data:text/html;base64,";
 var DATA_PREFIX_8 = "data:text/html;charset=utf-8;base64,";
 var DATA_PREFIX_BXZE = "data:text/html;charset=utf-8;bxze64,";
+var DATA_PREFIX_GZIP = "data:text/html;charset=utf-8;gzip64,";
 
 var b = document.documentElement.setAttribute(
   "data-useragent",
@@ -217,7 +218,7 @@ function handleInput(e) {
         console.log("\ngz", Math.round(zip.length/text.length*100), Math.round((t1-t0)),"ms", "\nlz", Math.round(zip2.length/text.length*100), Math.round((t2-t1)), "ms");
       });
       if (rawHTML) {
-        updateLink(DATA_PREFIX_BXZE + zip, title);
+        updateLink(DATA_PREFIX_GZIP + zip, title);
       } else {
         updateLink("?" + zip, title);
       }

@@ -96,7 +96,7 @@
         renderMode = "download";
       }
 
-      const renderer = info.params?.render || renderers[info.mediatype].script;
+      const renderer = info.params?.render || (renderers[info.mediatype] || {}).script;
       if (renderer) {
         var script = renderer;
         if (script.indexOf("/") == -1)  script = location.origin + '/render/' + script + '.js'
