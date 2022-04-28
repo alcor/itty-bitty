@@ -1,0 +1,8 @@
+[[edge_functions]]
+path = "/*/*"
+function = "index"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
