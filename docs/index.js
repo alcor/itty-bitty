@@ -6,7 +6,7 @@
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker
       .register('/worker.js')
-      .then(function() { console.log("Service Worker Registered"); });
+      .then(function() { console.debug("Service Worker Registered"); });
   }
 
   function dismiss() {
@@ -32,9 +32,8 @@
 }
 
   window.addEventListener("message", function(e) {
-    console.group("HI")
-    console.log("Message:", e.origin, e.data)
-    console.groupEnd("HI")
+    console.debug("Message:", e.origin, e.data)
+
     // if (e.origin == 'null' || e.origin = ) {
       if (e.data.title) document.title = e.data.title;
       if (e.data.favicon) setFavicon(e.data.favicon);
@@ -44,17 +43,17 @@
   }, false);
 
   // window.onhashchange =
-  window.onload = function() {
+  window.onload = function() {    
+    var fragment = window.location.hash.substring(1);
+
     if (window.location.search) { // Redirect search to path (coming out of server opengraph forwarding)
-      console.log("window.location.search.substring(1)", window.location.search.substring(1))
-      return window.history.replaceState(null, null, window.location.search.substring(1) + "#" + fragment);
+      window.history.replaceState(null, null, window.location.search.substring(1) + "#" + fragment);
     }
 
     var isIE = navigator.userAgent.match(/rv:11/);
     var isEdge = navigator.userAgent.match(/Edge\//);
     var isWatch = (window.outerWidth < 200);
 
-    var fragment = window.location.hash.substring(1);
     if (fragment.length < 3) {
       return location.href = "/edit";
     }
@@ -83,7 +82,8 @@
 
     if (fragment.startsWith("data:")) {
       let info = bitty.infoForDataURL(fragment);
-
+      const renderer = info.params?.render || renderers[info.mediatype].script;
+      
       if (info.mediatype == "text/html") {
         dataPrefix = HEAD_TAGS;
       } else if (info.mediatype == "text/plain") {
@@ -91,12 +91,11 @@
         renderMode = "data";
       } else if (info.type == "text") {
       } else if (info.type == "image") {
-      } else {
+      } else if (!renderer) {
         console.log("unknown type, rendering as download")
         renderMode = "download";
       }
 
-      const renderer = info.params?.render || renderers[info.mediatype].script;
       if (renderer) {
         var script = renderer;
         if (script.indexOf("/") == -1)  script = location.origin + '/render/' + script + '.js'
@@ -144,7 +143,7 @@
       if (isWatch) {
         contentTarget = document;
       }
-      console.log("Rendering via", renderMode)
+      console.log("Rendering mode: " + "\x1B[1m" + renderMode)
       // dataURL = dataURL.replace("application/ld+json", "text/plain");
       if (renderMode == "download") {
         try {

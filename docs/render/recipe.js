@@ -1,6 +1,5 @@
 let script = document.currentScript;
 let reformat = true;
-console.log("localStorage")
 
 FRACTION_MAP = {
   '1/4': '\u00BC',
@@ -144,6 +143,8 @@ function highlightStep(e) {
 }
 
 const ingredientMatch = /^(?:A )?([\/0-9 \-\u00BC-\u00BE\u2153-\u215E\u2009]*) ?(.*)/
+
+
 function ingredientEl(string, terms) {
   if (string == "-") return m("hr");
 
@@ -175,7 +176,7 @@ function render() {
     }
     console.log("Recipe", json);
   } catch (e) {
-    console.log("Data", e, {data});
+    console.debug("Data", e, {data});
   }
 
 
@@ -194,8 +195,6 @@ function render() {
   var ingredientTerms = new Set(
     Array.from(ingredients.join("\n").matchAll(/[A-Za-z\-]+/g)).map(m => m[0].length > 2 ? m[0].toLowerCase(): "")
   );
-
-  console.log("instructions", instructions)
   if (typeof instructions === "string") instructions = [instructions]
   instructions = flattenInstructions(instructions)
   let intructionTerms = new Set(
@@ -209,14 +208,18 @@ function render() {
     }
   })
   ingredientTerms.delete("");  
-  console.log(ingredientTerms);
+  //console.log(ingredientTerms);
 
-  console.log("1 tablespoon".replace(/(tablespoon)/, (a) => {
-    return replacements[a];
-  }))
+  // console.log("1 tablespoon".replace(/(tablespoon)/, (a) => {
+  //   return replacements[a];
+  // }))
   ingredients = ingredients.map(i => m("div.ingredient", { onclick: markIngredient }, ingredientEl(clean(i), ingredientTerms)));
 
-  console.log("instructions", instructions)
+
+  console.group("instructions")
+  console.log(instructions)
+  console.groupEnd("instructions")
+
   let step = 1;
   function renderInstructions(instruction, terms) {
     if (Array.isArray(instruction)) {

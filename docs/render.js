@@ -8,7 +8,7 @@ window.el = function (tagName, attrs, ...children) {
 function loadScript(src, callback) {
   let script = el("script", { src });
   script.addEventListener('load', function(e) {
-    console.log("Loaded", src);
+    console.debug("Loaded script", src);
     if (callback) callback(e);
   });
   document.head.appendChild(script);
@@ -35,5 +35,4 @@ window.addEventListener("message", function(e) {
   window.params.origin = e.origin;
   console.log("Rendering with", e.data.script, e.data)
   loadScript(e.data.script);
-  console.log("document.head", document.head)
 }, false);
