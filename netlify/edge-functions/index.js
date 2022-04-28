@@ -21,7 +21,7 @@ export default async (request, context) => {
     }
     if (image) {
       if (image.startsWith("http")) {
-        content += `<meta property="og:image" content="${image}"/>`;
+        content += `<meta property="og:image" content="${image.replace(":/", "://")}"/>`;
       } else {
         image = decodeURIComponent(image)
         let codepoints = [];
