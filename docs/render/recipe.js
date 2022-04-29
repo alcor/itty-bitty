@@ -186,7 +186,7 @@ function render() {
   image = image?.url || image;
   instructions = json.recipeInstructions;
   let title = clean(json.name);
-  parent.postMessage({title:title, favicon:"🍳"}, "*");
+  parent.postMessage({title:title, favicon:"🍳", image:image, updateURL:true}, "*");
 
 
   // let text = instructions.join(" ");

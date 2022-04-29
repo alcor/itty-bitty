@@ -37,6 +37,9 @@
     // if (e.origin == 'null' || e.origin = ) {
       if (e.data.title) document.title = e.data.title;
       if (e.data.favicon) setFavicon(e.data.favicon);
+      if (e.data.updateURL) {
+        window.location.pathname = "/" + e.data.title.replace(" ", "_") + "/-/" + e.data.image
+      }
       if (e.data.setStorage) document.localStorage.setItem(contentHash, e.data.set);
       if (e.data.getStorage) document.getElementById("iframe").postMessage(document.localStorage.getItem(contentHash), e.origin)
       // }
