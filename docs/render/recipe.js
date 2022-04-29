@@ -130,7 +130,7 @@ function formatTime(time) {
 }
 
 function markIngredient(e) {
-  e.target.classList.toggle("complete")
+  e.target.closest(".ingredient").classList.toggle("complete")
 }
 
 function highlightStep(e) {
@@ -138,7 +138,7 @@ function highlightStep(e) {
   //   e.target.parent.children.forEach((i,el) => {
   //     el.classList.toggle("complete", )
   //   }
-  e.target.closest(".step").classList.toggle("complete")
+  e.target.closest(".substep").classList.toggle("complete")
 
 }
 
@@ -230,7 +230,9 @@ function render() {
     let text = (instruction.text || instruction);
     if (text.startsWith("= ")) return m("h3", text.substring(2));
 
-    return m("li", { onclick: highlightStep },  m("span.number" + (step>9 ? ".big" : ""), `${step++}`), m("span.substep",{innerHTML:highlightTerms(FRACTION_MAP.replace(text.trim()), terms)}))
+    return m("li", { onclick: highlightStep }, 
+      m("span.number" + (step>9 ? ".big" : ""), `${step++}`),
+      m("span.substep",{innerHTML:highlightTerms(FRACTION_MAP.replace(text.trim()), terms)}))
   }
 
   function flattenInstructions(instruction) {
