@@ -109,6 +109,8 @@
         bitty.compressDataURL(fragment, function(compressedFragment) {
           console.log("Compressing long url", fragment.length, compressedFragment.length)
           window.location.hash = window.location.hash.replace(fragment, compressedFragment);
+          window.location.reload();
+          console.log("Reloading")
         })
 
       }
