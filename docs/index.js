@@ -85,7 +85,7 @@
 
     if (fragment.startsWith("data:")) {
       let info = bitty.infoForDataURL(fragment);
-      const renderer = info.params?.render || renderers[info.mediatype].script;
+      const renderer = info.params?.render || renderers[info.mediatype]?.script;
       
       if (info.mediatype == "text/html") {
         dataPrefix = HEAD_TAGS;
