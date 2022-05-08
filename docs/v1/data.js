@@ -31,19 +31,19 @@ function decompressDataURI(dataURI, preamble, callback) {
   var base64Index = dataURI.indexOf(LZMA64_MARKER);
   if (base64Index > 0) {
     var base64 = dataURI.substring(base64Index + LZMA64_MARKER.length);
-    zipToString(base64, function(string) {
-      stringToData(string, function(data) {
-        if (!data) return callback();
-        callback(dataURI.substring(0, base64Index) + BASE64_MARKER + (preamble || '') + data.split(',')[1], string)     
+    zipToString(base64, function(result) {
+      stringToData(result, function(data) {
+        if (!data) return callback(undefined);
+        callback(dataURI.substring(0, base64Index) + BASE64_MARKER + (preamble || '') + data.split(',')[1])     
       })
     })
   } else {
+    if (preamble) dataURI = dataURI.replace(BASE64_MARKER, BASE64_MARKER + preamble)
     callback(dataURI)
   }
 }
 
 function zipToString(data, callback) {
-  let data = data.replace("-","");
   var array = base64ToByteArray(data); 
   LZMA.decompress(array, function(result, error) {
     if (!(typeof result === 'string')) result = new Uint8Array(result)
