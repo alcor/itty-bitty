@@ -75,3 +75,52 @@ Maximum sizes for links in various apps & Browsers (approximate, size in bytes)
 | Microsoft Edge	 | 2,083 |	Anything over 2083 will fail |
 | Android	 | 8,192	|
 | Safari | 	Lots	| Only shows 5211 |
+
+
+
+# IB V.2 features (https://itty.bitty.app)
+
+
+## Compression formats
+IB2 supports Gzip and Brotli compression. Gzip will be used in lieu of lzma if it yields a smaller result. Client side brotli _compression_ is not implemented. Compression type will be inferred from the first few bytes of data if not specified
+
+### brotli
+```echo -n 'hello world' | brotli | base64 | xargs -0 printf "https://itty.bitty.app/#/%s\n"```
+
+### gzip
+```echo -n 'hello world' | gzip -9 | base64 | xargs -0 printf "https://itty.bitty.app/#/%s\n"```
+
+## Encryption
+Encrypted content will prompt for a password before decoding. Encryption type should be specified with ```cipher=\[aes|des|...];```.
+
+
+```echo -n 'hello world' | gzip -9 | openssl enc -aes-256-cbc | base64 | xargs -0 printf "https://itty.bitty.app//data:text/plain;cipher=aes;gzip64,%s\n"```
+
+
+## Open Graph metadata
+Title, description, and image can be included as path components before the # fragment. 
+If present, these will be rendered as the preview data. 
+
+```https://itty.bitty.app/Title_text/Description_text/https://example.com/image.png/#/DATA```
+
+An emoji can be specified in lieu of an image url:
+```https://itty.bitty.app/Title_text/Description_text/🤓#/DATA```
+
+**Note: Including this metadata requires serverside rendering - the body of the content will still be rendered clientside.**
+
+
+## Custom data renderers
+Itty bitty app supports custom renderers for structured data. Recipes and bookmarklets are special cased currently, but any renderer can be implemented by specifying a render attribute (render=https://script_url.js;) within the data URL.
+
+
+### Recipes
+Recipes use a ld+json format, which is commonly found on many recipe sites - these can be extracted using the bookmarklet at https://bookmarklet.bitty.site
+```#/data:application/ld+json;base64,RECIPE_JSON```
+
+### Bookmarklets
+Javascript bookmarklets are displayed with basic instructions for how to add them to your browser :
+https://itty.bitty.app/#Show_Alert/javascript:alert('hello')
+
+
+
+### Bookmarklets
