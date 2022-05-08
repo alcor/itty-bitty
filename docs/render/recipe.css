@@ -75,7 +75,6 @@ background-color:#f1f1f1;
   gap: 0.5em 1em;
   margin-bottom: 1em;
   line-height:24px;
-  /* line-height: 2em; */
 }
 
 ul.step {
@@ -107,7 +106,7 @@ span.number {
 
 
 li {
-  padding: 0.25em 0.5em;
+  padding: 0.33em 0.5em;
 margin-left: -0.5em;}
 li:hover {
   background-color:rgba(0,0,0,0.1);
@@ -179,7 +178,7 @@ color: rgba(0,0,0,1.0);}
   /* display: inline; */
 }
 .ingredient {
-  padding: .25em 0em;
+  padding: .33em 0em;
   margin: 0 0em 0 -3em;
   line-height: 1.25em;
   opacity: 0.75;

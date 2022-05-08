@@ -19,7 +19,7 @@ a {
 }
 
 *[contenteditable="true"] {
-  display: inline-block;
+  /* display: inline-block; */
 }
 
 body.loaded:not(.edited) #placeholder {
