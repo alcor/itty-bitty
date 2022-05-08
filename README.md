@@ -115,12 +115,9 @@ Itty bitty app supports custom renderers for structured data. Recipes and bookma
 
 ### Recipes
 Recipes use a ld+json format, which is commonly found on many recipe sites - these can be extracted using the bookmarklet at https://bookmarklet.bitty.site
+
 ```#/data:application/ld+json;base64,RECIPE_JSON```
 
 ### Bookmarklets
 Javascript bookmarklets are displayed with basic instructions for how to add them to your browser :
 https://itty.bitty.app/#Show_Alert/javascript:alert('hello')
-
-
-
-### Bookmarklets
