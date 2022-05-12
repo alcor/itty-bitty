@@ -27,6 +27,7 @@
 
   const renderers = {
     "application/ld+json": {script:"recipe"},
+    "text/rawhtml": {script:"parse"},
     "javascript": {script:"bookmarklet"},
     "web3": {script:"web3", mode:"frame"},
 }
