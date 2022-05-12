@@ -4,6 +4,12 @@
 
 body {
   margin: 0 8vw;
+  background-color: var(--background-color);
+  color: var(--text-color);
+
+  --text-color:black;
+  --background-color:white;
+
 }
 
 .thumbnail {
@@ -163,7 +169,7 @@ border-radius: 2px;}
 /* color: rgba(0,0,0,0.8); */}
 .noun {
   font-weight: 700;
-color: rgba(0,0,0,1.0);}
+/* color: rgba(0,0,0,1.0); */}
 
 .instructions {
   white-space: pre-wrap;
@@ -249,9 +255,10 @@ a.action {
   box-sizing: border-box;
   line-height: 17px; */
   border-radius:1em;
+  cursor:pointer;
 }
 
-a.action:hover:not(:active) img {
+a.action:hover:not(:active) .icon {
   opacity:1.0;
   /*  text-decoration: none;
   box-shadow: 0 1px 1px currentColor;
@@ -278,10 +285,20 @@ a.action:hover:not(:active) img {
   }
 }
 
+.metadata .icon {
+font-size: 15px;
+vertical-align: middle;
+margin-top: -4px;
+margin-right: 4px;
+opacity:0.6;
+color:var(--text-color);
+}
+
+
 @media (prefers-color-scheme: dark) {
   body {
-    background-color: #222;
-    color: white;
+    --text-color:white;
+    --background-color:#222;
   }
 }
 

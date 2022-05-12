@@ -142,7 +142,7 @@ function highlightStep(e) {
 
 }
 
-const ingredientMatch = /^(?:A )?([\/0-9 \-\u00BC-\u00BE\u2153-\u215E\u2009]*) ?(.*)/
+const ingredientMatch = /^(?:A )?([\/0-9 \u00BC-\u00BE\u2153-\u215E\u2009]*) (.*)/
 
 
 function ingredientEl(string, terms) {
@@ -154,7 +154,7 @@ function ingredientEl(string, terms) {
   let match = FRACTION_MAP.replace(clean(string)).match(ingredientMatch);
 
   if (match) {
-    return [m("span.quantity", match[1]), m("div", {innerHTML:highlightTerms(match[2], terms)})]
+    return [m("span.quantity", match[1].replace(" ", "\u202F")), m("div", {innerHTML:highlightTerms(match[2], terms)})]
   }
   return [m("span.quantity", ""), m("div", {innerHTML:string})];
 }
@@ -281,9 +281,9 @@ function render() {
         m("img.publisher", { src: json.publisher?.image ?.[0]?.url ?? json.publisher ?.logo ?.url }),
         m("h1", title),
         m(".metadata",
-          m("div", m("span.yield", m("img", {src:"recipe/restaurant_black_24dp.svg"}), yield)),
+          m("div", m("span.yield", m(".icon.material-icons-outlined", "restaurant"), yield)),
           m(".time",
-            m("img", {src:"recipe/timer_black_24dp.svg"}),
+            m(".icon.material-icons-outlined", "timer"),
 
             json.totalTime ? m("span", formatTime(json.totalTime)) : undefined,
             // " (",
@@ -292,17 +292,17 @@ function render() {
             // ")"
           ),
           (rating) ? m("div.rating",
-              m("img", {src:"recipe/grade_black_24dp.svg"}),
+              m(".icon.material-icons-outlined", "grade"),
               parseFloat(rating.ratingValue).toFixed(1), " ",
               // ratingCount ? m("span.count", ratingCount.toString()) : null
               )
            : null,
-          json.nutrition?.calories ? m("div", m("img", {src:"recipe/info_black_24dp.svg"}), (json.nutrition?.calories) + (parseFloat(json.nutrition?.calories) != NaN ? " calories" : "")) : null,
+          json.nutrition?.calories ? m("div", m(".icon.material-icons-outlined", "info"), (json.nutrition?.calories) + (parseFloat(json.nutrition?.calories) != NaN ? " calories" : "")) : null,
 
           m("div.spacer"),
-          m("a.action.noprint", { href: json.mainEntityOfPage || json.url, target:"_blank"}, m("img", {src:"recipe/link_black_24dp.svg"})),
-          m("a.action.noprint", { href: "#", onclick: () => {reformat = !reformat; render(); return false;}}, m("img", {src:"recipe/format_list_numbered_black_24dp.svg"})),
-          m("a.action.noprint", { href: "#", onclick: () => window.print() }, m("img", {src:"recipe/print_black_24dp.svg"})),
+          m("a.action.noprint", { title:"Open original", href: json.mainEntityOfPage || json.url, target:"_blank"}, m(".icon.material-icons-outlined", "link")),
+          m("a.action.noprint", { title:"Show steps as list", href: "#", onclick: () => {reformat = !reformat; render(); return false;}}, m(".icon.material-icons-outlined", "format_list_numbered")),
+          m("a.action.noprint", { title:"Print", href: "#", onclick: () => window.print() }, m(".icon.material-icons-outlined", "print")),
 
         ),
         json.description ? m(".description",
@@ -324,8 +324,9 @@ function render() {
   var path = script.src.substring(0, script.src.lastIndexOf("."));
   var cssURL = path + ".css";
 
-  let style = m("link", { rel: "stylesheet", type: "text/css", href: cssURL })
-  document.head.appendChild(style);
+  document.head.appendChild(m("link", { rel: "stylesheet", type: "text/css", href: cssURL }));
+  document.head.appendChild(m("link", { rel: "stylesheet", href: "https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" }));
+
 
 }
 
