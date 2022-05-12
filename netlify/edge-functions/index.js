@@ -7,14 +7,13 @@ export default async (request, context) => {
   if (isMetadataBot) {
     let components = path.split("/");
     components.shift();
-    let title = decodeURIComponent(components.shift()).replace("_", " ");
-    let desc = decodeURIComponent(components.shift()).replace("_", " ");
+    let title = decodeURIComponent(components.shift()).replace(/_/g, " ");
+    let desc = decodeURIComponent(components.shift()).replace(/_/g, " ");
     let image = decodeURIComponent(components.join("/"));
     let content = "";
     if (title) {
       content += `<title>${title}</title><meta property="og:title" content="${title}"/>`;
-
-      content += `<meta property="og:site_name" content="BITTY"/>`
+      // content += `<meta property="og:site_name" content=""/>`
     }
     if (desc && desc.length > 1) {
       content += `<meta name="description" content="${desc}"/><meta property="og:description" content="${desc}"/>`;
