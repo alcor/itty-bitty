@@ -1,5 +1,5 @@
 let script = document.currentScript;
-let reformat = true;
+let reformat = false;
 
 FRACTION_MAP = {
   '1/4': '\u00BC',
