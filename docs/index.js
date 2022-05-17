@@ -1,13 +1,16 @@
   import * as bitty from './bitty.js';
 
-  const HEAD_TAGS = "PGJhc2UgdGFyZ2V0PSJfdG9wIj4K";
-  const HEAD_TAGS_EXTENDED = "PG1ldGEgY2hhcnNldD0idXRmLTgiPjxtZXRhIG5hbWU9InZpZXdwb3J0IiBjb250ZW50PSJ3aWR0aD1kZXZpY2Utd2lkdGgiPjxiYXNlIHRhcmdldD0iX3RvcCI+PHN0eWxlIHR5cGU9InRleHQvY3NzIj5ib2R5e21hcmdpbjowIGF1dG87cGFkZGluZzoxMnZtaW4gMTB2bWluO21heC13aWR0aDozNWVtO2xpbmUtaGVpZ2h0OjEuNWVtO2ZvbnQtZmFtaWx5OiAtYXBwbGUtc3lzdGVtLEJsaW5rTWFjU3lzdGVtRm9udCxzYW5zLXNlcmlmO3dvcmQtd3JhcDogYnJlYWstd29yZDt9PC9zdHlsZT4g";
+  const HEAD_TAGS = btoa('<base target="_top">\n');
+  const HEAD_TAGS_EXTENDED = //"PG1ldGEgY2hhcnNldD0idXRmLTgiPjxtZXRhIG5hbWU9InZpZXdwb3J0IiBjb250ZW50PSJ3aWR0aD1kZXZpY2Utd2lkdGgiPjxiYXNlIHRhcmdldD0iX3RvcCI+PHN0eWxlIHR5cGU9InRleHQvY3NzIj5ib2R5e21hcmdpbjowIGF1dG87cGFkZGluZzoxMnZtaW4gMTB2bWluO21heC13aWR0aDozNWVtO2xpbmUtaGVpZ2h0OjEuNWVtO2ZvbnQtZmFtaWx5OiAtYXBwbGUtc3lzdGVtLEJsaW5rTWFjU3lzdGVtRm9udCxzYW5zLXNlcmlmO3dvcmQtd3JhcDogYnJlYWstd29yZDt9PC9zdHlsZT4g";
+  btoa(`<meta charset="utf-8"><meta name="viewport" content="width=device-width"><base target="_top"><style type="text/css">body{margin:0 auto;padding:12vmin 10vmin;max-width:35em;line-height:1.5em;font-family:-apple-system,BlinkMacSystemFont,sans-serif;word-wrap:break-word;}@media(prefers-color-scheme: dark){body{color:white;background-color:#111;}}</style>  `);
+  
 
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker
-      .register('/worker.js')
-      .then(function() { console.debug("Service Worker Registered"); });
-  }
+
+  // if ('serviceWorker' in navigator) {
+  //   navigator.serviceWorker
+  //     .register('/worker.js')
+  //     .then(function() { console.debug("Service Worker Registered"); });
+  // }
 
   function dismiss() {
     if (document.getElementById("never").checked) window.localStorage.setItem('toasted', true);
@@ -34,20 +37,24 @@
 
   window.addEventListener("message", function(e) {
     console.debug("Message:", e.origin, e.data)
-
-    // if (e.origin == 'null' || e.origin = ) {
       if (e.data.title) document.title = e.data.title;
       if (e.data.favicon) setFavicon(e.data.favicon);
       if (e.data.updateURL) {
-        window.location.pathname = "/" + e.data.title.replace(" ", "_") + "/-/" + e.data.image
+        let path = "/" + e.data.title.replace(/\s/g, "_");
+        if (e.data.description) path += "/d:" + encodeURIComponent(e.data.description);
+        if (e.data.favicon) path += "/f:" + encodeURIComponent(e.data.favicon);
+        if (e.data.image) path += "/i:" + encodeURIComponent(e.data.image);
+        window.location.pathname = path;
+      }
+      if (e.data.replaceURL) {
+        window.history.replaceState(null, null, e.data.replaceURL);
+        renderContent();
       }
       if (e.data.setStorage) document.localStorage.setItem(contentHash, e.data.set);
       if (e.data.getStorage) document.getElementById("iframe").postMessage(document.localStorage.getItem(contentHash), e.origin)
-      // }
-  }, false);
-
-  // window.onhashchange =
-  window.onload = function() {    
+  }, false);  
+  
+  function renderContent() {    
     var fragment = window.location.hash.substring(1);
 
     if (window.location.search) { // Redirect search to path (coming out of server opengraph forwarding)
@@ -70,9 +77,11 @@
 
     var slashIndex = fragment.indexOf("/");
     var title = fragment.substring(0, slashIndex);
-    document.title = title.length
-      ? decodeURIComponent(title.replace(/_/g, " "))
-      : location.hostname;
+    if (title) title = decodeURIComponent(title.replace(/_/g, " "))
+    var type = undefined;
+    var description = undefined;
+
+    document.title = title ?? location.hostname;
 
     fragment = fragment.substring(slashIndex + 1);
     var editable = fragment.charAt(0) == "?";
@@ -83,11 +92,12 @@
       // link.href = "/edit" + location.hash;
     }
 
-
     if (fragment.startsWith("data:")) {
       let info = bitty.infoForDataURL(fragment);
       const renderer = info.params?.render || renderers[info.mediatype]?.script;
       
+      type = "data:" + info.mediaType;
+
       if (info.mediatype == "text/html") {
         dataPrefix = HEAD_TAGS;
       } else if (info.mediatype == "text/plain") {
@@ -120,6 +130,8 @@
       if ( colon > 0 && colon < 15) {
         document.body.classList.remove("toasting");
         let scheme = fragment.substring(0,colon);
+        type = scheme;
+      
         let renderer = renderers[scheme];
         if (renderer) {
           return renderContentWithScript(renderer.script, title, fragment, fragment);
@@ -180,8 +192,14 @@
         });
       }
     });
+    
+    let recordHistory = false
+    if (recordHistory) recordToHistory(title, type, description, window.location);
 
   };
+
+  window.addEventListener('load',renderContent);
+  // window.addEventListener('hashchange',renderContent);
 
   const SCRIPT_LOADER = `<!doctype html><meta charset=utf-8><script src="${location.origin}/render.js"></script>`
   function renderContentWithScript(script, title, body, url) {
@@ -200,3 +218,65 @@
     doc.write(content);
     doc.close();
   }
+
+
+function recordToHistory() { 
+  if (navigator.storage && navigator.storage.persist)
+    navigator.storage.persist().then(granted => {
+    if (granted)
+      console.log("Storage will not be cleared except by explicit user action");
+    else
+      console.log("Storage may be cleared by the UA under storage pressure.");
+  });
+
+  let openRequest = indexedDB.open("history", 1);
+
+  openRequest.onupgradeneeded = function(event) {
+    const db = event.target.result;
+    const transaction = event.target.transaction;
+    let objectStore;
+    if (!db.objectStoreNames.contains('history')) { 
+      objectStore = db.createObjectStore('history', {keyPath: 'id'});
+    } else {
+      objectStore = transaction.objectStore('history');
+    }
+
+    objectStore.createIndex("created", "created");
+    objectStore.createIndex("type", "type");
+    objectStore.createIndex("terms", "terms");
+  };
+
+  openRequest.onerror = function() {
+    console.error("Error", openRequest.error);
+  };
+
+  openRequest.onsuccess = () => {
+    let db = openRequest.result;
+
+    let transaction = db.transaction("history", "readwrite"); // (1)
+
+    let history = transaction.objectStore("history"); // (2)
+
+    let hashCode = s => s.split('').reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0)
+
+    console.log("hash", hashCode(location.href))
+    let entry = {
+      id: location.href,
+      url: location.href,
+      title: "",
+      created: new Date()
+    };
+
+    let request = history.add(entry); // (3)
+
+    request.onsuccess = function() { // (4)
+      console.log("entry added to the history", request.result);
+    };
+
+    request.onerror = function() {
+      console.log("Error", request.error);
+    };
+
+    // continue working with database using db object
+  };
+}
