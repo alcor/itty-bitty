@@ -1,10 +1,33 @@
+
+
+html {
+  --text-color:rgba(0, 0, 0, 0.87);
+  --text-placeholder-color:rgba(0,0,0,0.54);
+  --text-link-color:#0070e0;
+  --background-color:white;
+  --shadow-color:black;
+
+  color: var(--text-color);
+  background-color: var(--background-color);
+}
+@media (prefers-color-scheme: dark) {
+  html {
+    --text-color:white;
+    --text-placeholder-color:rgba(255,255,255,0.54);
+    --text-link-color:#40a0ff;
+    --background-color:#111;
+    --shadow-color:black;
+
+  }
+}
+
 body {
   margin: 0 auto;
   padding: 12vh 10vmin;
   max-width: 35em;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+
   line-height: 1.5em;
-  color: rgba(0, 0, 0, 0.87);
 }
 
 h1 {
@@ -15,7 +38,7 @@ h2 {
 }
 
 a {
-  color: #0070e0;
+  color: var(--text-link-color);
 }
 
 *[contenteditable="true"] {
@@ -29,7 +52,7 @@ body.loaded:not(.edited) #placeholder {
 #placeholder {
   display: none;
   font-style: italic;
-  color: rgba(0, 0, 0, 0.3);
+  color: var(--text-placeholder-color);
   pointer-events: none;
   position: absolute;
 }
@@ -62,14 +85,14 @@ body.drag #content {
   top: 0;
   position: absolute;
   padding: 0.5em 0;
-  font-family: monospace;
   font-weight: bold;
+  font-size:small;
 }
 
 body.edited #doc-title:empty:before,
 #doc-title:focus:empty:before {
   content: "untitled";
-  color: rgba(0, 0, 0, 0.333);
+  color: var(--text-placeholder-color);
 }
 
 #doc-title:focus {
@@ -79,19 +102,25 @@ body.edited #doc-title:empty:before,
 #doc-title:empty:before {
   background: transparent;
 }
-
+ 
 #content:empty:before {
   content: attr(placeholder);
   color: rgba(0, 0, 0, 0.2);
   background: transparent;
 }
+
 #doc-file {
   border-radius: 1em;
-  background: #ebeff9;
+  background-color: #fafafa;
   padding: 0.25em 1em;
-  font-size: smaller;
+  /* font-size: smaller; */
   margin-bottom: 2em;
-}
+  background-position: top center;
+  background-repeat: no-repeat;
+
+  background-image: url("data:image/svg+xml,%0A%3Csvg width='128' height='128' viewBox='0 0 128 128' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cmask id='path-1-outside-1_116_2' maskUnits='userSpaceOnUse' x='27' y='15' width='74' height='98' fill='black'%3E%3Crect fill='white' x='27' y='15' width='74' height='98'/%3E%3Cpath d='M80 16H28V112H100V36L80 16Z'/%3E%3C/mask%3E%3Cpath d='M80 16H28V112H100V36L80 16Z' fill='white'/%3E%3Cpath d='M28 16V15H27V16H28ZM80 16L80.7071 15.2929L80.4142 15H80V16ZM28 112H27V113H28V112ZM100 112V113H101V112H100ZM100 36H101V35.5858L100.707 35.2929L100 36ZM28 17H80V15H28V17ZM29 112V16H27V112H29ZM100 111H28V113H100V111ZM99 36V112H101V36H99ZM100.707 35.2929L80.7071 15.2929L79.2929 16.7071L99.2929 36.7071L100.707 35.2929Z' fill='black' fill-opacity='0.15' mask='url(%23path-1-outside-1_116_2)'/%3E%3C/svg%3E%0A");
+
+min-height: 160px;/* background-size: 128px; */text-align: center;padding-top: 128px;}
 #doc-file:empty {
   display: none;
 }
@@ -122,7 +151,6 @@ body.edited #doc-title:empty:before,
   bottom: 0;
   left: 0;
   right: 0;
-  font-family: monospace;
   font-weight: bold;
   text-align: center;
 }
@@ -141,8 +169,6 @@ body.edited #doc-title:empty:before,
 
 #toolbar button {
   vertical-align: baseline;
-
-  font-family: monospace;
 }
 
 #toolbar a.invalid {
@@ -164,11 +190,11 @@ body.edited #doc-title:empty:before,
   right: 0;
   padding: 0.5em 1em;
   text-align: right;
-  font-family: monospace;
+
+  font-size:small;
   font-weight: bold;
   /*transform: translateY(-2em);*/
   transition: transform 100ms ease-out;
-  background-color: white;
   border-bottom-left-radius: 1em;
   cursor: pointer;
 }
@@ -181,7 +207,6 @@ body.edited #doc-title:empty:before,
   position: absolute;
   padding: 0.5em 1em;
   z-index: 100;
-  font-family: monospace;
   font-weight: bold;
 }
 
@@ -199,17 +224,25 @@ body:not(.copied) #copy-message {
   margin-left: 0.5em;
   cursor: pointer;
   text-decoration: none;
-  color: #333;
+  color: var(--text-color);
+  vertical-align: middle;
 }
 #toolbar a:hover {
   text-decoration: underline;
-  color: #111;
 }
 
 .menu {
   width: auto;
   display: none;
-}
+  color:var(--text-color);
+  border: 2px solid currentColor;
+  padding: 0.5em;
+  box-shadow: 2px 2px var(--shadow-color);
+  margin-right: -0.5em;border-radius: 2px;
+margin-top: 0.7em;}
+
+div#menu-contents {}
+
 #toolbar.menu-visible .menu {
   display: block;
 }
@@ -220,4 +253,6 @@ body:not(.copied) #copy-message {
 
 .menu hr {
   border: none;
+  background-color: currentColor;
+  height: 2px;
 }

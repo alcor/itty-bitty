@@ -138,7 +138,7 @@ function highlightStep(e) {
   //   e.target.parent.children.forEach((i,el) => {
   //     el.classList.toggle("complete", )
   //   }
-  e.target.closest(".substep").classList.toggle("complete")
+  e.target.closest("li").classList.toggle("complete")
 
 }
 
@@ -186,7 +186,7 @@ function render() {
   image = image?.url || image;
   instructions = json.recipeInstructions;
   let title = clean(json.name);
-  parent.postMessage({title:title, favicon:"🍳", image:image, updateURL:true}, "*");
+  parent.postMessage({title:title, favicon:"🍴", image:image, updateURL:true}, "*");
 
 
   // let text = instructions.join(" ");
@@ -227,9 +227,10 @@ function render() {
       return [m("hr"), m("ul.step", instruction.map(i => renderInstructions(i, terms)))];
     }
 
-    let text = (instruction.text || instruction);
-    if (text.startsWith("= ")) return m("h3", text.substring(2));
+    let text = (instruction?.text || instruction);
+    if (text?.startsWith("= ")) return m("h3", text.substring(2));
 
+    if (!text) return;
     return m("li", { onclick: highlightStep }, 
       m("span.number" + (step>9 ? ".big" : ""), `${step++}`),
       m("span.substep",{innerHTML:highlightTerms(FRACTION_MAP.replace(text.trim()), terms)}))
@@ -321,13 +322,14 @@ function render() {
     )
   )
 
-  var path = script.src.substring(0, script.src.lastIndexOf("."));
-  var cssURL = path + ".css";
-
-  document.head.appendChild(m("link", { rel: "stylesheet", type: "text/css", href: cssURL }));
-  document.head.appendChild(m("link", { rel: "stylesheet", href: "https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" }));
 
 
 }
+
+var path = script.src.substring(0, script.src.lastIndexOf("."));
+var cssURL = path + ".css";
+
+document.head.appendChild(m("link", { rel: "stylesheet", type: "text/css", href: cssURL }));
+document.head.appendChild(m("link", { rel: "stylesheet", href: "https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" }));
 
 render();

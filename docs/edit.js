@@ -42,6 +42,9 @@ window.onload = function() {
   content.focus();
   document.execCommand("selectAll", false, null);
   QS("#qrcode").onclick = makeQRCode;
+
+  QS("#share").onclick = share;
+  if (!navigator.share) QS("#share").style.display = "none"
   QS("#twitter").onclick = tweetLink;
   QS("#copy").onclick = copyLink;
   QS("#menu").onclick = toggleMenu;
@@ -110,7 +113,7 @@ function handleDrop(e) {
 
           importedFileData = url2;
           updateLink(url2, file.name, true);
-          setFileName("📄" + file.name);
+          setFileName(file.name);
         });
       },
       false
@@ -263,6 +266,15 @@ function updateLink(url, title, push) {
   }
 }
 
+function share() {
+  navigator.share({
+    title: 'itty.bitty',
+    url: location.href
+  }).then(() => {
+    console.log('Thanks for sharing!');
+  })
+  .catch(console.error);
+}
 function makeQRCode() {
   var url =
     "https://chart.googleapis.com/chart?cht=qr&chs=512x512&chld=L|1&choe=UTF-8&chl=" +

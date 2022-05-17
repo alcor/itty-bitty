@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<title>itty.bitty.history</title>
+<meta charset="utf-8"/>
+<link rel="icon" href="favicon.svg" type="image/x-icon" />
+<meta name="viewport" content="width=device-width, viewport-fit=cover">
+<meta name="description" content="itty bitty history">
+<script src="js/util.js"></script>
+<style>
+  * {
+    font-family: sans-serif;
+    font-size:13px;
+  }
+  body {
+    display:flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  a {
+    display:inline-block;
+    text-decoration:none;
+    color:black;
+    margin:1em;
+    position:relative;
+    width:200px;
+    min-height:200px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    border-radius:4px;
+  }
+
+  a:hover {
+    background-color:#fafafa;
+  }
+
+  a:hover .preview {
+    opacity:0.8;
+  }
+  a .preview {
+    width:100%;
+    padding-top:61.8%;
+    background-size:cover;
+    background-position:center;
+  }
+  div.delete {
+    width:1em;
+    height:1em;
+    background-color:orange;
+    position:absolute;
+    top: -.5em;
+    right: -.5em;
+    background-color:white;
+    border:2px solid black;
+    border-radius:1em;
+    content:'x';
+    text-align:center;
+    line-height:0.9em;
+  }
+
+  a:not(:hover) div.delete {
+    display:none;
+  }
+
+  .title {
+    padding:1em;
+  }
+</style>
+<script>
+
+navigator.storage.persist().then(function(persistent) { 
+  console.log("persist", persistent)  ;
+})
+
+
+
+let openRequest = indexedDB.open("history", 1);
+
+openRequest.onupgradeneeded = function() {
+  // let db = openRequest.result;
+  // if (!db.objectStoreNames.contains('history')) { // if there's no "books" store
+  //   db.createObjectStore('history', {keyPath: 'id'}); // create it
+  // }
+};
+
+openRequest.onerror = function() {
+  console.error("Error", openRequest.error);
+};
+
+
+
+function deleteHistoryItem(key) {
+  let db = openRequest.result;
+  console.log("db", db);
+
+  let transaction = db.transaction("history", "readwrite"); // (1)
+  let history = transaction.objectStore("history"); // (2)
+
+  document.getElementById(key).remove()
+  history.delete(key);
+  // location.reload();
+}
+
+openRequest.onsuccess = function() {
+  let db = openRequest.result;
+  console.log("db", db);
+
+  let transaction = db.transaction("history", "readwrite"); // (1)
+  let history = transaction.objectStore("history"); // (2)
+
+
+// get all books
+history.getAll()
+
+let request = history.index('created').openCursor();
+
+// called for each book found by the cursor
+request.onsuccess = function() {
+  let cursor = request.result;
+  if (cursor) {
+    try {
+    let key = cursor.key; // book key (id field)
+    let value = cursor.value; // book object
+    let url = new URL(key);
+    let path = url.pathname.split("/");
+    console.log(path)
+    path.shift()
+    let title = path.shift().replace(/_/g, " ");
+    let description = path.shift();
+    let image = path.join("/");
+    let emoji = image.startsWith("http") ? null : decodeURIComponent(image);
+    console.log(key, value);
+    console.log("image", decodeURIComponent(image));
+    document.body.appendChild(
+        m('a', {href:key, id:key},
+        m('div.emoji', emoji),
+        m('div.preview', {style:"background-image:url(" + image + ")"}),
+        m('div.delete', {onclick: (e) => {e.stopPropagation(); e.preventDefault();  deleteHistoryItem(key); return false;}}, "×"),
+        m('div.title', title),
+        m('div.desc', description)));
+    } catch (e) {console.log(e)}
+    cursor.continue();
+  } 
+};
+
+
+};
+
+
+</script>
+

@@ -1,0 +1,54 @@
+https://itty.bitty.app/Recipe_Bookmarklet/Simplify_recipes_with_a_click./%F0%9F%8D%B4#itty.bitty.recipe/
+
+
+// JSON extraction
+
+//javascript:
+((itty_bitty_recipes) => {
+    let ldjson = document.querySelector('script[type="application/ld+json"]').innerText.trim();
+  let f = new FileReader();
+  f.onload = function(e) { location.href = (itty_bitty_recipes + '/#/' + e.target.result);};
+  f.readAsDataURL(new Blob([ldjson],{type : 'application/ld+json;charset=utf-8'}));
+})('https://recipe.bitty.app')
+
+
+
+// DOM extraction
+
+javascript:f=new FileReader();f.onload=function(e){top.location.href=('https://itty.bitty.app/#/'+e.target.result)};f.readAsDataURL(new Blob([document.documentElement.outerHTML],{type:'text/raw+html;render=parse;encode=none;charset=utf-8'}));
+
+javascript:f=new FileReader();f.onload=function(e){top.location.href=('http://localhost:8888/#/'+e.target.result)};f.readAsDataURL(new Blob([document.documentElement.outerHTML],{type:'text/raw+html;render=parse;encode=none;charset=utf-8'}));
+
+
+
+// JS Injection
+
+javascript:
+(function(ittybitty){
+  let id="ittybitty";
+  if (document.getElementById(id)) return;
+  var l = document.createElement('script');
+  l.setAttribute('type','text/javascript');
+  l.setAttribute('src',ittybitty + '/extractrecipe.js');
+  l.id=id;
+  document.head.appendChild(l);
+})("https://itty.bitty.app");
+
+
+// JS Injection with fallback
+
+javascript:
+(function(host){
+  document.getElementById(host)?.remove();
+  var l = document.createElement('script');
+  l.setAttribute('type','text/javascript');
+  l.setAttribute('src', host + '/extract.js');
+  l.onerror = () => {
+    let html = document.documentElement.innerHTML;
+    let f = new FileReader();
+    f.onload = function(e) { location.href = (host + '/#/' + e.target.result);};
+    f.readAsDataURL(new Blob([html],{type : 'text/rawhtml;charset=utf-8'}));
+  };
+  l.id = id;
+  document.head.appendChild(l);
+})("https://itty.bitty.app");

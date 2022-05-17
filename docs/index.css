@@ -1,6 +1,9 @@
 body {
   font-family: sans-serif;
 }
+
+@media(prefers-color-scheme: dark){body{color:white;background-color:#111;}}
+
 #iframe {
   border: none;
   position: absolute;
