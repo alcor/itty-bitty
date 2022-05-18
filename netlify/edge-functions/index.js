@@ -20,7 +20,7 @@ export default async (request, context) => {
     info.d = info.d?.replace(/_/g, " ");
 
     let content = [];
-    if (info.title) { content.push(`<title>${info.t}</title>`,`<meta property="og:title" content="${info.t}"/>`); }
+    if (info.title) { content.push(`<title>${info.title}</title>`,`<meta property="og:title" content="${info.title}"/>`); }
     if (info.s) { content.push(`<meta property="og:site_name" content="${info.s}"/>`); }
     if (info.t) { content.push(`<meta property="og:type" content="${info.t}"/>`); }
     if (info.d) { content.push(`<meta property="og:description" content="${info.d}"/>`,`<meta name="description" content="${info.d}"/>`); }
