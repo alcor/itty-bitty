@@ -69,7 +69,7 @@ Maximum sizes for links in various apps & Browsers (approximate, size in bytes)
 | Bitly	 | 2,048	|
 | Browser		
 | Google Chrome	(win)  | 32,779|
-| (mac)  | Lots	| Only shows 10,000 |
+| (mac)  | Lots	| Only 32,775 in url bar |
 | Firefox	 | >64,000	|
 | Microsoft IE 11	 | 4,043 |	Only shows 2,083 |
 | Microsoft Edge	 | 2,083 |	Anything over 2083 will fail |
