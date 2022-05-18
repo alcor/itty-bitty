@@ -43,7 +43,7 @@
         let path = "/" + e.data.title.replace(/\s/g, "_");
         if (e.data.description) path += "/d:" + encodeURIComponent(e.data.description);
         if (e.data.favicon) path += "/f:" + encodeURIComponent(e.data.favicon);
-        if (e.data.image) path += "/i:" + encodeURIComponent(e.data.image);
+        if (e.data.image) path += "/i:" + encodeURIComponent(btoa(e.data.image));
         window.location.pathname = path;
       }
       if (e.data.replaceURL) {
@@ -75,8 +75,21 @@
     var dataPrefix = undefined;
     var renderMode = "data";
 
+
+    let components = window.location.pathname.substring(1).split("/");
+    let info = {}
+    info.t = decodeURIComponent(components.shift()).replace(/_/g, " ");
+    components.forEach(component => {
+      let field = component.split(":");
+      let key = field.shift();
+      let value = decodeURIComponent(field.join(":"));
+      if (key.length && value.length) info[key] = value;
+    })
+    info.d = info.d?.replace(/_/g, " ");
+
+
     var slashIndex = fragment.indexOf("/");
-    var title = fragment.substring(0, slashIndex);
+    var title = fragment.substring(0, slashIndex) || info.t;
     if (title) title = decodeURIComponent(title.replace(/_/g, " "))
     var type = undefined;
     var description = undefined;
@@ -134,7 +147,7 @@
       
         let renderer = renderers[scheme];
         if (renderer) {
-          return renderContentWithScript(renderer.script, title, fragment, fragment);
+          return renderContentWithScript(renderer.script, title, info, fragment, fragment);
         }
         return window.location.replace(fragment);
       }
@@ -187,7 +200,7 @@
           if (renderMode == "frame") {
             writeDocContent(contentTarget, content)
           } else if (renderMode == "script") {
-            renderContentWithScript(script, title, content, dataURL);
+            renderContentWithScript(script, title, info, content, dataURL);
           }
         });
       }
@@ -202,10 +215,10 @@
   // window.addEventListener('hashchange',renderContent);
 
   const SCRIPT_LOADER = `<!doctype html><meta charset=utf-8><script src="${location.origin}/render.js"></script>`
-  function renderContentWithScript(script, title, body, url) {
+  function renderContentWithScript(script, title, info, body, url) {
     if (script.indexOf("/") == -1)  script = location.origin + '/render/' + script + '.js'
     iframe.onload = (() => {
-      iframe.contentWindow.postMessage({script, url, title, body}, "*");
+      iframe.contentWindow.postMessage({script, url, title, info, body}, "*");
       delete iframe.onload
     });
     // writeDocContent(iframe.contentWindow.document, SCRIPT_LOADER)

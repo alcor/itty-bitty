@@ -8,7 +8,7 @@ export default async (request, context) => {
     let components = path.substring(1).split("/");
     // components.shift();
     let info = {}
-    info.t = decodeURIComponent(components.shift()).replace(/_/g, " ");
+    info.title = decodeURIComponent(components.shift()).replace(/_/g, " ");
 
     components.forEach(component => {
       let field = component.split(":");
@@ -20,12 +20,25 @@ export default async (request, context) => {
     info.d = info.d?.replace(/_/g, " ");
 
     let content = [];
-    if (info.t) { content.push(`<title>${info.t}</title>`,`<meta property="og:title" content="${info.t}"/>`); }
+    if (info.title) { content.push(`<title>${info.t}</title>`,`<meta property="og:title" content="${info.t}"/>`); }
     if (info.s) { content.push(`<meta property="og:site_name" content="${info.s}"/>`); }
+    if (info.t) { content.push(`<meta property="og:type" content="${info.t}"/>`); }
     if (info.d) { content.push(`<meta property="og:description" content="${info.d}"/>`,`<meta name="description" content="${info.d}"/>`); }
-    if (info.i) { content.push(`<meta property="og:image" content="${info.i}"/>`); } 
+    if (info.i) { 
+      if (!info.i.startsWith("http")) info.i = atob(info.i);
+      content.push(`<meta property="og:image" content="${info.i}"/>`); 
+      if (info.iw) content.push(`<meta property="og:image:width" content="${info.iw}"/>`); 
+      if (info.ih) content.push(`<meta property="og:image:width" content="${info.ih}"/>`); 
+    } 
+    if (info.v) { 
+      if (!info.v.startsWith("http")) info.v = atob(info.v);
+      content.push(`<meta property="og:video" content="${info.v}"/>`); 
+      if (info.vw) content.push(`<meta property="og:image:width" content="${info.vw}"/>`); 
+      if (info.vh) content.push(`<meta property="og:image:width" content="${info.vh}"/>`); 
+    } 
     if (info.f) {
       if (info.f.length > 9){
+        if (!info.f.startsWith("http")) info.f = atob(info.f);
         content.push(`<link rel="icon" type="image/png" href="${info.f}">`);
       } else {
         let codepoints = Array.from(info.f).map(c => c.codePointAt(0).toString(16));

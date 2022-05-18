@@ -7,22 +7,34 @@ body {
   text-align: center;
 }
 
-a {
+a.bookmarklet {
+  cursor:grab;
+  padding:2em;
+  color:currentColor;
   font-size:12px;
+  text-decoration:none;
+  user-select: none;
+  font-weight:600;
+}
+.capsule {
+  user-select:none;
   line-height:3em;
   border: 2px solid currentColor;
-  background-color:rgba(0,0,0,0.05);
-  color:currentColor;
-  padding:0.2em .75em;
-  border-radius:1em;
-  text-decoration:none;
-  cursor:grab;
-  user-select: none;
+  padding:0.333em 1em;
+  border-radius: 2em;
+  box-shadow:1px 1px black;
+
+  background-color:hsl(196, 69%, 85%);
+  transition:transform 1s;
 }
 
-a:hover {
-  border: 2px solid currentColor;
-  background-color:rgba(0,0,0,0.1);
+.hint {
+  font-size:small;
+  opacity:0.54;
+}
+
+a.bookmarklet:hover .capsule{
+  padding: 0.5333em 1.2em;
 }
 
 div#content {
@@ -31,7 +43,7 @@ div#content {
 }
 #emoji {
   font-size: 300%;
-  filter:grayscale() brightness(1.1);
+  /* filter:grayscale() brightness(1.1); */
 }
 
 :root { color-scheme: light dark; }
@@ -44,4 +56,16 @@ div#content {
   #emoji {
     filter:grayscale() brightness(0.8);
   }
+}
+
+.mobile {
+  display:none;
+}
+
+html[data-useragent*='Mobile'] .desktop {
+  display:none
+}
+
+html[data-useragent*='Mobile'] .mobile {
+  display:block
 }
