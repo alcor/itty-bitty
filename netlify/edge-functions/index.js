@@ -1,25 +1,22 @@
 export default async (request, context) => {
-  const useragent = request.headers.get("user-agent");
   let url = new URL(request.url);
   let path = url.pathname;
+  const useragent = request.headers.get("user-agent");
   let metadataBots = [ "Twitterbot", "curl", "facebookexternalhit", "Slackbot-LinkExpanding", "Discordbot"]
   let isMetadataBot = metadataBots.some(bot => useragent.indexOf(bot) != -1);
   if (isMetadataBot) {
     let components = path.substring(1).split("/");
-    // components.shift();
     let info = {}
-    info.title = decodeURIComponent(components.shift()).replace(/_/g, " ");
-
-    components.forEach(component => {
-      let field = component.split(":");
-      console.log("field", field)
-      let key = field.shift();
-      let value = decodeURIComponent(field.join(":"));
+    info.title = decodeURIComponent(components.shift()).replace(/-/g, " ").replace(/–/g, "-");
+    let i;
+    for (i = 0; i < components.length; i+=2) {
+      let key = components[i];
+      let value = decodeURIComponent(components[i+1]);
       if (key.length && value.length) info[key] = value;
-    })
-    info.d = info.d?.replace(/_/g, " ");
+    }
+    info.d = info.d?.replace(/-/g, " ").replace(/–/g, "-");
 
-    let content = [];
+    let content = ['<meta charset="UTF-8">'];
     if (info.title) { content.push(`<title>${info.title}</title>`,`<meta property="og:title" content="${info.title}"/>`); }
     if (info.s) { content.push(`<meta property="og:site_name" content="${info.s}"/>`); }
     if (info.t) { content.push(`<meta property="og:type" content="${info.t}"/>`); }
