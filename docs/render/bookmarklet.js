@@ -22,7 +22,7 @@ loadSyle(document.currentScript.src.replace("js", "css"))
 
   document.body.appendChild(
     el("div", {id:"content"},
-    el("div", {className:"description"}, params.info.d ?? ""),
+    el("div", {className:"description"}, params.info?.d ?? ""),
     el("a", {className:"bookmarklet", href:url}, el("span", {className:"capsule", innerText:"" + title || "Bookmarklet"})),
     el("p", {id:"emoji", innerText:"☝️"}),
       el("p", {innerHTML:`This page contains a <a target="_blank" href="https://en.wikipedia.org/wiki/Bookmarklet">bookmarklet</a>.`}),
@@ -30,7 +30,7 @@ loadSyle(document.currentScript.src.replace("js", "css"))
       el("p", {className:"", innerText:`Drag this bookmarklet to your ${managerName} to use it.`}),
       el("p", {className:"hint desktop", innerText:`(Hit ${cmdKey} to toggle the ${managerName} bar)`}),
       el("p", {className:"hint mobile", innerText:`To open ${managerName} while dragging, hold on top of it, or tap bookmarks with a second finger to open`}),
-      el("p", {innerText:`Or bookmark this page, then edit the address to remove everything to the left of "javascript:"`}),
+      // el("p", {innerText:`Or bookmark this page, then edit the address to remove everything to the left of "javascript:"`}),
       
     )
   );  
