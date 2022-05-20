@@ -55,7 +55,7 @@ function decompressDataURL(dataURL, preamble, callback) {
   let encoding = info.encoding;
   let encodingIndex = dataURL.indexOf(encoding);
 
-  if (encoding != "base64") {
+  if (encoding && encoding != "base64") {
     var base64 = dataURL.substring(encodingIndex + LZMA64_MARKER.length + 1);
     base64 = base64.replace("-",""); // TODO: apply this elsewhere;
 
