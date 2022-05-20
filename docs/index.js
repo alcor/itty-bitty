@@ -49,7 +49,7 @@
       if (e.data.title) document.title = e.data.title;
       if (e.data.favicon) setFavicon(e.data.favicon);
       if (e.data.updateURL) {
-        let path = "/" + e.data.title.replace(/\s/g, "_");
+        let path = "/" + e.data.title.replace(/\s/g, "-");
         if (e.data.description) path += "/d/" + encodeURIComponent(e.data.description);
         if (e.data.favicon) path += "/f/" + encodeURIComponent(e.data.favicon);
         if (e.data.image) path += "/i/" + encodeURIComponent(btoa(e.data.image));
