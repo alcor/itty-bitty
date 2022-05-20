@@ -16,6 +16,15 @@
     if (document.getElementById("never").checked) window.localStorage.setItem('toasted', true);
     document.body.classList.remove("toasting")
   }
+  
+  function addToast() {
+    // `<div id="toast">
+    // itty.bitty is experimental technology that renders linked content from outside sources.
+    // <a href="http://toast.bitty.site" target="_blank">Learn&nbsp;more</a>.
+    // <br><br>This content is only as trustworthy as its source, and it should be treated with the caution you would show any insecure web page.
+    // <br><br><button onclick="dismiss()">I understand</button> <input id="never" type="checkbox"><label for="never">Never show this</label>
+    // </div>`
+  }
 
   function setFavicon(favicon) {
     document.getElementById("favicon").href = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em"><text y=".9em">'+ favicon + '</text></svg>'
@@ -75,17 +84,16 @@
     var dataPrefix = undefined;
     var renderMode = "data";
 
-
     let components = window.location.pathname.substring(1).split("/");
     let info = {}
-    info.t = decodeURIComponent(components.shift()).replace(/_/g, " ");
-    components.forEach(component => {
-      let field = component.split(":");
-      let key = field.shift();
-      let value = decodeURIComponent(field.join(":"));
+    info.title = decodeURIComponent(components.shift()).replace(/-/g, " ").replace(/–/g, "-");
+    let i;
+    for (i = 0; i < components.length; i+=2) {
+      let key = components[i];
+      let value = decodeURIComponent(components[i+1]);
       if (key.length && value.length) info[key] = value;
-    })
-    info.d = info.d?.replace(/_/g, " ");
+    }
+    info.d = info.d?.replace(/-/g, " ").replace(/–/g, "-");
 
 
     var slashIndex = fragment.indexOf("/");

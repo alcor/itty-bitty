@@ -15,9 +15,9 @@ https://itty.bitty.app/Recipe_Bookmarklet/Simplify_recipes_with_a_click./%F0%9F%
 
 // DOM extraction
 
-javascript:f=new FileReader();f.onload=function(e){top.location.href=('https://itty.bitty.app/#/'+e.target.result)};f.readAsDataURL(new Blob([document.documentElement.outerHTML],{type:'text/raw+html;render=parse;encode=none;charset=utf-8'}));
+javascript:f=new(FileReader)();f.onload=function(e){top.location.href=('https://itty.bitty.app/#/'+e.target.result)};f.readAsDataURL(new(Blob)([document.documentElement.outerHTML],{type:'text/raw+html;render=parse;encode=none;charset=utf-8'}));
 
-javascript:f=new FileReader();f.onload=function(e){top.location.href=('http://localhost:8888/#/'+e.target.result)};f.readAsDataURL(new Blob([document.documentElement.outerHTML],{type:'text/raw+html;render=parse;encode=none;charset=utf-8'}));
+javascript:f=new(FileReader)();f.onload=function(e){top.location.href=('http://localhost:8888/#/'+e.target.result)};f.readAsDataURL(new(Blob)([document.documentElement.outerHTML],{type:'text/raw+html;render=parse;encode=none;charset=utf-8'}));
 
 
 

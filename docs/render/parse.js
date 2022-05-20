@@ -14,7 +14,7 @@ if (ldjson) {
   let f = new FileReader();
   f.onload = function(e) { 
     //top.location.href = ( '/#/' + e.target.result);
-    parent.postMessage({replaceURL:'/temp#/' + e.target.result}, "*");
+    parent.postMessage({replaceURL:'/#/' + e.target.result}, "*");
   };
   f.readAsDataURL(new Blob([ldjson],{type : 'application/ld+json;charset=utf-8'}));
 } else {

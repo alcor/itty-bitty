@@ -22,8 +22,9 @@ loadSyle(document.currentScript.src.replace("js", "css"))
 
   document.body.appendChild(
     el("div", {id:"content"},
-      el("a", {className:"bookmarklet", href:url}, el("span", {className:"capsule", innerText:"▶ " + title || "Bookmarklet"})),
-      el("p", {id:"emoji", innerText:"☝️"}),
+    el("div", {className:"description"}, params.info.d ?? ""),
+    el("a", {className:"bookmarklet", href:url}, el("span", {className:"capsule", innerText:"▶ " + title || "Bookmarklet"})),
+    el("p", {id:"emoji", innerText:"☝️"}),
       el("p", {innerHTML:`This page contains a <a target="_blank" href="https://en.wikipedia.org/wiki/Bookmarklet">bookmarklet</a>.`}),
 
       el("p", {className:"", innerText:`Drag this bookmarklet to your ${managerName} to use it.`}),

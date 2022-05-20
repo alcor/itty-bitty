@@ -28,6 +28,10 @@ a.bookmarklet {
   transition:transform 1s;
 }
 
+.description {
+  opacity:0.2;
+  margin-bottom:10px;
+}
 .hint {
   font-size:small;
   opacity:0.54;
