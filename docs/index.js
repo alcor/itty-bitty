@@ -95,9 +95,10 @@
     }
     info.d = info.d?.replace(/-/g, " ").replace(/–/g, "-");
 
+    if (info.f) setFavicon(info.f);
 
     var slashIndex = fragment.indexOf("/");
-    var title = fragment.substring(0, slashIndex) || info.t;
+    var title = fragment.substring(0, slashIndex) || info.title;
     if (title) title = decodeURIComponent(title.replace(/_/g, " "))
     var type = undefined;
     var description = undefined;

@@ -1,5 +1,4 @@
-https://itty.bitty.app/Recipe_Bookmarklet/Simplify_recipes_with_a_click./%F0%9F%8D%B4#itty.bitty.recipe/
-
+// https://itty.bitty.app/itty-bitty-recipes/d/Clean-your-recipes-with-itty-bitty/f/%F0%9F%8D%B3/#Send_to_itty.bitty/javascript:f=new%20FileReader();f.onload=function(e){top.location.href=('https://itty.bitty.app/#/'+e.target.result)};f.readAsDataURL(new%20Blob([document.documentElement.outerHTML],{type:'text/raw+html;render=parse;encode=none;charset=utf-8'}));
 
 // JSON extraction
 
