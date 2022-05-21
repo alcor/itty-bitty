@@ -217,7 +217,7 @@ function handleInput(e) {
       const t1 = performance.now();
       bitty.compressString(text, bitty.LZMA64_MARKER, function(zip2) {
         const t2 = performance.now();
-        console.log("\ngz", Math.round(zip.length/text.length*100), Math.round((t1-t0)),"ms", "\nlz", Math.round(zip2.length/text.length*100), Math.round((t2-t1)), "ms");
+        console.debug("\ngz", Math.round(zip.length/text.length*100), Math.round((t1-t0)),"ms", "\nlz", Math.round(zip2.length/text.length*100), Math.round((t2-t1)), "ms");
       });
       if (rawHTML) {
         updateLink(DATA_PREFIX_BXZE + zip, title);

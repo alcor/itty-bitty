@@ -1,9 +1,8 @@
   import * as bitty from './bitty.js';
 
-  const HEAD_TAGS = btoa('<base target="_top">\n');
-  const HEAD_TAGS_EXTENDED = //"PG1ldGEgY2hhcnNldD0idXRmLTgiPjxtZXRhIG5hbWU9InZpZXdwb3J0IiBjb250ZW50PSJ3aWR0aD1kZXZpY2Utd2lkdGgiPjxiYXNlIHRhcmdldD0iX3RvcCI+PHN0eWxlIHR5cGU9InRleHQvY3NzIj5ib2R5e21hcmdpbjowIGF1dG87cGFkZGluZzoxMnZtaW4gMTB2bWluO21heC13aWR0aDozNWVtO2xpbmUtaGVpZ2h0OjEuNWVtO2ZvbnQtZmFtaWx5OiAtYXBwbGUtc3lzdGVtLEJsaW5rTWFjU3lzdGVtRm9udCxzYW5zLXNlcmlmO3dvcmQtd3JhcDogYnJlYWstd29yZDt9PC9zdHlsZT4g";
-  btoa(`<meta charset="utf-8"><meta name="viewport" content="width=device-width"><base target="_top"><style type="text/css">body{margin:0 auto;padding:12vmin 10vmin;max-width:35em;line-height:1.5em;font-family:-apple-system,BlinkMacSystemFont,sans-serif;word-wrap:break-word;}@media(prefers-color-scheme: dark){body{color:white;background-color:#111;}}</style>  `);
-  
+  const HEAD_TAGS = () => btoa('<base target="_top">\n');
+  const HEAD_TAGS_EXTENDED = () => btoa(`<meta charset="utf-8"><meta name="viewport" content="width=device-width"><base target="_top"><style type="text/css">body{margin:0 auto;padding:12vmin 10vmin;max-width:35em;line-height:1.5em;font-family:-apple-system,BlinkMacSystemFont,sans-serif;word-wrap:break-word;}@media(prefers-color-scheme: dark){body{color:white;background-color:#111;}}</style>  `);
+  window.dataLayer = window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-WHNPBD4T42');
 
 
   // if ('serviceWorker' in navigator) {
@@ -121,9 +120,9 @@
       type = "data:" + info.mediaType;
 
       if (info.mediatype == "text/html") {
-        dataPrefix = HEAD_TAGS;
+        dataPrefix = HEAD_TAGS();
       } else if (info.mediatype == "text/plain") {
-        dataPrefix = HEAD_TAGS_EXTENDED;
+        dataPrefix = HEAD_TAGS_EXTENDED();
         renderMode = "data";
       } else if (info.type == "text") {
       } else if (info.type == "image") {
@@ -162,7 +161,7 @@
       }
 
       var compressed = true;
-      dataPrefix = HEAD_TAGS_EXTENDED;
+      dataPrefix = HEAD_TAGS_EXTENDED();
       let encoding = !compressed ? "base64," : (fragment.startsWith("XQA") ? bitty.LZMA64_MARKER : bitty.GZIP64_MARKER);
       fragment = "data:text/html;charset=utf-8;" + encoding + "," + fragment;
     }
