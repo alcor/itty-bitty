@@ -2,8 +2,7 @@
 
   const HEAD_TAGS = () => btoa('<base target="_top">\n');
   const HEAD_TAGS_EXTENDED = () => btoa(`<meta charset="utf-8"><meta name="viewport" content="width=device-width"><base target="_top"><style type="text/css">body{margin:0 auto;padding:12vmin 10vmin;max-width:35em;line-height:1.5em;font-family:-apple-system,BlinkMacSystemFont,sans-serif;word-wrap:break-word;}@media(prefers-color-scheme: dark){body{color:white;background-color:#111;}}</style>  `);
-  window.dataLayer = window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-WHNPBD4T42');
-
+ 
 
   // if ('serviceWorker' in navigator) {
   //   navigator.serviceWorker
@@ -126,6 +125,7 @@
         renderMode = "data";
       } else if (info.type == "text") {
       } else if (info.type == "image") {
+      } else if (info.type == undefined) {
       } else if (!renderer) {
         console.log("unknown type, rendering as download")
         renderMode = "download";
@@ -137,15 +137,14 @@
         renderMode = "script";
       }
 
-      if (info?.encoding == "base64" && !info.params?.encode) {
-        bitty.compressDataURL(fragment, function(compressedFragment) {
-          console.log("Compressing long url", fragment.length, compressedFragment.length)
-          window.location.hash = window.location.hash.replace(fragment, compressedFragment);
-          window.location.reload();
-          console.log("Reloading")
-        })
-
-      }
+      // if (info?.encoding == "base64" && !info.params?.encode) {
+      //   bitty.compressDataURL(fragment, function(compressedFragment) {
+      //     console.log("Compressing long url", fragment.length, compressedFragment.length)
+      //     window.location.hash = window.location.hash.replace(fragment, compressedFragment);
+      //     window.location.reload();
+      //     console.log("Reloading")
+      //   })
+      // }
     } else {
       var colon = fragment.indexOf(":");
       if ( colon > 0 && colon < 15) {
