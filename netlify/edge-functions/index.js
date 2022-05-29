@@ -56,7 +56,7 @@ export default async (request, context) => {
         }
       }
       
-      context.log("Providing Metadata",ua,  info, content); 
+      context.log("Providing Metadata",ua, info); 
 
       return new Response(content.join("\n"), {
         headers: { "content-type": "text/html" },
