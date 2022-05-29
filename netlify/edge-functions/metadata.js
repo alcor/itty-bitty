@@ -2,17 +2,18 @@ export default async (request, context) => {
   const ua = request.headers.get("user-agent");
   let url = new URL(request.url);
   let path = url.pathname;
+  let geo = context.geo.city + ", " + context.geo.subdivision.code + ", " + context.geo.country.code
 
   let uaArray = Deno.env.get("UA_ARRAY")?.split(",") || [];
   let uaMatch = uaArray.some(a => ua.indexOf(a) != -1);
 
   if (uaMatch) {
-    //console.log("Redirecting legacy client", context.geo.city + ", " + context.geo.subdivision.code)
+    //console.log("Redirecting legacy client", )
     return new Response('', { status: 401 });
   }
   
   if (path != "/" ) {
-    // context.log(request.headers, request.headers.get("user-agent"), request.headers.get("referer"), JSON.stringify(context.geo));
+    // context.log(path, request.headers, geo);
     let metadataBots = [ "Twitterbot", "curl", "facebookexternalhit", "Slackbot-LinkExpanding", "Discordbot", "snapchat"]
     let isMetadataBot = metadataBots.some(bot => ua.indexOf(bot) != -1);
 
@@ -56,16 +57,13 @@ export default async (request, context) => {
         }
       }
       
-      context.log("Providing Metadata",ua, info); 
+      console.log(["Metadata Request", JSON.stringify(info), geo, ua].join('\t')); 
 
       return new Response(content.join("\n"), {
         headers: { "content-type": "text/html" },
       });
     } 
   } else {
-  console.log("Request", path, 
-    context.geo.city + ", " + context.geo.subdivision.code,
-    request.headers.get("referer"), 
-    ua);
+    console.log(["Request", path, geo, request.headers.get("referer"), ua].join('\t'));
   }
 }
