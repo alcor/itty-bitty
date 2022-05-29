@@ -1,6 +1,6 @@
 [[edge_functions]]
 path = "/*"
-function = "index"
+function = "metadata"
 
 [[redirects]]
   from = "/*"
