@@ -1,5 +1,5 @@
 [[edge_functions]]
-path = "/*/*"
+path = "/*"
 function = "index"
 
 [[redirects]]
