@@ -36,20 +36,20 @@ export default async (request, context) => {
       if (info.t) { content.push(`<meta property="og:type" content="${info.t}"/>`); }
       if (info.d) { content.push(`<meta property="og:description" content="${info.d}"/>`,`<meta name="description" content="${info.d}"/>`); }
       if (info.i) { 
-        if (!info.i.startsWith("http")) info.i = atob(info.i);
+        if (!info.i.startsWith("http")) info.i = atob(info.i.replace(/=/g,''));
         content.push(`<meta property="og:image" content="${info.i}"/>`); 
         if (info.iw) content.push(`<meta property="og:image:width" content="${info.iw}"/>`); 
         if (info.ih) content.push(`<meta property="og:image:width" content="${info.ih}"/>`); 
       } 
       if (info.v) { 
-        if (!info.v.startsWith("http")) info.v = atob(info.v);
+        if (!info.v.startsWith("http")) info.v = atob(info.v.replace(/=/g,''));
         content.push(`<meta property="og:video" content="${info.v}"/>`); 
         if (info.vw) content.push(`<meta property="og:image:width" content="${info.vw}"/>`); 
         if (info.vh) content.push(`<meta property="og:image:width" content="${info.vh}"/>`); 
       } 
       if (info.f) {
         if (info.f.length > 9){
-          if (!info.f.startsWith("http")) info.f = atob(info.f);
+          if (!info.f.startsWith("http")) info.f = atob(info.f.replace(/=/g,''));
           content.push(`<link rel="icon" type="image/png" href="${info.f}">`);
         } else {
           let codepoints = Array.from(info.f).map(c => c.codePointAt(0).toString(16));
