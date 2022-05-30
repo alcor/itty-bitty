@@ -121,7 +121,8 @@
       if (info.mediatype == "text/html") {
         dataPrefix = HEAD_TAGS();
       } else if (info.mediatype == "text/plain") {
-        dataPrefix = HEAD_TAGS_EXTENDED();
+        //dataPrefix = HEAD_TAGS_EXTENDED();
+        //fragment = fragment.replace("text/plain", "text/html");
         renderMode = "data";
       } else if (info.type == "text") {
       } else if (info.type == "image") {

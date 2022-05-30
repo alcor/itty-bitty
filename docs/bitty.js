@@ -47,7 +47,35 @@ function base64ToByteArray(base64) {
   return array;
 }
 
+function loadScript(src, callback) {
+  let script = el("script", { src });
+  script.addEventListener('load', function(e) {
+    console.debug("Loaded script", src);
+    if (callback) callback(e);
+  });
+  document.head.appendChild(script);
+}
 
+// iMessage incorrectly handles urls with more than 301 sequential non-breakable characters, so we introduce = to prevent this
+function escapeStringForIMessage(str) {
+  var matches = str.match(/[^\/+=]{1,300}/g);
+  if (matches) str = matches.join("=")
+  return str;
+}
+
+// import * as CryptoJS from "";
+
+function decryptBase64(cipher, base64, callback) {
+  if (!cipher) return callback(base64);
+
+  loadScript("/js/crypto-js.min.js", () => {
+    let pass = prompt("This page is encrypted. What's the passcode?");
+    if (!pass) return callback(base64);
+  
+    let decrypted = CryptoJS[cipher.toUpperCase()].decrypt(base64, pass);
+    return callback(CryptoJS.enc.Base64.stringify(decrypted));
+  })
+}
 
 function decompressDataURL(dataURL, preamble, callback) {
   let info = infoForDataURL(dataURL);
@@ -57,22 +85,18 @@ function decompressDataURL(dataURL, preamble, callback) {
 
   if (encoding && encoding != "base64") {
     var base64 = dataURL.substring(encodingIndex + LZMA64_MARKER.length + 1);
-    base64 = base64.replace("-",""); // TODO: apply this elsewhere;
+    base64 = base64.replace("=",""); // TODO: apply this elsewhere;
 
-    let cipher;
-    if (cipher = info.params?.cipher) {
-      let pass = prompt("Passphrase?");
-      let decrypted = CryptoJS[cipher.toUpperCase()].decrypt(base64, pass);
-      base64 = CryptoJS.enc.Base64.stringify(decrypted)
-    }
-
-    let bytes = base64ToByteArray(base64);
-    decompressString(bytes, encoding, function(string) {
-      stringToData(string, function(data) {
-        if (!data) return callback();
-        callback(dataURL.substring(0, encodingIndex) + BASE64_MARKER + "," + (preamble || '') + data.split(',')[1], string)
+    decryptBase64(info.params?.cipher, base64, (base64) => {
+      let bytes = base64ToByteArray(base64);
+      decompressString(bytes, encoding, function(string) {
+        stringToData(string, function(data) {
+          if (!data) return callback();
+          callback(dataURL.substring(0, encodingIndex) + BASE64_MARKER + "," + (preamble || '') + data.split(',')[1], string)
+        })
       })
     })
+    
   } else {
     callback(dataURL)
   }
@@ -86,10 +110,10 @@ function compressString(string, encoding = LZMA64_MARKER, callback) {
       return callback(base64String);
     });
   } else if (encoding == BROT64_MARKER) {
-    import("/js/brotli/decode.js").then((module) => {
-      console.log("module", module)
-      return callback(module.BrotliDecode(data));
-    });
+    // import("/js/brotli/decode.js").then((module) => {
+    //   console.log("module", module)
+    //   return callback(module.BrotliDecode(data));
+    // });
   } else if (encoding == GZIP64_MARKER) {
     import("/js/gzip/pako.js").then((module) => {
       let result = pako.deflate(string, {level:"9"});
