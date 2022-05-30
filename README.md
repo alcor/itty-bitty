@@ -6,4 +6,4 @@ Learn more at: [about.bitty.site](http://about.bitty.site)
 
 How it works: [how.bitty.site](http://how.bitty.site)
 
-For more info: [wiki.bitty.site]([http://wiki.bitty.site](https://github.com/alcor/itty-bitty/wiki/))
+For more info: [wiki.bitty.site](https://github.com/alcor/itty-bitty/wiki/)
