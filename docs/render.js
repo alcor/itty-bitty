@@ -27,12 +27,15 @@ function loadSyle(href) {
   document.head.appendChild(el("link", { type: "text/css", rel: "stylesheet", href}));
 }
 
-window.addEventListener("message", function(e) {
-  var base = el('base', {href: e.data.script});
+function renderScriptContent(data, origin) {
+  var base = el('base', {href: data});
   document.head.appendChild(base);
+  window.params = data;
+  window.params.origin = origin;
+  console.log("Rendering with", data.script, data)
+  loadScript(data.script);
+}
 
-  window.params = e.data;
-  window.params.origin = e.origin;
-  console.log("Rendering with", e.data.script, e.data)
-  loadScript(e.data.script);
+window.addEventListener("message", function(e) {
+  renderScriptContent(e.data, e.origin);
 }, false);

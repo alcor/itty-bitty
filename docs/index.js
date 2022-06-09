@@ -1,8 +1,9 @@
   import * as bitty from './bitty.js';
 
+  window.bitty = bitty;
+
   const HEAD_TAGS = () => btoa('<base target="_top">\n');
   const HEAD_TAGS_EXTENDED = () => btoa(`<meta charset="utf-8"><meta name="viewport" content="width=device-width"><base target="_top"><style type="text/css">body{margin:0 auto;padding:12vmin 10vmin;max-width:35em;line-height:1.5em;font-family:-apple-system,BlinkMacSystemFont,sans-serif;word-wrap:break-word;}@media(prefers-color-scheme: dark){body{color:white;background-color:#111;}}</style>  `);
- 
 
   // if ('serviceWorker' in navigator) {
   //   navigator.serviceWorker
@@ -40,7 +41,7 @@
     "text/rawhtml": {script:"parse"},
     "javascript": {script:"bookmarklet"},
     "web3": {script:"web3", mode:"frame"},
-}
+  }
 
   window.addEventListener("message", function(e) {
     console.debug("Message:", e.origin, e.data)
@@ -53,15 +54,27 @@
         if (e.data.image) path.push("i/" + encodeURIComponent(btoa(e.data.image)));
         window.location.pathname = path.join('/');
       }
+
       if (e.data.replaceURL) {
-        window.history.replaceState(null, null, e.data.replaceURL);
-        renderContent();
+        if (e.data.compressURL) {
+          let durl = new bitty.DataURL(e.data.replaceURL);
+
+          durl.compress().then(arg => {
+            window.history.replaceState(null, null, "/#/" + arg.href);
+            renderContent();
+          })
+
+        } else {
+          window.history.replaceState(null, null, e.data.replaceURL);
+          renderContent();
+        }
       }
+      
       if (e.data.setStorage) document.localStorage.setItem(contentHash, e.data.set);
       if (e.data.getStorage) document.getElementById("iframe").postMessage(document.localStorage.getItem(contentHash), e.origin)
   }, false);  
   
-  function renderContent() {    
+  async function renderContent() {    
     var fragment = window.location.hash.substring(1);
 
     if (window.location.search) { // Redirect search to path (coming out of server opengraph forwarding)
@@ -138,14 +151,6 @@
         renderMode = "script";
       }
 
-      // if (info?.encoding == "base64" && !info.params?.encode) {
-      //   bitty.compressDataURL(fragment, function(compressedFragment) {
-      //     console.log("Compressing long url", fragment.length, compressedFragment.length)
-      //     window.location.hash = window.location.hash.replace(fragment, compressedFragment);
-      //     window.location.reload();
-      //     console.log("Reloading")
-      //   })
-      // }
     } else {
       var colon = fragment.indexOf(":");
       if ( colon > 0 && colon < 15) {
@@ -155,15 +160,15 @@
       
         let renderer = renderers[scheme];
         if (renderer) {
-          return renderContentWithScript(renderer.script, title, info, fragment, fragment);
+          return renderContentWithScript(false, renderer.script, title, info, fragment, fragment);
         }
         return window.location.replace(fragment);
       }
 
       var compressed = true;
       dataPrefix = HEAD_TAGS_EXTENDED();
-      let encoding = !compressed ? "base64," : (fragment.startsWith("XQA") ? bitty.LZMA64_MARKER : bitty.GZIP64_MARKER);
-      fragment = "data:text/html;charset=utf-8;" + encoding + "," + fragment;
+      let encoding = !compressed ? "base64," : (fragment.startsWith("XQA") ? bitty.LZMA_MARKER : bitty.GZIP_MARKER);
+      fragment = "data:text/html;charset=utf-8;format=" + encoding + ";base64," + fragment;
     }
 
 
@@ -173,16 +178,25 @@
         'Edge only supports shorter URLs (maximum 2083 bytes).<br>Larger sites may require a different browser.<br><a href="http://reference.bitty.site">Learn more</a>';
     }
 
-    bitty.decompressDataURL(fragment, dataPrefix, function(dataURL, dataContent) {
+    let durl = new bitty.DataURL(fragment);
+
+    await durl.decompress();
+
+    durl.dataPrefix = dataPrefix;
+    let dataURL = durl.href;
+    let dataContent = durl.rawData;
+    // bitty.decompressDataURL(fragment, dataPrefix, function(dataURL, dataContent)
+     {
       if (!dataURL) return;
       iframe.sandbox = "allow-downloads allow-scripts allow-forms allow-top-navigation allow-popups allow-modals allow-popups-to-escape-sandbox";
 
       if (isIE && renderMode == "data") renderMode = "frame";
       let contentTarget// = iframe.contentWindow.document;
       if (isWatch) {
+        console.log("Rendering for watch")
         contentTarget = document;
       }
-      console.log("Rendering mode: " + "\x1B[1m" + renderMode)
+      console.log("Rendering mode: " + "\x1B[1m" + renderMode, durl)
       // dataURL = dataURL.replace("application/ld+json", "text/plain");
       if (renderMode == "download") {
         try {
@@ -208,11 +222,11 @@
           if (renderMode == "frame") {
             writeDocContent(contentTarget, content)
           } else if (renderMode == "script") {
-            renderContentWithScript(script, title, info, content, dataURL);
+            renderContentWithScript(contentTarget == document, script, title, info, content, dataURL);
           }
         });
       }
-    });
+    }
     
     let recordHistory = false
     if (recordHistory) recordToHistory(title, type, description, window.location);
@@ -222,16 +236,29 @@
   window.addEventListener('load',renderContent);
   // window.addEventListener('hashchange',renderContent);
 
+  
   const SCRIPT_LOADER = `<!doctype html><meta charset=utf-8><script src="${location.origin}/render.js"></script>`
-  function renderContentWithScript(script, title, info, body, url) {
+  function renderContentWithScript(overwrite, script, title, info, body, url) {
     if (script.indexOf("/") == -1)  script = location.origin + '/render/' + script + '.js'
-    iframe.onload = (() => {
-      iframe.contentWindow.postMessage({script, url, title, info, body}, "*");
-      delete iframe.onload
-    });
-    // writeDocContent(iframe.contentWindow.document, SCRIPT_LOADER)
-    // iframe.srcdoc = SCRIPT_LOADER;
-    iframe.src = "data:text/html," + SCRIPT_LOADER;
+    
+    if (overwrite) {
+        let scriptEl = document.createElement("script")
+        scriptEl.src = "/render.js"
+        scriptEl.addEventListener('load', function(e) {
+          console.log("Loaded script", scriptEl.src);
+          renderScriptContent({script, url, title, info, body}, "*");
+        });
+        document.head.appendChild(scriptEl);
+      
+    } else {
+      iframe.onload = (() => {
+        iframe.contentWindow.postMessage({script, url, title, info, body}, "*");
+        delete iframe.onload
+      });
+      // writeDocContent(iframe.contentWindow.document, SCRIPT_LOADER)
+      // iframe.srcdoc = SCRIPT_LOADER;
+      iframe.src = "data:text/html," + SCRIPT_LOADER;
+    }
   }
 
   function writeDocContent(doc, content) {
