@@ -7,14 +7,15 @@ body {
   background-color: var(--background-color);
   color: var(--text-color);
 
-  --text-color:black;
+  --text-color:rgba(0,0,0,0.87);
+  --opaque-text-color:black;
+  --disabled-text-color:rgba(16, 12, 12, 0.54);
   --background-color:white;
 
 }
 
 .thumbnail {
   width: 100%;
-  /* padding-top: 56.25%; */
   padding-top:28.125%;
   max-height:1vh;
   background-color: gray;
@@ -22,7 +23,7 @@ body {
   background-position: center;
   margin-bottom:2em;
   box-sizing: border-box;
-}
+/* margin: 0 -2em; */}
 
 .ingredients:hover .noun {
 /* text-decoration:underline;   */
@@ -45,11 +46,11 @@ img.publisher {
 
 .columns {
   display: flex;
-  gap: 2em;
+  gap: 3em;
   margin-bottom: 4em;
   align-content: center;
   justify-content: center;
-}
+flex-direction: row-reverse;margin-top: 1em;}
 
 header {
   gap: 2em;
@@ -96,7 +97,7 @@ ul.step {
 span.number {
   margin-left: -27px;
   float:left;
-  border: 2px solid currentColor;
+  border: 1.5px solid var(--text-color);
   font-weight: 800;
   border-radius:10em;
   width: 16px;
@@ -105,7 +106,20 @@ span.number {
   font-size: 10px;
   line-height: 16px;
   opacity:0.7;
-/* background: black; */}
+  user-select: none;
+/* background: black; */
+}
+
+.complete span.number,
+li:hover span.number {
+  color:transparent;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='48' width='48'%3E%3Cpath d='M18.9 36.9 6.5 24.5 9.9 21.1 18.9 30.1 38.05 10.95 41.45 14.35Z'/%3E%3C/svg%3E");  background-size:cover;
+
+}
+.complete span.number {
+  border-color:transparent;
+
+}
 
 .number.big {
   font-size:8px;
@@ -114,10 +128,17 @@ span.number {
 
 li {
   padding: 0.33em 0.5em;
-margin-left: -0.5em;}
+  margin-left: -0.5em;
+}
+
+.ingredient,
+li {
+  border-radius: 2px;
+}
+.ingredient:hover, 
 li:hover {
   background-color:rgba(0,0,0,0.1);
-border-radius: 2px;}
+}
 
 .spacer {
   flex-grow: 1000;
@@ -163,7 +184,7 @@ border-radius: 2px;}
 }
 
 .ingredients {
-  font-weight: 700;
+  font-weight: 500;
   font-size: 90%;
   /* position:sticky; */
   /* top: 0px; */
@@ -172,14 +193,15 @@ border-radius: 2px;}
 /* color: rgba(0,0,0,0.8); */}
 .noun {
   font-weight: 700;
-/* color: rgba(0,0,0,1.0); */}
+  color: var(--opaque-text-color);
+}
 
 .instructions {
   white-space: pre-wrap;
   /* line-height: 125%; */
   /* font-size: 100%; */
   flex: 0 1 65%;
-  margin-top: -0.7em;
+  /* margin-top: -0.7em; */
 }
 
 .instructions.numbered li {
@@ -194,7 +216,7 @@ border-radius: 2px;}
   padding: .33em 0em;
   margin: 0 0em 0 -3em;
   line-height: 1.25em;
-  opacity: 0.75;
+  /* opacity: 0.75; */
   cursor: pointer;
   padding-left: 3em;
 }
@@ -215,7 +237,11 @@ border-radius: 2px;}
 .ingredient.complete,
 li.complete {
   text-decoration: line-through;
-  opacity: 0.33;
+  color:var(--disabled-text-color);
+
+text-decoration: line-through;
+/*noinspection CssOverwrittenProperties*/
+text-decoration: rgba(0,0,0,0.75) solid 0.5px line-through; /* Ignored in CSS1/CSS2 UAs */
 }
 
 .ingredient:hover {
@@ -237,6 +263,10 @@ li.complete {
   opacity: .3;
   border:none;
   margin: 0.25em 0;
+}
+
+.instructions hr:first-child {
+  display:none;
 }
 hr {
   /* width: 100px;
@@ -273,9 +303,21 @@ a.action:hover:not(:active) .icon {
 }
 
 @media screen and (max-width: 480px) {
+
+  .instructions hr:first-child {
+    display:block;
+  }
+  #thumbnail-container {
+    margin: 0 -8vw;
+  }
+  #thumbnail {
+      padding-top: 56.25%;
+
+  }
   /* some CSS here */
   .columns {
     flex-direction: column;
+    gap:0;
   }
   .ingredient,
   .instructions,
@@ -318,6 +360,6 @@ color:var(--text-color);
   }
 }
 
-.instructions.numbered hr {margin: 0.7em 0;height: 2px;opacity: 10;}
+.instructions.numbered hr {margin: 0.7em 0;height: 1.5px;opacity: 10;}
 
-.instructions.numbered {margin-top: -1.6em;}
+.instructions.numbered {/* margin-top: -1.6em; */}

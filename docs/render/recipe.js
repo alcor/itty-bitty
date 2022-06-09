@@ -1,5 +1,5 @@
 let script = document.currentScript;
-let reformat = false;
+let reformat = true;
 
 FRACTION_MAP = {
   '1/4': '\u00BC',
@@ -26,7 +26,7 @@ FRACTION_MAP = {
 
 let ignoredTerms = [
   "teaspoon", "teaspoons", "tablespoon", "tablespoons", "cup", "cups", "taste", "more", "melted", "into", "wide", "pound", "pounds", "gram", "grams", "you", "ounce", "ounces", "thinly", "sliced",
-  "finely", "ground", "garnish", "about", "cut", "and", "smashed", "each", "the", "medium", "large", "small", "for", "chopped", "minced", "grated", "box", "softened", "directed", "shredded", "cooked", "from", "frozen", "thawed"
+  "pan", "finely", "ground", "garnish", "about", "cut", "and", "smashed", "each", "the", "medium", "large", "small", "for", "chopped", "minced", "grated", "box", "softened", "directed", "shredded", "cooked", "from", "frozen", "thawed"
 ]
 
 const replacements = {
@@ -215,11 +215,6 @@ function render() {
   // }))
   ingredients = ingredients.map(i => m("div.ingredient", { onclick: markIngredient }, ingredientEl(clean(i), ingredientTerms)));
 
-
-  console.group("instructions")
-  console.log(instructions)
-  console.groupEnd("instructions")
-
   let step = 1;
   function renderInstructions(instruction, terms) {
     if (Array.isArray(instruction)) {
@@ -274,10 +269,26 @@ function render() {
   let yield = (getStringProperty(json.recipeYield));
   if (!isNaN(parseInt(yield?.charAt(yield?.length - 1)))) yield += " servings";
 
+  function imgload(e) {
+      console.log(e, "img");
+      var image = document.querySelector('img');
+      var isLoaded = image.complete && image.naturalHeight !== 0;
+      alert(isLoaded);
+  }
+
+  
+  var bgImg = new Image();
+  bgImg.onload = function(){
+    // console.log(bgImg, bgImg.naturalHeight, bgImg.naturalWidth)
+    document.querySelector("#thumbnail").style.backgroundImage = 'url(' + bgImg.src + ')';
+  };
+  bgImg.src = image;
+
+
   document.body.appendChild(
     m("article.recipe", {},
-      image ? m(".thumbnail.noprint", { style: "background-image:url(" + image + ");" }) : null,
-
+      image ? m("#thumbnail-container", m("#thumbnail.thumbnail.noprint", { style: "background-image:url(" + ");", onload: imgload })) : null,
+      
       m("header",
         m("img.publisher", { src: json.publisher?.image ?.[0]?.url ?? json.publisher ?.logo ?.url }),
         m("h1", title),
