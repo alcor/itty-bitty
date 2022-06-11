@@ -1,3 +1,10 @@
+window.el = function (tagName, attrs, ...children) {
+  let l = document.createElement(tagName);
+  Object.entries(attrs).forEach(([k,v]) => l[k] = v);
+  children.forEach((c) => l.appendChild(typeof c == "string" ? document.createTextNode(c) : c));
+  return l;
+}
+
 const dataUrlRE =
 /^data:(?<mediatype>(?<type>[a-z]+)\/(?<subtype>[a-z+]+))?(?<params>(?:;[^;,]+=[^;,]+)*)?(?:;(?<encoding>\w+64))?,(?<data>.*)$/
 ///^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i;
