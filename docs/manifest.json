@@ -1,0 +1,26 @@
+{
+  "short_name": "itty.bitty",
+  "name": "itty.bitty.app",
+  "description": "itty.bitty.app",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "32x32"
+    }
+  ],
+  "start_url": "/edit",
+  "background_color": "#3367D6",
+  "display": "browser",
+  "scope": "/",
+  "theme_color": "#3367D6",
+  "shortcuts": [
+    {
+      "name": "New",
+      "short_name": "New Site",
+      "description": "New Site",
+      "url": "/edit",
+      "icons": [{ "src": "/favicon.svg", "sizes": "32x32" }]
+    }
+  ]
+}

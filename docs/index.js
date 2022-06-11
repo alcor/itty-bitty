@@ -24,6 +24,12 @@
     // <br><br><button onclick="dismiss()">I understand</button> <input id="never" type="checkbox"><label for="never">Never show this</label>
     // </div>`
   }
+    
+  function addLoader() {
+    let el = document.createElement("div");
+    el.className = "loader";
+    document.body.appendChild(el);
+  }
 
   function setThemeColor(color) {
     document.getElementById("themeColor").content = color;
@@ -44,6 +50,7 @@
     "application/ld+json": {script:"recipe"},
     "text/rawhtml": {script:"parse"},
     "javascript": {script:"bookmarklet"},
+    "ipfs": {script:"ipfs"},
     "web3": {script:"web3", mode:"frame"},
     "text/directory": {script:"download", args: {extension:"vcf", filename:"contact"}}
   }
