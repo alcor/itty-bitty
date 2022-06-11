@@ -41,6 +41,7 @@
     "text/rawhtml": {script:"parse"},
     "javascript": {script:"bookmarklet"},
     "web3": {script:"web3", mode:"frame"},
+    "text/directory": {script:"download", args: {extension:"vcf", filename:"contact"}}
   }
 
   window.addEventListener("message", function(e) {
@@ -94,6 +95,7 @@
     var iframe = document.getElementById("iframe");
     var dataPrefix = undefined;
     var renderMode = "data";
+    var renderer;
 
     let components = window.location.pathname.substring(1).split("/");
     let info = {}
@@ -127,7 +129,7 @@
 
     if (fragment.startsWith("data:")) {
       let info = bitty.infoForDataURL(fragment);
-      const renderer = info.params?.render || renderers[info.mediatype]?.script;
+      renderer = info.params?.render ? {script:info.params.render} : renderers[info.mediatype];
       
       type = "data:" + info.mediaType;
 
@@ -146,7 +148,7 @@
       }
 
       if (renderer) {
-        var script = renderer;
+        var script = renderer.script;
         if (script.indexOf("/") == -1)  script = location.origin + '/render/' + script + '.js'
         renderMode = "script";
       }
@@ -160,7 +162,7 @@
       
         let renderer = renderers[scheme];
         if (renderer) {
-          return renderContentWithScript(false, renderer.script, title, info, fragment, fragment);
+          return renderContentWithScript(false, renderer, title, info, fragment, fragment);
         }
         return window.location.replace(fragment);
       }
@@ -222,7 +224,7 @@
           if (renderMode == "frame") {
             writeDocContent(contentTarget, content)
           } else if (renderMode == "script") {
-            renderContentWithScript(contentTarget == document, script, title, info, content, dataURL);
+            renderContentWithScript(contentTarget == document, renderer, title, info, content, dataURL);
           }
         });
       }
@@ -238,7 +240,8 @@
 
   
   const SCRIPT_LOADER = `<!doctype html><meta charset=utf-8><script src="${location.origin}/render.js"></script>`
-  function renderContentWithScript(overwrite, script, title, info, body, url) {
+  function renderContentWithScript(overwrite, renderer, title, info, body, url) {
+    let script = renderer.script;
     if (script.indexOf("/") == -1)  script = location.origin + '/render/' + script + '.js'
     
     if (overwrite) {
@@ -252,7 +255,7 @@
       
     } else {
       iframe.onload = (() => {
-        iframe.contentWindow.postMessage({script, url, title, info, body}, "*");
+        iframe.contentWindow.postMessage({script, url, title, info, body, args:renderer.args}, "*");
         delete iframe.onload
       });
       // writeDocContent(iframe.contentWindow.document, SCRIPT_LOADER)

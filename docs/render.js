@@ -23,8 +23,8 @@ function async(u, c) {
   s.parentNode.insertBefore(o, s);
 }
 
-function loadSyle(href) {
-  document.head.appendChild(el("link", { type: "text/css", rel: "stylesheet", href}));
+function loadSyle(href, callback) {
+  document.head.appendChild(el("link", { type: "text/css", rel: "stylesheet", href, onload:callback}));
 }
 
 function renderScriptContent(data, origin) {

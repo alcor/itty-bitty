@@ -1,27 +1,24 @@
-let url = params.body
-let title = params.title  
 loadSyle(document.currentScript.src.replace("js", "css"))
-document.body.appendChild(
-  el("div", {id:"content"},
-    el("a", {href:url, innerText:"Script: " + title || "Bookmarklet"}),
-    el("p", {id:"emoji", innerText:"☝️"}),
-    el("p", {innerText:"Drag this bookmarklet to your bookmarks / favorites to use it."}),
-    el("p", {innerText:"On mobile, bookmark this page, then edit the address to remove everything to the left of 'javascript:'."})
-  )
-);
-
 
 try {
-  //let dl = document.querySelector("#download");
-  let extension = title.split(".")
-  let dl = el("a", {id: "download", href:url, download: title},
-    el("div", {id: "dl-image", innerText:extension.pop() ?? ""}),
-    el("div", {id: "dl-name", innerText:"title"}),
+  let filename = params.title 
+  let components = filename.split(".");
+  let extension = params.args?.extension;
+  let title = params.args?.filename ? [params.args?.filename, params.args?.extension].join(".") : filename || "";
+  if (components.length > 1) {
+    extension = components.pop();
+    title = components.join(".");
+  }
+
+  let dl = el("a", {id: "download", href:params.url, download: title},
+    el("div", {id: "dl-image", innerText:extension ?? ""}),
+    el("div", {id: "dl-name", innerText:title}),
     el("div", {id: "dl-button"}),
   )
   document.body.append(dl)
-  dl.click();
+  setTimeout(() => dl.click(), 1000);
+
 } catch (e) {
   console.log("DL error", e)
-  location.href = url;
+  top.location.href = params.url;
 }

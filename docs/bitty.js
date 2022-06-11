@@ -47,7 +47,7 @@ class DataURL {
     }
 
     // Decompress if needed
-    if (this.format != "base64") {
+    if (this.format && (this.format != "base64")) {
       let bytes = base64ToByteArray(this.data);
       this.rawData = await decompressData(bytes, this.format)
       this.data = await dataToBase64(this.rawData);
