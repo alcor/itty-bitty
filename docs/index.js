@@ -25,6 +25,10 @@
     // </div>`
   }
 
+  function setThemeColor(color) {
+    document.getElementById("themeColor").content = color;
+  }
+
   function setFavicon(favicon) {
     document.getElementById("favicon").href = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em"><text y=".9em">'+ favicon + '</text></svg>'
   }
@@ -48,6 +52,7 @@
     console.debug("Message:", e.origin, e.data)
       if (e.data.title) document.title = e.data.title;
       if (e.data.favicon) setFavicon(e.data.favicon);
+      if (e.data.themeColor) setThemeColor(e.data.themeColor);
       if (e.data.updateURL) {
         let path = ["/" + e.data.title.replace(/\s/g, "-")];
         if (e.data.description) path.push("d/" + encodeURIComponent(e.data.description));
