@@ -255,6 +255,24 @@ function decompressDataURL(dataURL, preamble, callback) {
   }
 }
 
+async function hashString(string, base = 36) {
+  const arrayBuffer = await(new TextEncoder().encode(string))
+  const hashAsArrayBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+  const uint8ViewOfHash = new Uint8Array(hashAsArrayBuffer);
+  const hashAsHex = Array.from(uint8ViewOfHash).map(b => b.toString(16).padStart(2, '0')).join('');
+  if (base == 16) return hashAsHex;
+
+  if (base == 36) {
+    const guid = BigInt("0x" + hashAsHex);
+    const asBase36 = guid.toString(36).toLowerCase();
+    return asBase36;
+  }
+
+  const hashAsBase64 = btoa(String.fromCharCode.apply(null, uint8ViewOfHash));
+  hashAsBase64.replace(/=/g,'').replace(/[\+\/+]/g, "-").toLowerCase();
+  return hashAsBase64; 
+}
+
 function compressString(string, encoding = LZMA64_MARKER, callback) {
   if (encoding == LZMA64_MARKER) {
     loadScript("/js/lzma/lzma_worker-min.js", () => {
@@ -382,6 +400,7 @@ export {
   decompressString,
   compressDataURL,
   decompressDataURL,
+  hashString,
   BASE64_MARKER,
   LZMA64_MARKER,
   GZIP64_MARKER,
