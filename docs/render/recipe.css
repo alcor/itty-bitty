@@ -371,7 +371,8 @@ user-select: none;
     --opaque-text-color:white;
     --hover-background-color:rgba(255,255,255, 0.14);
     --background-color:#222;
-
+    --disabled-text-color:
+    rgba(255,255,255, 0.54);
   }
 }
 
