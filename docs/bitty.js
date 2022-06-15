@@ -163,11 +163,6 @@ async function decryptData(cipher, base64) {
 
 function infoForDataURL(url) {
   return new DataURL(url);
-  let match = url.match(dataUrlRE);
-  let info = match.groups;
-  // info.params = new URLSearchParams(info?.groups.attrs?.substring(1).replace(/;/g, "&"));
-  info.params = info.params ? JSON.parse('{"' + decodeURI(info.params?.substring(1)).replace(/"/g, '\\"').replace(/;/g, '","').replace(/=/g,'":"') + '"}') : info.params;
-  return info;
 }
 
 var BASE64_MARKER = 'base64';
