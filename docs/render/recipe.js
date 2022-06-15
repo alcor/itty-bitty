@@ -25,8 +25,8 @@ FRACTION_MAP = {
 }
 
 let ignoredTerms = [
-  "teaspoon", "teaspoons", "tablespoon", "tablespoons", "cup", "cups", "taste", "more", "melted", "into", "wide", "pound", "pounds", "gram", "grams", "you", "ounce", "ounces", "thinly", "sliced",
-  "pan", "finely", "ground", "garnish", "about", "cut", "and", "smashed", "each", "the", "medium", "large", "small", "for", "chopped", "minced", "grated", "box", "softened", "directed", "shredded", "cooked", "from", "frozen", "thawed"
+  "note", "teaspoon", "teaspoons", "tablespoon", "tablespoons", "cup", "cups", "taste", "more", "melted", "into", "wide", "pound", "pounds", "gram", "grams", "you", "ounce", "ounces", "thinly", "sliced",
+  "pan", "cube", "cubes", "finely", "ground", "garnish", "about", "cut", "and", "smashed", "each", "the", "medium", "large", "small", "for", "chopped", "minced", "grated", "box", "softened", "directed", "shredded", "cooked", "from", "frozen", "thawed"
 ]
 
 const replacements = {
@@ -142,7 +142,7 @@ function highlightStep(e) {
 
 }
 
-const ingredientMatch = /^(?:A )?([\/0-9 \u00BC-\u00BE\u2153-\u215E\u2009]*) (.*)/
+const ingredientMatch = /^(?:A )?([\/0-9 \u00BC-\u00BE\u2153-\u215E\u2009]*)\s(.*)/
 
 
 function ingredientEl(string, terms) {
@@ -162,6 +162,10 @@ function ingredientEl(string, terms) {
 function highlightTerms(string, terms) {
   const pattern = new RegExp(`\\b(${Array.from(terms).join('|').replace("-","\\-") })\\b`, 'gi'); 
   return string.replace(pattern, match => `<span class="noun" id="term-${match}">${match}</span>`);
+}
+
+function share() {
+  parent.postMessage({share:{}}, "*");
 }
 
 function render() {
@@ -286,50 +290,55 @@ function render() {
 
 
   document.body.appendChild(
-    m("article.recipe", {},
+    m(".recipe", {},
       image ? m("#thumbnail-container", m("#thumbnail.thumbnail.noprint", { style: "background-image:url(" + ");", onload: imgload })) : null,
-      
-      m("header",
-        m("img.publisher", { src: json.publisher?.image ?.[0]?.url ?? json.publisher ?.logo ?.url }),
-        m("h1", title),
-        m(".metadata",
-          m("div", m("span.yield", m(".icon.material-icons-outlined", "restaurant"), yield)),
-          m(".time",
-            m(".icon.material-icons-outlined", "timer"),
+      m("article",
+        m("header",
+          m("img.publisher", { src: json.publisher?.image ?.[0]?.url ?? json.publisher ?.logo ?.url }),
+          m("h1", title),
+          m(".metadata",
+            m("div", m("span.yield", m(".icon.material-icons-outlined", "restaurant"), yield)),
+            m(".time",
+              m(".icon.material-icons-outlined", "timer"),
 
-            json.totalTime ? m("span", formatTime(json.totalTime)) : undefined,
-            // " (",
-            // json.prepTime ? m("span", formatTime(json.prepTime), " prep") : undefined,
-            // json.cookTime ? m("span",  ", ",  formatTime(json.cookTime), " cook") : undefined,
-            // ")"
+              json.totalTime ? m("span", formatTime(json.totalTime)) : undefined,
+              // " (",
+              // json.prepTime ? m("span", formatTime(json.prepTime), " prep") : undefined,
+              // json.cookTime ? m("span",  ", ",  formatTime(json.cookTime), " cook") : undefined,
+              // ")"
+            ),
+            (rating) ? m("div.rating",
+                m(".icon.material-icons-outlined", "grade"),
+                parseFloat(rating.ratingValue).toFixed(1), " ",
+                // ratingCount ? m("span.count", ratingCount.toString()) : null
+                )
+            : null,
+            json.nutrition?.calories ? 
+              m("div", m(".icon.material-icons-outlined", "info"),
+                (json.nutrition?.calories.toString().replace("calories", "Cal").replace("kcal", "Cal")) + (isNaN(json.nutrition?.calories) ? '' : ' Cal')) : null,
+
+            m("div.spacer"),
+            m(".actions",
+              m("a.action.noprint", { title:"Open original", href: json.mainEntityOfPage || json.url, target:"_blank"}, m(".icon.material-icons-outlined", "public")),
+              m("a.action.noprint", { title:"Share", onclick: share}, m(".icon.material-icons-outlined", "share")),
+              m("a.action.noprint", { title:"Show steps as list", href: "#", onclick: () => {reformat = !reformat; render(); return false;}}, m(".icon.material-icons-outlined", "notes")),
+              m("a.action.noprint", { title:"Print", href: "#", onclick: () => window.print() }, m(".icon.material-icons-outlined", "print")),
+            )
           ),
-          (rating) ? m("div.rating",
-              m(".icon.material-icons-outlined", "grade"),
-              parseFloat(rating.ratingValue).toFixed(1), " ",
-              // ratingCount ? m("span.count", ratingCount.toString()) : null
-              )
-           : null,
-          json.nutrition?.calories ? m("div", m(".icon.material-icons-outlined", "info"), (json.nutrition?.calories) + (parseFloat(json.nutrition?.calories) != NaN ? " calories" : "")) : null,
+          json.description ? m(".description",
+            clean(json.description),
+            json.author?.name ? m("span.author", (" —⁠" + json.author?.name)) : null,
 
-          m("div.spacer"),
-          m("a.action.noprint", { title:"Open original", href: json.mainEntityOfPage || json.url, target:"_blank"}, m(".icon.material-icons-outlined", "link")),
-          m("a.action.noprint", { title:"Show steps as list", href: "#", onclick: () => {reformat = !reformat; render(); return false;}}, m(".icon.material-icons-outlined", "format_list_numbered")),
-          m("a.action.noprint", { title:"Print", href: "#", onclick: () => window.print() }, m(".icon.material-icons-outlined", "print")),
+            m("p"),
+
+          ) : null,
 
         ),
-        json.description ? m(".description",
-          clean(json.description),
-          json.author?.name ? m("span.author", (" —⁠" + json.author?.name)) : null,
-
-          m("p"),
-
-        ) : null,
-
-      ),
-      m(".columns",
-        m(".ingredients", ingredients),
-        m(reformat ? ".instructions.numbered" : ".instructions",  instructions)
-      ),
+        m("main.columns",
+          m("section.ingredients", ingredients, m("img.qr.print-only", {src:QRCodeURL(params.originalURL, {margin:0})})),
+          m(reformat ? "section.instructions.numbered" : "section.instructions",  instructions)
+        ),
+      )
     )
   )
 

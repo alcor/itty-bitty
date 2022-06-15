@@ -39,3 +39,11 @@ function renderScriptContent(data, origin) {
 window.addEventListener("message", function(e) {
   renderScriptContent(e.data, e.origin);
 }, false);
+
+function QRCodeURL(url, options) {
+  let size = options?.size ?? 547;
+  let errorCorrection = options?.correction ?? 'L';
+  let margin = options?.margin?.toString() || "1";
+  console.log("margin", options?.margin);
+  return `https://chart.googleapis.com/chart?cht=qr&chs=${size}x${size}&chld=${errorCorrection}|${margin}&choe=UTF-8&chl=${encodeURIComponent(url || location.href)}`;
+}
