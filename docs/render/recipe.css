@@ -409,7 +409,7 @@ img.qr {
     max-width: unset;
   }
 
-  #thumbnail-container {width: 100%;height: 100vh;}
+  #thumbnail-container {width: 100%;height: 100vh;position: sticky;top: 0;}
 
   .thumbnail {
     max-height: 100vh;
