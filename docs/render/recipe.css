@@ -368,8 +368,10 @@ user-select: none;
 @media (prefers-color-scheme: dark) {
   body {
     --text-color:white;
+    --opaque-text-color:white;
     --hover-background-color:rgba(255,255,255, 0.14);
     --background-color:#222;
+
   }
 }
 
