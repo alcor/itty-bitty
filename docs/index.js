@@ -32,7 +32,14 @@
   }
 
   function setThemeColor(color) {
-    document.getElementById("themeColor").content = color;
+    let el = document.getElementById("themeColor");
+    if (!el) {
+      el = document.createElement("meta");
+      el.name = "theme-color";
+      el.id = "themeColor";
+      document.head.appendChild(el);
+    }
+    el.content = color;
   }
 
   function setFavicon(favicon) {
@@ -50,10 +57,41 @@
     "application/ld+json": {script:"recipe"},
     "text/rawhtml": {script:"parse"},
     "javascript": {script:"bookmarklet"},
-    "ipfs": {script:"ipfs"},
-    "web3": {script:"web3", mode:"frame"},
+    "ipfs": {script:"ipfs", sandbox:"ipfs"},
+    "web3": {script:"web3"},
     "text/directory": {script:"download", args: {extension:"vcf", filename:"contact"}}
   }
+
+
+  function share(info) { // {title, text, url}
+    if (!info.url) info = {title:document.title, text:document.title, url:location.href};
+    console.log("Share", info);
+
+    if (navigator.share) {
+      navigator.share(info)
+        .then(() => { console.log('Thanks for sharing!');})
+        .catch(console.error);
+    } else {
+      copyLink(info)
+    }
+  }
+
+  function copyLink(info) {
+    var text = info.url;
+    var dummy = document.createElement("input");
+    document.body.appendChild(dummy);
+    dummy.value = text;
+    dummy.select();
+    document.execCommand("copy");
+    document.body.removeChild(dummy);
+  
+    document.body.classList.add("copied");
+    setTimeout(function() {
+      document.body.classList.remove("copied");
+    }, 2000);
+  }
+  
+
 
   window.addEventListener("message", function(e) {
     console.debug("Message:", e.origin, e.data)
@@ -65,9 +103,12 @@
         if (e.data.description) path.push("d/" + encodeURIComponent(e.data.description));
         if (e.data.favicon) path.push("f/" + encodeURIComponent(e.data.favicon));
         if (e.data.image) path.push("i/" + encodeURIComponent(btoa(e.data.image)));
-        window.location.pathname = path.join('/');
+        window.location.pathname = path.join('/') + "/";
       }
 
+      if (e.data.share) {
+        share(e.data.share);
+      }
       if (e.data.replaceURL) {
         if (e.data.compressURL) {
           let durl = new bitty.DataURL(e.data.replaceURL);
@@ -141,7 +182,7 @@
 
     if (fragment.startsWith("data:")) {
       let info = bitty.infoForDataURL(fragment);
-      renderer = info.params?.render ? {script:info.params.render} : renderers[info.mediatype];
+      renderer = info.params?.render ? {script:info.params.render, sandbox:"hash"} : renderers[info.mediatype];
       
       type = "data:" + info.mediaType;
 
@@ -174,7 +215,7 @@
       
         let renderer = renderers[scheme];
         if (renderer) {
-          return renderContentWithScript(false, renderer, title, info, fragment, fragment);
+          return renderContentWithScript({renderer, title, info, body:fragment, url:fragment});
         }
         return window.location.replace(fragment);
       }
@@ -199,48 +240,47 @@
     durl.dataPrefix = dataPrefix;
     let dataURL = durl.href;
     let dataContent = durl.rawData;
-    // bitty.decompressDataURL(fragment, dataPrefix, function(dataURL, dataContent)
-     {
-      if (!dataURL) return;
-      iframe.sandbox = "allow-downloads allow-scripts allow-forms allow-top-navigation allow-popups allow-modals allow-popups-to-escape-sandbox";
 
-      if (isIE && renderMode == "data") renderMode = "frame";
-      let contentTarget// = iframe.contentWindow.document;
-      if (isWatch) {
-        console.log("Rendering for watch")
-        contentTarget = document;
-      }
-      console.log("Rendering mode: " + "\x1B[1m" + renderMode, durl)
-      // dataURL = dataURL.replace("application/ld+json", "text/plain");
-      if (renderMode == "download") {
-        try {
-          //let dl = document.querySelector("#download");
-          let extension = title.split(".")
-          let dl = el("a", {id: "download", href:dataURL, download: title},
-            el("div", {id: "dl-image", innerText:extension.pop() ?? ""}),
-            el("div", {id: "dl-name", innerText:"title"}),
-            el("div", {id: "dl-button"}),
-          )
-          document.body.append(dl)
-          document.body.classList.add("download");
-          dl.click();
-          return;
-        } catch (e) {
-          console.log("DL error", e)
-          iframe.src = dataURL;
-        }
-      } else if (renderMode == "data") {
-        iframe.src = dataURL;
-      } else {
-        bitty.dataToString(dataURL, function(content) {
-          if (renderMode == "frame") {
-            writeDocContent(contentTarget, content)
-          } else if (renderMode == "script") {
-            renderContentWithScript(contentTarget == document, renderer, title, info, content, dataURL);
-          }
-        });
-      }
+    if (!dataURL) return;
+    iframe.sandbox = "allow-same-origin allow-downloads allow-scripts allow-forms allow-top-navigation allow-popups allow-modals allow-popups-to-escape-sandbox";
+
+    if (isIE && renderMode == "data") renderMode = "frame";
+    let contentTarget// = iframe.contentWindow.document;
+    if (isWatch) {
+      console.log("Rendering for watch")
+      contentTarget = document;
     }
+    console.log("Rendering mode: " + "\x1B[1m" + renderMode, durl)
+    // dataURL = dataURL.replace("application/ld+json", "text/plain");
+    if (renderMode == "download") {
+      try {
+        //let dl = document.querySelector("#download");
+        let extension = title.split(".")
+        let dl = el("a", {id: "download", href:dataURL, download: title},
+          el("div", {id: "dl-image", innerText:extension.pop() ?? ""}),
+          el("div", {id: "dl-name", innerText:"title"}),
+          el("div", {id: "dl-button"}),
+        )
+        document.body.append(dl)
+        document.body.classList.add("download");
+        dl.click();
+        return;
+      } catch (e) {
+        console.log("DL error", e)
+        iframe.src = dataURL;
+      }
+    } else if (renderMode == "data") {
+      iframe.src = dataURL;
+    } else {
+      bitty.dataToString(dataURL, function(content) {
+        if (renderMode == "frame") {
+          writeDocContent(contentTarget, content)
+        } else if (renderMode == "script") {
+          renderContentWithScript({renderer, title, info, body:content, url:dataURL, overwrite:contentTarget == document});
+        }
+      });
+    }
+    
     
     let recordHistory = false
     if (recordHistory) recordToHistory(title, type, description, window.location);
@@ -252,36 +292,50 @@
 
   
   const SCRIPT_LOADER = `<!doctype html><meta charset=utf-8><script src="${location.origin}/render.js"></script>`
-  function renderContentWithScript(overwrite, renderer, title, info, body, url) {
-    let script = renderer.script;
-    if (script.indexOf("/") == -1)  script = location.origin + '/render/' + script + '.js'
+  async function renderContentWithScript(params) {
+
+    params.script = params.renderer.script;
+    params.originalURL = location.href;
+    if (params.script.indexOf("/") == -1)  params.script = location.origin + '/render/' + params.script + '.js'
     
-    if (overwrite) {
+    if (params.overwrite) { 
+        // Overwrite the current page with the script. Dangerous, but required for browsers on apple watch to scroll.
         let scriptEl = document.createElement("script")
         scriptEl.src = "/render.js"
         scriptEl.addEventListener('load', function(e) {
           console.log("Loaded script", scriptEl.src);
-          renderScriptContent({script, url, title, info, body}, "*");
+          renderScriptContent(params, "*");
         });
         document.head.appendChild(scriptEl);
-      
-    } else {
+    } else { 
+      // Render in an iframe, either via sandboxed subdomain or a data url (disables storage APIs)
       iframe.onload = (() => {
-        iframe.contentWindow.postMessage({script, url, title, info, body, args:renderer.args}, "*");
+        iframe.contentWindow.postMessage(params, "*");
         delete iframe.onload
       });
       // writeDocContent(iframe.contentWindow.document, SCRIPT_LOADER)
       // iframe.srcdoc = SCRIPT_LOADER;
-      iframe.src = "data:text/html," + SCRIPT_LOADER;
+
+      let src = location.origin + "/render";
+      let sandbox = params.renderer?.sandbox;
+      if (sandbox == "hash") { // Generate sandbox based off of body hash
+        let hash = await bitty.hashString(params.body);
+        src = src.replace("https://", "https://script-" + hash + ".");
+      } else if (sandbox) { // Use named sandbox
+        src = src.replace("https://", "https://" + sandbox + ".");
+      } else { // Render using data url (storage disabled)
+        src = "data:text/html," + SCRIPT_LOADER;
+      }
+      console.log("src", src)
+      iframe.src = src;
     }
   }
 
-  function writeDocContent(doc, content) {
-    doc.open();
-    doc.write(content);
-    doc.close();
-  }
-
+function writeDocContent(doc, content) {
+doc.open();
+doc.write(content);
+doc.close();
+}
 
 function recordToHistory() { 
   if (navigator.storage && navigator.storage.persist)
