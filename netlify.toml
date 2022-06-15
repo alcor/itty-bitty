@@ -1,6 +1,6 @@
 [[edge_functions]]
-path = "/*"
-function = "metadata"
+  path = "/*"
+  function = "metadata"
 
 [[redirects]]
   from = "/*"
