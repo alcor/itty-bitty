@@ -326,7 +326,7 @@ a.action .icon {
   opacity: 1.0;
 }
 
-@media screen and (max-width: 480px) {
+@media screen and (max-width: 520px) {
 
   .instructions hr:first-child {
     display:block;
