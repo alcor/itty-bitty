@@ -283,23 +283,23 @@ function render() {
   
   var bgImg = new Image();
   bgImg.onload = function(){
-    console.log("bgImg", bgImg, bgImg.naturalHeight, bgImg.naturalWidth)
     let thumbnail = document.querySelector("#thumbnail");
     let thumbnailContainer = document.querySelector("#thumbnail-container");
     thumbnail.style.backgroundImage = 'url(' + bgImg.src + ')';
-    console.log("bgImg.naturalHeight / window.innerHeight", bgImg.naturalHeight, thumbnailContainer.offsetHeight, thumbnailContainer.offsetHeight / bgImg.naturalHeight)
     thumbnail.style.filter = `blur(${thumbnailContainer.offsetHeight / bgImg.naturalHeight}px)`;
     thumbnail.style.transform = `scale(1.1)`;  
   };
   bgImg.src = image;
 
-
+  let originalURL = json.mainEntityOfPage?.["@id"] || json.mainEntityOfPage || json.url;
   document.body.appendChild(
     m(".recipe", {},
       image ? m("#thumbnail-container", m("#thumbnail.thumbnail.noprint", { style: "background-image:url(" + ");" })) : null,
       m("article",
         m("header",
-          m("img.publisher", { src: json.publisher?.image ?.[0]?.url ?? json.publisher ?.logo ?.url }),
+          m("a", {href:originalURL, target:"_blank"},
+            m("img.publisher", { src: json.publisher?.image ?.[0]?.url ?? json.publisher ?.logo ?.url }),
+          ), 
           m("h1", title),
           m(".metadata",
             m("div", m("span.yield", m(".icon.material-icons-outlined", "restaurant"), yield)),
@@ -324,7 +324,7 @@ function render() {
 
             m("div.spacer"),
             m(".actions",
-              m("a.action.noprint", { title:"Open original", href: json.mainEntityOfPage || json.url, target:"_blank"}, m(".icon.material-icons-outlined", "public")),
+              m("a.action.noprint", { title:"Open original", href: originalURL, target:"_blank"}, m(".icon.material-icons-outlined", "public")),
               m("a.action.noprint", { title:"Share", onclick: share}, m(".icon.material-icons-outlined", "share")),
               m("a.action.noprint", { title:"Show steps as list", href: "#", onclick: () => {reformat = !reformat; render(); return false;}}, m(".icon.material-icons-outlined", "notes")),
               m("a.action.noprint", { title:"Print", href: "#", onclick: () => window.print() }, m(".icon.material-icons-outlined", "print")),

@@ -337,7 +337,7 @@
       } else { // Render using data url (storage disabled)
         src = "data:text/html," + SCRIPT_LOADER;
       }
-      console.log("src", src)
+      console.log("Loading script with source:\n" + src)
       iframe.src = src;
     }
   }
