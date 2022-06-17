@@ -316,7 +316,8 @@
       // writeDocContent(iframe.contentWindow.document, SCRIPT_LOADER)
       // iframe.srcdoc = SCRIPT_LOADER;
 
-      let src = location.origin + "/render";
+      let src = window.scriptDomain ?? location.origin;
+      src += "/render";
       let sandbox = params.renderer?.sandbox;
       if (sandbox == "hash") { // Generate sandbox based off of body hash
         let hash = await bitty.hashString(params.body);
