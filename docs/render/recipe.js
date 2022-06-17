@@ -283,15 +283,20 @@ function render() {
   
   var bgImg = new Image();
   bgImg.onload = function(){
-    // console.log(bgImg, bgImg.naturalHeight, bgImg.naturalWidth)
-    document.querySelector("#thumbnail").style.backgroundImage = 'url(' + bgImg.src + ')';
+    console.log("bgImg", bgImg, bgImg.naturalHeight, bgImg.naturalWidth)
+    let thumbnail = document.querySelector("#thumbnail");
+    let thumbnailContainer = document.querySelector("#thumbnail-container");
+    thumbnail.style.backgroundImage = 'url(' + bgImg.src + ')';
+    console.log("bgImg.naturalHeight / window.innerHeight", bgImg.naturalHeight, thumbnailContainer.offsetHeight, thumbnailContainer.offsetHeight / bgImg.naturalHeight)
+    thumbnail.style.filter = `blur(${thumbnailContainer.offsetHeight / bgImg.naturalHeight}px)`;
+    thumbnail.style.transform = `scale(1.1)`;  
   };
   bgImg.src = image;
 
 
   document.body.appendChild(
     m(".recipe", {},
-      image ? m("#thumbnail-container", m("#thumbnail.thumbnail.noprint", { style: "background-image:url(" + ");", onload: imgload })) : null,
+      image ? m("#thumbnail-container", m("#thumbnail.thumbnail.noprint", { style: "background-image:url(" + ");" })) : null,
       m("article",
         m("header",
           m("img.publisher", { src: json.publisher?.image ?.[0]?.url ?? json.publisher ?.logo ?.url }),
@@ -348,8 +353,7 @@ function render() {
 
 var path = script.src.substring(0, script.src.lastIndexOf("."));
 var cssURL = path + ".css";
+loadSyle("https://fonts.googleapis.com/icon?family=Material+Icons+Outlined")
+.then(() => loadSyle(cssURL)).then(render);
 
-document.head.appendChild(m("link", { rel: "stylesheet", type: "text/css", href: cssURL }));
-document.head.appendChild(m("link", { rel: "stylesheet", href: "https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" }));
 
-render();

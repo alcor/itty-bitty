@@ -19,13 +19,14 @@ body {
 
 .thumbnail {
   width: 100%;
-  padding-top: 77%;
+  padding-top: 61.8%;
   max-height:1vh;
   background-color: gray;
   background-size: cover;
   background-position: center;
   margin-bottom:2em;
   box-sizing: border-box;
+  transition:background-image 1s;
   /* margin: 0 -2em; */
   }
 
@@ -333,6 +334,7 @@ a.action .icon {
   }
   #thumbnail-container {
     margin: 0 -8vw;
+
   }
   #thumbnail {
       padding-top: 56.25%;
@@ -401,7 +403,14 @@ img.qr {
   width:100%;
 }
 
-@media screen and (min-width: 1000px) {
+@media screen and (max-width: 1199px) {
+  #thumbnail {
+  filter:none !important;
+  transform: none !important;
+  }
+}
+
+@media screen and (min-width: 1200px) {
   body {
     width:auto;
     margin:0;
@@ -412,7 +421,10 @@ img.qr {
     max-width: unset;
   }
 
-  #thumbnail-container {width: 100%;height: 100vh;position: sticky;top: 0;}
+  #thumbnail-container {
+    width: 100%;height: 100vh;position: sticky;top: 0;
+    overflow:hidden;
+  }
 
   .thumbnail {
     max-height: 100vh;
