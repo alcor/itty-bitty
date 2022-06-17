@@ -10,16 +10,9 @@ let mobile = ua.match(/Mobile/i)
 
 let barName = ua.match(/Chrome/i) ? "Bookmarks" : "Favorites"
 let managerName = ua.match(/Edge/i) ? "Favorites" : "Bookmarks"
-
 let cmdKey = ua.match(/Mac/i) ? "⇧⌘B" : "Ctrl + Shift + B"
 
-// 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36'
-
-
 loadSyle(document.currentScript.src.replace("js", "css"))
-
-
-
   document.body.appendChild(
     el("div", {id:"content"},
     el("div", {className:"description"}, params.info?.d ?? ""),
