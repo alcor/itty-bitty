@@ -235,6 +235,16 @@
 
     let durl = new bitty.DataURL(fragment);
 
+    if (durl.params.compress) {
+      console.log("Compressing URL", durl);
+      delete durl.params.compress;
+      durl.compress(bitty.GZIP_MARKER).then(arg => {
+        window.history.replaceState(null, null, "/#/" + arg.href);
+        renderContent();
+      })
+      return;
+    }
+
     await durl.decompress();
 
     durl.dataPrefix = dataPrefix;
