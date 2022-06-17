@@ -24,8 +24,12 @@ function async(u, c) {
 }
 
 function loadSyle(href, callback) {
-  document.head.appendChild(el("link", { type: "text/css", rel: "stylesheet", href, onload:callback}));
+  let promise =  new Promise((resolve, reject) => {
+    document.head.appendChild(el("link", { type: "text/css", rel: "stylesheet", href, onload:resolve}));
+  })
+  return callback ?  promise.then(callback) : promise;
 }
+
 
 function renderScriptContent(data, origin) {
   var base = el('base', {href: data});
