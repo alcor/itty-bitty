@@ -1,28 +1,29 @@
-// https://itty.bitty.app/itty-bitty-recipes/d/Clean-your-recipes-with-itty-bitty/f/%F0%9F%8D%B3/#Send_to_itty.bitty/javascript:f=new%20FileReader();f.onload=function(e){top.location.href=('https://itty.bitty.app/#/'+e.target.result)};f.readAsDataURL(new%20Blob([document.documentElement.outerHTML],{type:'text/raw+html;render=parse;encode=none;charset=utf-8'}));
 
-// JSON extraction
+// Minification:
+// pbpaste | uglifyjs | xargs -0 printf "javascript:%s\n"
 
-//javascript:
-((itty_bitty_recipes) => {
-    let ldjson = document.querySelector('script[type="application/ld+json"]').innerText.trim();
-  let f = new FileReader();
-  f.onload = function(e) { location.href = (itty_bitty_recipes + '/#/' + e.target.result);};
-  f.readAsDataURL(new Blob([ldjson],{type : 'application/ld+json;charset=utf-8'}));
-})('https://recipe.bitty.app')
+// LD+JSON extraction
+((ib) => {
+  ld = document.querySelector('script[type="application/ld+json"]').innerText
+  ld = JSON.parse(ld);
+  if (ld["@type"] != "Recipe"){ ld=(ld["@graph"]??ld).find((item)=>item["@type"]=="Recipe") }
+  delete ld.review;
+  delete ld.video;
+  if (!ld.url) ld.url = location.href;
+  f = new FileReader();
+  f.onload = function(e) {location.href=(ib + '/#/' + e.target.result);};
+  f.readAsDataURL(new Blob([JSON.stringify(ld)],{type:'application/ld+json;compress=true;charset=utf-8'}));
+})('https://itty.bitty.app')
 
-
-
-// DOM extraction
-
-javascript:f=new(FileReader)();f.onload=function(e){top.location.href=('https://itty.bitty.app/#/'+e.target.result)};f.readAsDataURL(new(Blob)([document.documentElement.outerHTML],{type:'text/raw+html;render=parse;encode=none;charset=utf-8'}));
-
-javascript:f=new(FileReader)();f.onload=function(e){top.location.href=('http://localhost:8888/#/'+e.target.result)};f.readAsDataURL(new(Blob)([document.documentElement.outerHTML],{type:'text/raw+html;render=parse;encode=none;charset=utf-8'}));
-
+// Full DOM extraction
+((ib) => {
+  let f = new(FileReader)();
+  f.onload = function(e){ top.location.href=(ib + '/#/' + e.target.result) };
+  f.readAsDataURL(new(Blob)([document.documentElement.outerHTML.substring(0,750000)],{type:'text/raw+html;render=parse;encode=none;charset=utf-8'}));
+})('https://itty.bitty.app')
 
 
 // JS Injection
-
-javascript:
 (function(ittybitty){
   let id="ittybitty";
   if (document.getElementById(id)) return;
@@ -33,10 +34,7 @@ javascript:
   document.head.appendChild(l);
 })("https://itty.bitty.app");
 
-
 // JS Injection with fallback
-
-javascript:
 (function(host){
   document.getElementById(host)?.remove();
   var l = document.createElement('script');
