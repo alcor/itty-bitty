@@ -4,7 +4,11 @@
 
 // LD+JSON extraction
 ((ib) => {
-  ld = document.querySelector('script[type="application/ld+json"]').innerText
+  ld = Array.from(document.querySelectorAll('script[type="application/ld+json"]'))
+    .map(e => e.innerText)
+    .sort((a,b) => a.length - b.length)
+    .pop();
+  if (!ld) alert("No recipe data found on this page. Sorry!");
   ld = JSON.parse(ld);
   if (ld["@type"] != "Recipe"){ ld=(ld["@graph"]??ld).find((item)=>item["@type"]=="Recipe") }
   delete ld.review;
