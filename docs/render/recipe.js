@@ -326,8 +326,8 @@ function render() {
             m(".actions",
               m("a.action.noprint", { title:"Open original", href: originalURL, target:"_blank"}, m(".icon.material-icons-outlined", "public")),
               m("a.action.noprint", { title:"Share", onclick: share}, m(".icon.material-icons-outlined", "share")),
-              m("a.action.noprint", { title:"Show steps as list", href: "#", onclick: () => {reformat = !reformat; render(); return false;}}, m(".icon.material-icons-outlined", "notes")),
-              m("a.action.noprint", { title:"Print", href: "#", onclick: () => window.print() }, m(".icon.material-icons-outlined", "print")),
+              m("a.action.noprint", { title:"Show steps as list", onclick: () => {reformat = !reformat; render(); return false;}}, m(".icon.material-icons-outlined", "notes")),
+              m("a.action.noprint", { title:"Print", onclick: () => {window.print(); return false;} }, m(".icon.material-icons-outlined", "print")),
             )
           ),
           json.description ? m(".description",
