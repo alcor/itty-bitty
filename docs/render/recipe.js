@@ -191,7 +191,7 @@ function render() {
   instructions = json.recipeInstructions;
   let title = clean(json.name);
   let description = clean(json.description);
-  parent.postMessage({title:title, favicon:"🍴", image:image, description:description wakeLock:true, updateURL:true}, "*");
+  parent.postMessage({title:title, favicon:"🍴", image:image, description:description, wakeLock:true, updateURL:true}, "*");
 
 
   // let text = instructions.join(" ");
