@@ -118,7 +118,7 @@
       if (e.data.themeColor) setThemeColor(e.data.themeColor);
       if (e.data.updateURL) {
         let path = ["/" + e.data.title.replace(/\s/g, "-")];
-        if (e.data.description) path.push("d/" + encodeURIComponent(e.data.description));
+        if (e.data.description) path.push("d/" + encodeURIComponent(e.data.description.replace(/\s/g, "-"));
         if (e.data.favicon) path.push("f/" + encodeURIComponent(e.data.favicon));
         if (e.data.image) path.push("i/" + encodeURIComponent(btoa(e.data.image)));
         window.location.pathname = path.join('/') + "/";
