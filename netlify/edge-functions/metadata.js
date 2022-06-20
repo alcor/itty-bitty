@@ -57,6 +57,7 @@ export default async (request, context) => {
           content.push(`<link rel="icon" type="image/png" href="https://fonts.gstatic.com/s/e/notoemoji/14.0/${codepoints.join("_")}/128.png">`);
         }
       }
+      content.push(`<meta property="og:url" content="https://www.imdb.com/title/tt0117500/" />`);
       
       console.log(["Metadata Request", JSON.stringify(info), geo, ua].join('\t')); 
 
