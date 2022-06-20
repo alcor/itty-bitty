@@ -90,8 +90,26 @@
       document.body.classList.remove("copied");
     }, 2000);
   }
-  
 
+  let wakeLock;
+  const getWakeLock = async () => {
+    try {
+      wakeLock = await navigator.wakeLock.request();
+      wakeLock.addEventListener('release', () => {});
+      console.log('Keeping Screen Awake:', !wakeLock.released);
+    } catch (err) {
+      console.error(`${err.name}, ${err.message}`);
+    }
+  };
+
+  const handleVisibilityChange = async () => {
+    if (wakeLock !== null && document.visibilityState === 'visible') {
+      await getWakeLock();
+    }
+  };
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+
+ 
 
   window.addEventListener("message", function(e) {
     console.debug("Message:", e.origin, e.data)
@@ -108,6 +126,9 @@
 
       if (e.data.share) {
         share(e.data.share);
+      }
+      if (e.data.wakeLock) {
+        getWakeLock();
       }
       if (e.data.replaceURL) {
         if (e.data.compressURL) {
@@ -188,9 +209,9 @@
 
       if (info.mediatype == "text/html") {
         dataPrefix = HEAD_TAGS();
-      } else if (info.mediatype == "text/plain") {
-        //dataPrefix = HEAD_TAGS_EXTENDED();
-        //fragment = fragment.replace("text/plain", "text/html");
+      } else if (info.mediatype == "text/plain" || info.mediatype == undefined) {
+        dataPrefix = HEAD_TAGS_EXTENDED();
+        fragment = fragment.replace("text/plain", "text/html");
         renderMode = "data";
       } else if (info.type == "text") {
       } else if (info.type == "image") {

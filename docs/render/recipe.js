@@ -190,7 +190,7 @@ function render() {
   image = image?.url || image;
   instructions = json.recipeInstructions;
   let title = clean(json.name);
-  parent.postMessage({title:title, favicon:"🍴", image:image, updateURL:true}, "*");
+  parent.postMessage({title:title, favicon:"🍴", image:image, wakeLock:true, updateURL:true}, "*");
 
 
   // let text = instructions.join(" ");
