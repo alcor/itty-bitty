@@ -190,7 +190,8 @@ function render() {
   image = image?.url || image;
   instructions = json.recipeInstructions;
   let title = clean(json.name);
-  parent.postMessage({title:title, favicon:"🍴", image:image, wakeLock:true, updateURL:true}, "*");
+  let description = clean(json.description);
+  parent.postMessage({title:title, favicon:"🍴", image:image, description:description wakeLock:true, updateURL:true}, "*");
 
 
   // let text = instructions.join(" ");
@@ -302,8 +303,8 @@ function render() {
           ), 
           m("h1", title),
           m(".metadata",
-            m("div", m("span.yield", m(".icon.material-icons-outlined", "restaurant"), yield)),
-            m(".time",
+            (yield) ? m("div", m("span.yield", m(".icon.material-icons-outlined", "restaurant"), yield)) : null,
+            json.totalTime ? m(".time",
               m(".icon.material-icons-outlined", "timer"),
 
               json.totalTime ? m("span", formatTime(json.totalTime)) : undefined,
@@ -311,7 +312,7 @@ function render() {
               // json.prepTime ? m("span", formatTime(json.prepTime), " prep") : undefined,
               // json.cookTime ? m("span",  ", ",  formatTime(json.cookTime), " cook") : undefined,
               // ")"
-            ),
+            ) : null,
             (rating) ? m("div.rating",
                 m(".icon.material-icons-outlined", "grade"),
                 parseFloat(rating.ratingValue).toFixed(1), " ",
