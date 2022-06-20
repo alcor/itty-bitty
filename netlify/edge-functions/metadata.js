@@ -38,6 +38,7 @@ export default async (request, context) => {
       if (info.i) { 
         if (!info.i.startsWith("http")) info.i = atob(info.i.replace(/=/g,''));
         content.push(`<meta property="og:image" content="${info.i}"/>`); 
+        content.push(`<meta name="twitter:card" content="summary_large_image">`);
         if (info.iw) content.push(`<meta property="og:image:width" content="${info.iw}"/>`); 
         if (info.ih) content.push(`<meta property="og:image:width" content="${info.ih}"/>`); 
       } 
