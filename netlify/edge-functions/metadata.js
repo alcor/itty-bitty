@@ -42,6 +42,7 @@ export default async (request, context) => {
         if (info.iw) content.push(`<meta property="og:image:width" content="${info.iw}"/>`); 
         if (info.ih) content.push(`<meta property="og:image:width" content="${info.ih}"/>`); 
       } 
+      if (info.c) { content.push(`<meta name="theme-color" content="#${info.c}"/>`); }
       if (info.v) { 
         if (!info.v.startsWith("http")) info.v = atob(info.v.replace(/=/g,''));
         content.push(`<meta property="og:video" content="${info.v}"/>`); 
@@ -57,7 +58,7 @@ export default async (request, context) => {
           content.push(`<link rel="icon" type="image/png" href="https://fonts.gstatic.com/s/e/notoemoji/14.0/${codepoints.join("_")}/128.png">`);
         }
       }
-      content.push(`<meta property="og:url" content="https://www.imdb.com/title/tt0117500/" />`);
+      content.push(`<meta property="og:url" content="${request.url}" />`);
       
       console.log(["Metadata Request", JSON.stringify(info), geo, ua].join('\t')); 
 
