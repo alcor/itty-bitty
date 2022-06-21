@@ -383,14 +383,23 @@ user-select: none;
 @media print {
   body {
     font-size: 14px;
+    min-height:100vh;
   }
-  .noprint {
+  .print-hide {
     display: none;
   }
+
+  @page { 
+    size: auto;   /* auto is the initial value */ 
+    /* margin: 1cm;   */
+  } 
+
+  a[href]:after { content: none !important; }
+  img[src]:after { content: none !important; }
 }
 
 @media not print {
-  .print-only {
+  .print-show {
     display:none;
   }
 }
@@ -401,7 +410,11 @@ user-select: none;
 
 
 img.qr {
-  width:100%;
+  margin-top:2em;
+  position:absolute;
+  bottom:0;
+  right:0;
+  width:2in;
 }
 
 @media screen and (max-width: 1199px) {
@@ -431,7 +444,7 @@ img.qr {
     max-height: 100vh;
     height: 100vh;
   }
-  .recipe article {
+  .recipe-content {
     max-width:50em;
     padding: 4em;
   }

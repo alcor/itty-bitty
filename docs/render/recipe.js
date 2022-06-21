@@ -169,19 +169,22 @@ function share() {
 }
 
 function render() {
-  delete document.documentElement.style.display;
-  document.body.childNodes.forEach((c) => document.body.removeChild(c))
-  let data = JSON.parse(window.params.body);
-
   try {
+    let data = JSON.parse(window.params.body);
     var json = data; //JSON.parse(data);
     if (json["@type"] != "Recipe") {
       json = (json["@graph"] ?? json).find((item) => item["@type"] == "Recipe")
     }
     console.log("Recipe", json);
   } catch (e) {
-    console.debug("Data", e, {data});
+
+    document.body.appendChild(m("div", "Error parsing recipe", m("p", e.message), m("p", e.stack), m("pre", window.params.body) ));
+    console.error("Data", e, {e, body: window.params.body});
+    return;
   }
+
+  delete document.documentElement.style.display;
+  document.body.childNodes.forEach((c) => document.body.removeChild(c))
 
 
   if (!json) return;
@@ -295,8 +298,8 @@ function render() {
   let originalURL = json.mainEntityOfPage?.["@id"] || json.mainEntityOfPage || json.url;
   document.body.appendChild(
     m(".recipe", {},
-      image ? m("#thumbnail-container", m("#thumbnail.thumbnail.noprint", { style: "background-image:url(" + ");" })) : null,
-      m("article",
+      image ? m("#thumbnail-container", m("#thumbnail.thumbnail.print-hide", { style: "background-image:url(" + ");" })) : null,
+      m(".recipe-content",
         m("header",
           m("a", {href:originalURL, target:"_blank"},
             m("img.publisher", { src: json.publisher?.image ?.[0]?.url ?? json.publisher ?.logo ?.url }),
@@ -324,24 +327,22 @@ function render() {
                 (json.nutrition?.calories.toString().replace("calories", "Cal").replace("kcal", "Cal")) + (isNaN(json.nutrition?.calories) ? '' : ' Cal')) : null,
 
             m("div.spacer"),
-            m(".actions",
-              m("a.action.noprint", { title:"Open original", href: originalURL, target:"_blank"}, m(".icon.material-icons-outlined", "public")),
-              m("a.action.noprint", { title:"Share", onclick: share}, m(".icon.material-icons-outlined", "share")),
-              m("a.action.noprint", { title:"Show steps as list", onclick: () => {reformat = !reformat; render(); return false;}}, m(".icon.material-icons-outlined", "notes")),
-              m("a.action.noprint", { title:"Print", onclick: () => {window.print(); return false;} }, m(".icon.material-icons-outlined", "print")),
+            m(".actions.print-hide",
+              originalURL ? m("a.action", { title:"Open original", href: originalURL, target:"_blank"}, m(".icon.material-icons-outlined", "public")) : null,
+              m("a.action", { title:"Share", onclick: share}, m(".icon.material-icons-outlined", "share")),
+              m("a.action", { title:"Show steps as list", onclick: () => {reformat = !reformat; render(); return false;}}, m(".icon.material-icons-outlined", "notes")),
+              m("a.action", { title:"Print", onclick: () => {window.print(); return false;} }, m(".icon.material-icons-outlined", "print")),
             )
           ),
           json.description ? m(".description",
             clean(json.description),
             json.author?.name ? m("span.author", (" —⁠" + json.author?.name)) : null,
-
             m("p"),
-
           ) : null,
 
         ),
-        m("main.columns",
-          m("section.ingredients", ingredients, m("img.qr.print-only", {src:QRCodeURL(params.originalURL, {margin:0})})),
+        m(".columns",
+          m("section.ingredients", ingredients, m("img.qr.print-show", {src:QRCodeURL(params.originalURL, {margin:0})})),
           m(reformat ? "section.instructions.numbered" : "section.instructions",  instructions)
         ),
       )
