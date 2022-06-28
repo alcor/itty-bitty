@@ -1,0 +1,117 @@
+* {
+  font-family: sans-serif;
+  font-size: 13px;
+  --secondary-text-color: rgba(0,0,0,0.54)
+}
+body {
+  background-color: #f1f1f1;
+  margin: 4vw;
+  background-image: 
+linear-gradient(45deg,rgba(128,128,128,.5) 25%,transparent 25%),
+linear-gradient(-45deg,rgba(128,128,128,.5) 25%,transparent 25%),
+linear-gradient(45deg,transparent 75%,rgba(128,128,128,.5) 75%),
+linear-gradient(-45deg,transparent 75%,rgba(128,128,128,.5) 75%);
+  background-size: 4px 4px;
+  background-position: 0 0,0 2px,2px -2px,-2px 0;
+  display: flex;
+  flex-direction: column
+}
+input {
+  border: 2px solid #000;
+  border-bottom: 2px solid #000;
+  width: 50%;
+  font-size: 16px;
+  background-color: #fff;
+  border-radius: 26px;
+  padding: .5em 1em;
+  box-shadow: 2px 2px #000;
+  margin: auto auto 1em
+}
+#results {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center
+}
+a {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: #000;
+  margin: .5em;
+  position: relative;
+  width: 15em;
+  height: 17em;
+  max-width: 68vmin;
+  box-shadow: 0 1px 3px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.24);
+  border-radius: 4px;
+  background-color: #fff;
+  justify-content: space-between;
+  border: 2px solid currentColor;
+  box-sizing: border-box;
+  box-shadow: 2px 2px 0 #000
+}
+a:before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  right: -4px;
+  border-width: 0 16px 16px 0;
+  border-style: solid;
+  border-color: #000 #f1f1f1;
+  display: none
+}
+a:hover {
+  background-color: #fafafa
+}
+a:hover .preview {
+  opacity: .8
+}
+a .preview {
+  width: 100%;
+  height: 0%;
+  flex: 1 1 auto;
+  padding-top: 61.8%;
+  background-size: cover;
+  background-position: center;
+  margin-top: 1em
+}
+div.delete {
+  width: 1em;
+  height: 1em;
+  position: absolute;
+  top: -.5em;
+  right: -.5em;
+  background-color: #fff;
+  border: 2px solid #000;
+  border-radius: 1em;
+  content: 'x';
+  text-align: center;
+  line-height: .9em;
+  z-index: 100
+}
+a:not(:hover) div.delete {
+  display: none
+}
+.info {
+  flex-direction: column;
+  flex-grow: 1;
+  padding: 1em 1em 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  -webkit-box-orient: vertical;
+  line-height: 1.25em;
+  flex-grow: 0
+}
+.emoji {
+  font-size: 48px;
+  margin: .2em
+}
+.title {
+  font-weight: 700
+}
+.desc {
+  color: var(--secondary-text-color)
+}
