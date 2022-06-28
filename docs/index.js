@@ -117,11 +117,7 @@
       if (e.data.favicon) setFavicon(e.data.favicon);
       if (e.data.themeColor) setThemeColor(e.data.themeColor);
       if (e.data.updateURL) {
-        let path = ["/" + e.data.title.replace(/\s/g, "-")];
-        if (e.data.description) path.push("d/" + encodeURIComponent(e.data.description.replace(/\s/g, "-")));
-        if (e.data.favicon) path.push("f/" + encodeURIComponent(e.data.favicon));
-        if (e.data.image) path.push("i/" + encodeURIComponent(btoa(e.data.image)));
-        window.location.pathname = path.join('/') + "/";
+        window.location.pathname = bitty.metadataToPath(e.data);
       }
 
       if (e.data.share) {
@@ -313,8 +309,8 @@
     }
     
     
-    let recordHistory = false
-    if (recordHistory) recordToHistory(title, type, description, window.location);
+    let recordHistory = true
+    if (recordHistory) recordToHistory(durl);
 
   };
 
@@ -343,6 +339,7 @@
       iframe.onload = (() => {
         iframe.contentWindow.postMessage(params, "*");
         delete iframe.onload
+        iframe.contentWindow.focus();
       });
       // writeDocContent(iframe.contentWindow.document, SCRIPT_LOADER)
       // iframe.srcdoc = SCRIPT_LOADER;
@@ -369,7 +366,45 @@ doc.write(content);
 doc.close();
 }
 
-function recordToHistory() { 
+function extractTerms(...args) {
+  let wordSet = {}
+  args.forEach((string) => {
+    if (string) string.split(/\s/).forEach((word) => { if (word.length > 2) wordSet[word.toLowerCase()] = true });
+  })
+  return Object.keys(wordSet);
+}
+
+async function recordToHistory() {
+  let location = window.location;
+  let fragment = location.hash;
+
+
+  fragment = fragment.substring(fragment.indexOf("/") + 1);
+  // var slashIndex = fragment.indexOf("/");
+  // var title = fragment.substring(0, slashIndex) || info.title;
+  let hash = await bitty.hashString(fragment);
+  let durl = new bitty.DataURL(fragment)
+  let type = durl.mediatype;
+
+  let metadata = bitty.pathToMetadata(location.pathname);
+  if (!metadata.title) {
+    let dom = await (await durl.decompress()).parseDom();
+
+    for (let el of dom.getElementsByTagName('script')) { el.parentNode.removeChild(el) }
+
+    metadata.title = dom.title;
+    metadata.description = dom.body.innerText.trim();
+    if (!metadata.title.length) metadata.title = dom.title = (dom.body.children[0].innerText.trim()).split("\n").pop();
+    metadata.description = metadata.description.replace(metadata.title, "").trim();
+    
+
+    
+    console.log("Extracting metadata from content", metadata);
+  
+  }
+
+
+
   if (navigator.storage && navigator.storage.persist)
     navigator.storage.persist().then(granted => {
     if (granted)
@@ -378,21 +413,24 @@ function recordToHistory() {
       console.log("Storage may be cleared by the UA under storage pressure.");
   });
 
-  let openRequest = indexedDB.open("history", 1);
+  let openRequest = indexedDB.open("history", 3);
 
   openRequest.onupgradeneeded = function(event) {
+    console.log("Upgrading Database", event)
+
     const db = event.target.result;
     const transaction = event.target.transaction;
     let objectStore;
-    if (!db.objectStoreNames.contains('history')) { 
-      objectStore = db.createObjectStore('history', {keyPath: 'id'});
+    if (!db.objectStoreNames.contains('urls')) { 
+      objectStore = db.createObjectStore('urls', {keyPath: 'id'});
     } else {
-      objectStore = transaction.objectStore('history');
+      objectStore = transaction.objectStore('urls');
     }
 
     objectStore.createIndex("created", "created");
     objectStore.createIndex("type", "type");
-    objectStore.createIndex("terms", "terms");
+    objectStore.createIndex("terms", "terms", { multiEntry: true });
+
   };
 
   openRequest.onerror = function() {
@@ -402,21 +440,26 @@ function recordToHistory() {
   openRequest.onsuccess = () => {
     let db = openRequest.result;
 
-    let transaction = db.transaction("history", "readwrite"); // (1)
+    let transaction = db.transaction("urls", "readwrite"); // (1)
 
-    let history = transaction.objectStore("history"); // (2)
+    let history = transaction.objectStore("urls"); // (2)
 
     let hashCode = s => s.split('').reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0)
-
-    console.log("hash", hashCode(location.href))
+  
+    let terms = extractTerms(metadata.title, metadata.description);
     let entry = {
-      id: location.href,
+      id: hash,
       url: location.href,
-      title: "",
+      title: metadata.title || '',
+      text: metadata.description?.substring(0,256),
+      type: type,
+      terms: terms,
       created: new Date()
     };
 
-    let request = history.add(entry); // (3)
+    console.log("Adding history", entry)
+
+    let request = history.put(entry); // (3)
 
     request.onsuccess = function() { // (4)
       console.log("entry added to the history", request.result);
