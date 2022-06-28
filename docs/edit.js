@@ -1,5 +1,7 @@
 import * as bitty from './bitty.js';
 
+window.bitty = bitty;
+
 var QS = document.querySelector.bind(document);
 var QSS = document.querySelectorAll.bind(document);
 
@@ -14,9 +16,32 @@ var b = document.documentElement.setAttribute(
   navigator.userAgent
 );
 
+var bindings = {}
+var quill = new Quill('#editor', {
+  theme: 'snow',
+  modules: {
+    syntax: true,
+    keyboard: { bindings },
+    toolbar: "#menubar"
+  }
+});
+
+quill.on('text-change', function(delta, oldDelta, source) {
+  if (source == 'api') {
+    console.debug("An API call triggered this change.");
+  } else if (source == 'user') {
+    console.debug("A user action triggered this change.", source);
+  }
+  handleContentChange();
+});
+quill.setSelection(0, Infinity);
+
+var editor = quill.root;
+console.log("editor", editor);
+editor.autocomplete="off";
 var importedFileData = undefined;
 
-var content = undefined;
+var content = editor;
 window.onload = function() {
   window.onpopstate = function(e) {
     setContent(e.state);
@@ -26,9 +51,9 @@ window.onload = function() {
     location.reload();
   };
   document.body.onclick = function(e) {
-    if (e.target == document.body) content.focus();
+    if (e.target == document.body) editor.focus();
   };
-  content = document.getElementById("content");
+
   content.ondragenter = function(e) {
     document.body.classList.add("drag");
   };
@@ -38,18 +63,21 @@ window.onload = function() {
   content.addEventListener("keydown", handleKey);
   content.addEventListener("keyup", handleInput);
   QS("#doc-title").addEventListener("keyup", handleInput);
+  Array.from(document.getElementsByTagName("input")).forEach(i => i.addEventListener("keydown", handleInput))
   content.addEventListener("drop", handleDrop);
   content.addEventListener("paste", handlePaste);
-  content.contentEditable = "true";
-  content.focus();
-  document.execCommand("selectAll", false, null);
+  // content.contentEditable = "true";
+  editor.focus();
+  // document.execCommand("selectAll", false, null);
   QS("#qrcode").onclick = makeQRCode;
-
+  QS("#upload").onclick = upload;
   QS("#share").onclick = share;
   if (!navigator.share) QS("#share").style.display = "none"
   QS("#twitter").onclick = tweetLink;
   QS("#copy").onclick = copyLink;
-  QS("#menu").onclick = toggleMenu;
+  QS("#mainmenu").onclick = () => { toggleMenu(QS("#mainmenu"))};
+
+  QS("#doc-title").onclick = toggleMetadata;
   var hash = window.location.hash.substring(1);
 
   if (hash.length) {
@@ -60,7 +88,7 @@ window.onload = function() {
         title.replace(/_/g, " ")
       );
     hash = hash.substring(slashIndex + 1);
-    updateLink(hash, title);
+    updateLink(hash, {title});
     if (hash.startsWith("?")) {
       hash = hash.substring(1);
       zipToString(hash, setContent);
@@ -83,9 +111,8 @@ function setFileName(name) {
   }
 }
 
-function updateBodyClass() {
-  var length = content.innerText.length;
-  if (length || importedFileData) {
+function updateBodyClass(hasContent) {
+  if (hasContent || importedFileData) {
     document.body.classList.add("edited");
   } else {
     document.body.classList.remove("edited");
@@ -114,7 +141,7 @@ function handleDrop(e) {
           if (e.altKey) url2 = url2.replace(DATA_PREFIX_BXZE, "!");
 
           importedFileData = url2;
-          updateLink(url2, file.name, true);
+          updateLink(url2, {title:file.name}, true);
           setFileName(file.name);
         });
       },
@@ -151,6 +178,9 @@ function handleKey(e) {
         document.execCommand("createLink", true, url);
       }
     }
+  } else if (code == 9 ) {
+      console.log("tab");
+      e.preventDefault();
   }
   if (handled) e.preventDefault();
 }
@@ -195,44 +225,67 @@ function fetchCodepen(url) {
       setTimeout(function() {
         var data = (useTemplate ? "" : DATA_PREFIX_BXZE) + zip;
         importedFileData = data;
-        updateLink(data, title);
+        updateLink(data, {title});
       }, 300);
     });
   });
 }
 
+
+
 function handleInput(e) {
-  updateBodyClass();
-  var text = content.innerText;
-  var title = QS("#doc-title").innerText;
+   handleContentChange(e);
+}
+function getMetadata() {
+  let formData = new FormData(document.forms[0]);
+  var object = {};
+  formData.forEach((value, key) => object[key] = value);
+  return object;
+}
 
-  var rawHTML = text.indexOf("</") > 0;
-  if (rawHTML) {
-    text = text.replace(/[ |\t]+/g, " ").replace(/> +</g, "> <");
-  } else {
-    text = content.innerHTML;
-  }
+function handleContentChange() {
 
-  if (text.trim().length) {
-    const t0 = performance.now();
-    bitty.compressString(text, bitty.GZIP64_MARKER, function(zip) {
-      const t1 = performance.now();
-      bitty.compressString(text, bitty.LZMA64_MARKER, function(zip2) {
-        const t2 = performance.now();
-        console.debug("\ngz", Math.round(zip.length/text.length*100), Math.round((t1-t0)),"ms", "\nlz", Math.round(zip2.length/text.length*100), Math.round((t2-t1)), "ms");
+  var text = editor.innerText;
+  let hasContent = text.trim().length > 0;
+
+  updateBodyClass(hasContent);
+
+  if (!hasContent) return;
+
+  var metadata = getMetadata();
+
+    var rawHTML = text.indexOf("</") > 0;
+    if (rawHTML) {
+      text = text.replace(/[ |\t]+/g, " ").replace(/> +</g, "> <");
+    } else {
+      text = content.innerHTML;
+    }
+  
+
+    if (text.trim().length) {
+      const t0 = performance.now();
+      bitty.compressString(text, bitty.GZIP64_MARKER, function(zip) {
+        const t1 = performance.now();
+        // bitty.compressString(text, bitty.LZMA64_MARKER, function(zip2) {
+        //   const t2 = performance.now();
+        //   console.debug("gz", Math.round(zip.length/text.length*100) + "%", Math.round((t1-t0)),"ms");
+        //   console.debug("lz", Math.round(zip2.length/text.length*100) + "%", Math.round((t2-t1)), "ms");
+        // });
+        zip.replace("=","")
+
+        if (rawHTML) {
+          updateLink(DATA_PREFIX_GZIP + zip, metadata);
+        } else {
+          updateLink("?" + zip, metadata);
+        }
       });
-      if (rawHTML) {
-        updateLink(DATA_PREFIX_GZIP + zip, title);
-      } else {
-        updateLink("?" + zip, title);
-      }
-    });
-    setFileName("");
-  } else if (importedFileData) {
-    updateLink(importedFileData, title);
-  } else {
-    updateLink("");
-  }
+      setFileName("");
+    } else if (importedFileData) {
+      updateLink(importedFileData, {title});
+    } else {
+      updateLink("");
+    }
+  
 }
 
 var maxLengths = {
@@ -241,23 +294,43 @@ var maxLengths = {
   "#qrcode": 2953
 };
 
-function updateLink(url, title, push) {
-  if (title) title = encodeURIComponent(title.trim().replace(/\s/g, "_"));
+let bittyLink = undefined;
+function updateLink(url, metadata, push) {
+  
+  let title = metadata.title;
+  // if (title) title = encodeURIComponent(title.trim().replace(/\s/g, "_"));
+  
+  let includeMetadata = !metadata.includeMetadata;
+  let path = includeMetadata ? "/" : bitty.metadataToPath(metadata) ?? "/";
+  let prefix = includeMetadata ? bitty.encodePrettyComponent(title) : "";
+
   if (url.length) {
-    url = "/#" + (title || "") + "/" + url;
+    url = path + "#" + prefix + "/" + url;
   } else {
     url = "/edit";
   }
+
+  document.getElementById("doc-title-text").innerText = title.length ? title : "untitled";
+
+  bittyLink = new URL(url, document.location).href;
+
+  document.getElementById("canonical").href = bittyLink;
+
+  console.log({bittyLink});
+
+
   var hash = location.hash;
-  if (push || !hash || !hash.length) {
-    window.history.pushState(content.innerHTML, null, url);
-  } else {
-    window.history.replaceState(content.innerHTML, null, url);
-  }
-  var length = location.href.length;
+  // if (push || !hash || !hash.length) {
+  //   window.history.pushState(content.innerHTML, null, url);
+  // } else {
+  //   window.history.replaceState(content.innerHTML, null, url);
+  // }
+  var length = bittyLink.length;
 
   QS("#length").innerText = length + " bytes";
-  QS("#length").href = url;
+  QS("#length").onclick = () => {
+    window.open(bittyLink, "_blank");
+  }
   for (var key in maxLengths) {
     var maxLength = maxLengths[key];
     if (length > maxLength) {
@@ -271,7 +344,7 @@ function updateLink(url, title, push) {
 function share() {
   navigator.share({
     title: 'itty.bitty',
-    url: location.href
+    url: bittyLink
   }).then(() => {
     console.log('Thanks for sharing!');
   })
@@ -283,9 +356,20 @@ function makeQRCode() {
     encodeURIComponent(location.href);
   this.href = url;
 }
+function upload() {
+  document.getElementById('file-input').click();
+}
 
-function toggleMenu() {
-  QS("#toolbar").classList.toggle("menu-visible");
+function toggleMenu(el) {
+  el.classList.toggle("menu-visible");
+}
+
+function toggleMetadata(e) {
+  if (e.target.closest(".menu")) return;
+  console.log(e)
+  QS("#md-contents").classList.toggle("menu-visible");
+  QS("#doc-title").classList.toggle("open");
+  QS("#md-title").focus();
 }
 function copyThenLink() {
   copyLink();
