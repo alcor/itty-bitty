@@ -1,3 +1,22 @@
+function decodePrettyComponent(s) {
+  let replacements = {'---': ' - ', '--': '-','-' : ' '}
+  return decodeURIComponent(s.replace(/-+/g, e => replacements[e] ?? '-'))
+}
+
+function pathToMetadata(path) {
+  let components = path.substring(1).split("/");
+  let info = {title: decodePrettyComponent(components.shift())}
+  for (let i = 0; i < components.length; i+=2) {
+    let key = components[i];
+    let value = components[i+1];
+    if (!value) continue;
+    if (key == "d") { value = decodePrettyComponent(value); }
+    else if (value.includes("%")) { value = decodeURIComponent(value); }
+    if (key.length && value.length) info[key] = value;
+  }
+  return info;
+}
+
 export default async (request, context) => {
   const ua = request.headers.get("user-agent");
   let url = new URL(request.url);
@@ -18,17 +37,7 @@ export default async (request, context) => {
     let isMetadataBot = metadataBots.some(bot => ua.indexOf(bot) != -1);
 
     if (isMetadataBot && path.endsWith("/")) {
-      let components = path.substring(1).split("/");
-      let info = {}
-      info.title = decodeURIComponent(components.shift()).replace(/-/g, " ").replace(/–/g, "-");
-      
-      let i;
-      for (i = 0; i < components.length; i+=2) {
-        let key = components[i];
-        let value = decodeURIComponent(components[i+1]);
-        if (key.length && value.length) info[key] = value;
-      }
-      info.d = info.d?.replace(/-/g, " ").replace(/–/g, "-");
+      let info = pathToMetadata(path)
 
       let content = ['<meta charset="UTF-8">'];
       if (info.title) { content.push(`<title>${info.title}</title>`,`<meta property="og:title" content="${info.title}"/>`); }

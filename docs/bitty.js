@@ -5,6 +5,10 @@ window.el = function (tagName, attrs, ...children) {
   return l;
 }
 
+const padForBase64 = (s, c = " ") => s.padEnd(s.length + (3 - s.length % 3) % 3, c)
+const HEAD_TAGS = () => btoa(padForBase64('<base target="_top">\n'));
+const HEAD_TAGS_EXTENDED = () => btoa(padForBase64(`<meta charset="utf-8"><meta name="viewport" content="width=device-width"><base target="_top"><style type="text/css">body{margin:0 auto;padding:12vmin 10vmin;max-width:35em;line-height:1.5em;font-family:-apple-system,BlinkMacSystemFont,sans-serif;word-wrap:break-word;}@media(prefers-color-scheme: dark){body{color:white;background-color:#111;}}</style>`));
+
 const dataUrlRE =
 /^data:(?<mediatype>(?<type>[a-z]+)\/(?<subtype>[a-z+]+))?(?<params>(?:;[^;,]+=[^;,]+)*)?(?:;(?<encoding>\w+64))?,(?<data>.*)$/
 ///^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i;
@@ -23,20 +27,53 @@ const dataUrlRE =
 // Fragment characters:   A-Z a-z 0-9 + / =
 //                        ? : @ - . _ ~ ! $ & ' ( ) * , ;       and kinda (#)
 
+let schemeMappings = {
+  "r": "application/ld+json;charset=utf-8;format=gz;base64,",
+  "h": "text/html;charset=utf-8;format=gz;base64,",
+  "t": ","
+}
+
 class DataURL {
   constructor(url) {
+    this.initString = url;
+
+    var colon = url.substring(0,15).indexOf(":");
+    if ( colon != -1) {
+      this.scheme = url.substring(0,colon);
+      if (schemeMappings[this.scheme]) {
+        url = `data:${schemeMappings[this.scheme]},${url}`
+      }
+    } else {
+      if (url.charAt(0) == "?") {
+        this.editable = true;
+        url = url.substring(1);
+      }
+
+      this.dataPrefix = HEAD_TAGS_EXTENDED();
+      // todo: gzip starts with 0x1f8b
+      let encoding = url.startsWith("XQA") ? bitty.LZMA_MARKER : bitty.GZIP_MARKER;
+      url = `data:text/html;charset=utf-8;format=${encoding};base64,${url}`;
+    }
+    
     let match = url.match(dataUrlRE);
-    let info = match.groups;
-    Object.assign(this, info);
-    this.params = info.params ? JSON.parse('{"' + decodeURI(info.params?.substring(1)).replace(/"/g, '\\"').replace(/;/g, '","').replace(/=/g,'":"') + '"}') : {};
+    if (match) {
+      let info = match.groups;
+      Object.assign(this, info);  
+      this.params = info.params ? JSON.parse('{"' + decodeURI(info.params?.substring(1)).replace(/"/g, '\\"').replace(/;/g, '","').replace(/=/g,'":"') + '"}') : {};
+    }
     if (this.encoding) this.data = this.data.replace(/=/g,"");
   }
 
   get href() {
     let urlString = "data:";
+
     if (this.mediatype) urlString += this.mediatype
     if (this.params) Object.entries(this.params).forEach( e => urlString += `;${e[0]}=${e[1]}`)
     if (this.encoding) urlString += ";" + this.encoding
+
+    if (!this.encoding && this.dataPrefix) {
+        this.dataPrefix = atob(this.dataPrefix);
+    }
     urlString += "," + (this.dataPrefix || '') + this.data;
     return urlString;
   }
@@ -45,6 +82,12 @@ class DataURL {
     return this.params.format || this.encoding;
   }
 
+  clone = () => {
+    var clone = Object.assign(Object.create(Object.getPrototypeOf(this)), this);
+    clone.params = {...this.params};
+    return clone;
+  }
+  
  decompress = async () => {
 
     // Decrypt if needed
@@ -76,6 +119,23 @@ class DataURL {
     return this;
   }
 
+  parseDom = async () => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(`<?xml version="1.0" encoding="UTF-8"?>` + atob(this.data), this.mediatype);
+    return doc;
+  }
+}
+
+function parseBittyURL(url) {
+  if (typeof url === 'string') url = new URL(url);
+  let location = url.location;
+  let fragment = url.hash;
+  let path = url.pathname
+
+  var slashIndex = fragment.indexOf("/");
+  var hashTitle = decodePrettyComponent(fragment.substring(1, slashIndex));
+  var hashData = fragment.substring(slashIndex + 1);
+  return {path, hashTitle, hashData}
 }
 
 async function testCompression(rawData) {
@@ -385,6 +445,43 @@ function dataURLtoBlob(dataURL) {
 }
 
 
+// Encode or decode space/dash combinations to avoid %20 in urls. Lossy.
+
+function encodePrettyComponent(s) {
+  let replacements = {' - ': '---', '-': '--', ' ' : '-'}
+  let re = new RegExp('(' + Object.keys(replacements).join('|') + ')', 'g');
+  return encodeURIComponent(s.replace(re, e => replacements[e] ?? '-'))
+    .replace(/\%2C/g, ",")
+    .replace(/[!'()*]/g, (c) => '%' + c.charCodeAt(0).toString(16));
+}
+
+function decodePrettyComponent(s) {
+  let replacements = {'---': ' - ', '--': '-','-' : ' '}
+  return decodeURIComponent(s.replace(/-+/g, e => replacements[e] ?? '-'))
+}
+
+function pathToMetadata(path) {
+  let components = path.substring(1).split("/");
+  let info = {title: decodePrettyComponent(components.shift())}
+  for (let i = 0; i < components.length; i+=2) {
+    let key = components[i];
+    let value = components[i+1];
+    if (!value) continue;
+    if (key == "d") { value = decodePrettyComponent(value); }
+    else if (value.includes("%")) { value = decodeURIComponent(value); }
+    if (key.length && value.length) info[key] = value;
+  }
+  return info;
+}
+
+function metadataToPath(data) {
+  if (!data || !data.title) return "";
+  let path = ["/" + encodePrettyComponent(data.title)];
+  if (data.description) path.push("d/" + encodePrettyComponent(data.description.substring(0,200).split(". ").shift()));
+  if (data.favicon) path.push("f/" + encodeURIComponent(data.favicon));
+  if (data.image) path.push("i/" + encodeURIComponent(btoa(data.image).replace(/=/g, "")));
+  return path.join('/') + "/";
+}
 
 export {
   DataURL,
@@ -396,6 +493,11 @@ export {
   compressDataURL,
   decompressDataURL,
   hashString,
+  encodePrettyComponent,
+  decodePrettyComponent,
+  metadataToPath,
+  pathToMetadata,
+  parseBittyURL,
   BASE64_MARKER,
   LZMA64_MARKER,
   GZIP64_MARKER,
@@ -404,4 +506,6 @@ export {
   LZMA_MARKER,
   GZIP_MARKER,
   BROT_MARKER,
+  HEAD_TAGS,
+  HEAD_TAGS_EXTENDED,
 };
