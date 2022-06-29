@@ -108,10 +108,8 @@ class DataURL {
     return this;
   }
 
-  compress = async (format = LZMA_MARKER) => {
-    console.log("data", this.data.length, {data:this.data})
-    let rawData = await base64ToByteArray(this.data);
-
+  compress = async (format = GZIP_MARKER) => {
+    let rawData = this.encoding ? await base64ToByteArray(this.data) : stringToByteArray(this.data);
     let compressedData = await compressData(rawData, format);
     var base64String = dataToBase64(compressedData);
     this.data = base64String;
@@ -227,35 +225,15 @@ function infoForDataURL(url) {
 
 var BASE64_MARKER = 'base64';
 var LZMA64_MARKER = 'bxze64';
-var GZIP64_MARKER = 'gzip64';
-var BROT64_MARKER = 'brot64';
 
 var BASE_MARKER = 'bs';
 var LZMA_MARKER = 'xz';
 var GZIP_MARKER = 'gz';
 var BROT_MARKER = 'br';
 
-function compressDataURL(dataURL, callback) {
-  var base64Index = dataURL.indexOf(BASE64_MARKER);
-  var base64 = dataURL.substring(base64Index + BASE64_MARKER.length + 1);
-  compressString(base64ToByteArray(base64), LZMA64_MARKER, function(result) {
-    callback(dataURL.substring(0, base64Index) + LZMA64_MARKER + "," + result)
-  })
-}
-
 function base64ToByteArray(base64) {
   return Uint8Array.from(atob(base64), c => c.charCodeAt(0));
 }
-
-// function base64ToByteArray(base64) {
-//   var raw = window.atob(base64);
-//   var rawLength = raw.length;
-//   var array = new Uint8Array(new ArrayBuffer(rawLength));
-//   for(let i = 0; i < rawLength; i++) {
-//     array[i] = raw.charCodeAt(i);
-//   }
-//   return array;
-// }
 
 function loadScript(src, callback) {
   let script = el("script", { src });
@@ -273,42 +251,30 @@ function escapeStringForIMessage(str) {
   return str;
 }
 
-function decryptBase64(cipher, base64, callback) {
-  if (!cipher) return callback(base64);
+// function decompressDataURL(dataURL, preamble, callback) {
+//   let info = infoForDataURL(dataURL);
 
-  loadScript("/js/crypto-js.min.js", () => {
-    let pass = prompt("This page is encrypted. What's the passcode?");
-    if (!pass) return callback(base64);
-  
-    let decrypted = CryptoJS[cipher.toUpperCase()].decrypt(base64, pass);
-    return callback(CryptoJS.enc.Base64.stringify(decrypted));
-  })
-}
+//   let encoding = info.encoding;
+//   let encodingIndex = dataURL.indexOf(encoding);
 
-function decompressDataURL(dataURL, preamble, callback) {
-  let info = infoForDataURL(dataURL);
+//   if (encoding && encoding != "base64") {
+//     var base64 = dataURL.substring(encodingIndex + LZMA64_MARKER.length + 1);
+//     base64 = base64.replace("=",""); // TODO: apply this elsewhere;
 
-  let encoding = info.encoding;
-  let encodingIndex = dataURL.indexOf(encoding);
-
-  if (encoding && encoding != "base64") {
-    var base64 = dataURL.substring(encodingIndex + LZMA64_MARKER.length + 1);
-    base64 = base64.replace("=",""); // TODO: apply this elsewhere;
-
-    decryptBase64(info.params?.cipher, base64, (base64) => {
-      let bytes = base64ToByteArray(base64);
-      decompressString(bytes, encoding, function(string) {
-        stringToData(string, function(data) {
-          if (!data) return callback();
-          callback(dataURL.substring(0, encodingIndex) + BASE64_MARKER + "," + (preamble || '') + data.split(',')[1], string)
-        })
-      })
-    })
+//     decryptBase64(info.params?.cipher, base64, (base64) => {
+//       let bytes = base64ToByteArray(base64);
+//       decompressString(bytes, encoding, function(string) {
+//         stringToData(string, function(data) {
+//           if (!data) return callback();
+//           callback(dataURL.substring(0, encodingIndex) + BASE64_MARKER + "," + (preamble || '') + data.split(',')[1], string)
+//         })
+//       })
+//     })
     
-  } else {
-    callback(dataURL)
-  }
-}
+//   } else {
+//     callback(dataURL)
+//   }
+// }
 
 async function hashString(string, base = 36) {
   const arrayBuffer = await(new TextEncoder().encode(string))
@@ -328,48 +294,48 @@ async function hashString(string, base = 36) {
   return hashAsBase64; 
 }
 
-function compressString(string, encoding = LZMA64_MARKER, callback) {
-  if (encoding == LZMA64_MARKER) {
-    loadScript("/js/lzma/lzma_worker-min.js", () => {
-      LZMA.compress(string, 9, function(result, error) {
-        if (error) console.error(error);
-        var base64String = window.btoa(String.fromCharCode.apply(null, new Uint8Array(result)));
-        return callback(base64String);
-      });
-    })
-  } else if (encoding == BROT64_MARKER) {
-    // import("/js/brotli/decode.js").then((module) => {
-    //   console.log("module", module)
-    //   return callback(module.BrotliDecode(data));
-    // });
-  } else if (encoding == GZIP64_MARKER) {
-    import("/js/gzip/pako.js").then((module) => {
-      let result = pako.deflate(string, {level:"9"});
-      var base64String = window.btoa(String.fromCharCode.apply(null, new Uint8Array(result)));
-      return callback(base64String);
-    });
-  }
-}
+// function compressString(string, encoding = LZMA64_MARKER, callback) {
+//   if (encoding == LZMA64_MARKER) {
+//     loadScript("/js/lzma/lzma_worker-min.js", () => {
+//       LZMA.compress(string, 9, function(result, error) {
+//         if (error) console.error(error);
+//         var base64String = window.btoa(String.fromCharCode.apply(null, new Uint8Array(result)));
+//         return callback(base64String);
+//       });
+//     })
+//   } else if (encoding == BROT64_MARKER) {
+//     // import("/js/brotli/decode.js").then((module) => {
+//     //   console.log("module", module)
+//     //   return callback(module.BrotliDecode(data));
+//     // });
+//   } else if (encoding == GZIP64_MARKER) {
+//     import("/js/gzip/pako.js").then((module) => {
+//       let result = pako.deflate(string, {level:"9"});
+//       var base64String = window.btoa(String.fromCharCode.apply(null, new Uint8Array(result)));
+//       return callback(base64String);
+//     });
+//   }
+// }
 
-function decompressString(data, encoding, callback) {
-  if (encoding == LZMA64_MARKER) {
-    LZMA.decompress(data, function(result, error) {
-      if (!(typeof result === 'string')) result = new Uint8Array(result)
-      if (error) console.error(error);
-      callback(result);
-    });
-  } else if (encoding == BROT64_MARKER) {
-    import("/js/brotli/decode.js").then((module) => {
-      console.log("module", module)
-      return callback(module.BrotliDecode(data));
-    });
-  } else if (encoding == GZIP64_MARKER) {
-    import("/js/gzip/pako.js").then((module) => {
-      let byteArray = pako.inflate(data);
-      return callback(byteArray);
-    });
-  }
-}
+// function decompressString(data, encoding, callback) {
+//   if (encoding == LZMA64_MARKER) {
+//     LZMA.decompress(data, function(result, error) {
+//       if (!(typeof result === 'string')) result = new Uint8Array(result)
+//       if (error) console.error(error);
+//       callback(result);
+//     });
+//   } else if (encoding == BROT64_MARKER) {
+//     import("/js/brotli/decode.js").then((module) => {
+//       console.log("module", module)
+//       return callback(module.BrotliDecode(data));
+//     });
+//   } else if (encoding == GZIP64_MARKER) {
+//     import("/js/gzip/pako.js").then((module) => {
+//       let byteArray = pako.inflate(data);
+//       return callback(byteArray);
+//     });
+//   }
+// }
 
 
 // echo -n 'hello world' | brotli | base64
@@ -488,10 +454,10 @@ export {
   infoForDataURL,
   stringToData,
   dataToString,
-  compressString,
-  decompressString,
-  compressDataURL,
-  decompressDataURL,
+  // compressString,
+  // decompressString,
+  // compressDataURL,
+  // decompressDataURL,
   hashString,
   encodePrettyComponent,
   decodePrettyComponent,
@@ -500,8 +466,6 @@ export {
   parseBittyURL,
   BASE64_MARKER,
   LZMA64_MARKER,
-  GZIP64_MARKER,
-  BROT64_MARKER,
   BASE_MARKER,
   LZMA_MARKER,
   GZIP_MARKER,

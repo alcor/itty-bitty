@@ -22,7 +22,7 @@ var quill = new Quill('#editor', {
   modules: {
     syntax: true,
     keyboard: { bindings },
-    toolbar: "#menubar"
+    toolbar: "#formatbar"
   }
 });
 
@@ -69,14 +69,14 @@ window.onload = function() {
     }
   });
 
-  content.addEventListener("keydown", handleKey);
-  content.addEventListener("keyup", handleInput);
+  // content.addEventListener("keydown", handleKey);
+  // content.addEventListener("keyup", handleInput);
   QS("#doc-title").addEventListener("keyup", handleInput);
   Array.from(document.getElementsByTagName("input")).forEach(i => i.addEventListener("keydown", handleInput))
   
   document.getElementById("drop-zone").addEventListener("drop", handleDrop);
   document.getElementById("drop-zone").addEventListener("dragover", e => e.preventDefault());
-  content.addEventListener("paste", handlePaste);
+  editor.addEventListener("paste", handlePaste);
   // content.contentEditable = "true";
   editor.focus();
   // document.execCommand("selectAll", false, null);
@@ -86,9 +86,13 @@ window.onload = function() {
   if (!navigator.share) QS("#share").style.display = "none"
   QS("#twitter").onclick = tweetLink;
   QS("#copy").onclick = copyLink;
+  QS("#preview").onclick = togglePreview;
   QS("#mainmenu").onclick = () => { toggleMenu(QS("#mainmenu"))};
 
   QS("#doc-title").onclick = toggleMetadata;
+  QS("#doc-title").onclick = toggleMetadata;
+
+
   var hash = window.location.hash.substring(1);
 
   if (hash.length) {
@@ -110,7 +114,7 @@ window.onload = function() {
 };
 
 function setContent(html) {
-  content.innerHTML = html;
+  editor.innerHTML = html;
   updateBodyClass();
 }
 
@@ -128,6 +132,10 @@ function updateBodyClass(hasContent) {
   } else {
     document.body.classList.remove("edited");
   }
+  
+  console.log("importedFileData",importedFileData != undefined)
+  document.body.classList.toggle("filecontent",  importedFileData != undefined);
+
   document.body.classList.add("loaded");
 }
 
@@ -148,23 +156,9 @@ async function handleDrop(e) {
 
         if (ratio <= 0.95) url = durl.href;
         importedFileData = url;
-        updateLink(url, file.name, true);
+        updateLink(url, {title:file.name}, true);
         setFileName(file.name);
 
-        // url = url.replace(DATA_PREFIX, DATA_PREFIX_8);
-        // bitty.compressDataURL(url, function(url2) {
-        //   var ratio = url2.length / url.length;
-        //   console.log("Compressed to", Math.round(ratio * 100) + "%", url2, url);
-        //   if (e.ctrlKey)
-        //     bitty.decompressDataURL(url2, undefined, function(url3) {
-        //       console.log("Verified", url == url3);
-        //     });
-        //   if (e.altKey) url2 = url2.replace(DATA_PREFIX_BXZE, "!");
-
-        //   importedFileData = durl.href;
-        //   updateLink(url2, file.name, true);
-        //   setFileName(file.name);
-        // });
       },
       false
     );
@@ -264,42 +258,40 @@ function getMetadata() {
   return object;
 }
 
-function handleContentChange() {
+async function handleContentChange() {
 
   var text = editor.innerText;
   let hasContent = text.trim().length > 0;
 
   updateBodyClass(hasContent);
-
   if (!hasContent) return;
 
   var metadata = getMetadata();
-
     var rawHTML = text.indexOf("</") > 0;
     if (rawHTML) {
       text = text.replace(/[ |\t]+/g, " ").replace(/> +</g, "> <");
     } else {
-      text = content.innerHTML;
+      text = editor.innerHTML;
     }
   
-
     if (text.trim().length) {
-      const t0 = performance.now();
-      bitty.compressString(text, bitty.GZIP64_MARKER, function(zip) {
-        const t1 = performance.now();
+      let durl = new bitty.DataURL(`data:text/html;charset=utf-8,${text}`)
+      durl = await durl.compress(bitty.GZIP_MARKER);
+      console.log("data", durl)
+      // bitty.compressString(text, bitty.GZIP64_MARKER, function(zip) {
         // bitty.compressString(text, bitty.LZMA64_MARKER, function(zip2) {
         //   const t2 = performance.now();
         //   console.debug("gz", Math.round(zip.length/text.length*100) + "%", Math.round((t1-t0)),"ms");
         //   console.debug("lz", Math.round(zip2.length/text.length*100) + "%", Math.round((t2-t1)), "ms");
         // });
-        zip.replace("=","")
+        // zip.replace("=","")
 
         if (rawHTML) {
-          updateLink(DATA_PREFIX_GZIP + zip, metadata);
+          updateLink(durl.href, metadata);
         } else {
-          updateLink("?" + zip, metadata);
+          updateLink("?" + durl.href, metadata);
         }
-      });
+      // });
       setFileName("");
     } else if (importedFileData) {
       updateLink(importedFileData, {title});
@@ -336,9 +328,9 @@ function updateLink(url, metadata, push) {
   bittyLink = new URL(url, document.location).href;
 
   document.getElementById("canonical").href = bittyLink;
-
+debugger
   console.log({bittyLink});
-
+  if(previewContent) QS("#preview-frame").src = bittyLink;
 
   var hash = location.hash;
   // if (push || !hash || !hash.length) {
@@ -391,6 +383,12 @@ function toggleMetadata(e) {
   QS("#md-contents").classList.toggle("menu-visible");
   QS("#doc-title").classList.toggle("open");
   QS("#md-title").focus();
+}
+
+let previewContent = false;
+function togglePreview() {
+  previewContent = !previewContent;
+  document.body.classList.toggle("preview", previewContent);
 }
 function copyThenLink() {
   copyLink();

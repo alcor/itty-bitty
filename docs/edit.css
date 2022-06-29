@@ -25,16 +25,37 @@ html {
 }
 
 body {
-  margin: 0 auto;
-  padding: 10rem 6vmin 4vmin 6vmin;
-  max-width: 45em;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   line-height: 1.5em;
   min-height:100vh;
+  display:
+  flex;
+  flex-direction: row-reverse;
+  margin: 0;
+}
+
+.editor-container {
+  margin: 0 auto;
+  padding: 5rem 6vmin 4vmin 6vmin;
+  max-width: 45em;
+  /* background-color:#0070e0; */
   box-sizing:
   border-box;
 }
 
+body:not(.preview) #preview-frame {
+  display:none;
+}
+#preview-frame {
+  background-color:#fafafa;
+  border:0;
+  /* position:absolute; */
+  right:0;
+  width:50%;
+  bottom:0;
+  height:100vh;
+  background: repeating-conic-gradient(rgba(128,128,128,.10) 0% 25%, transparent 0% 50%) 50% / 4px 4px;
+}
 h1 {
   font-weight: 400;
 }
@@ -88,7 +109,7 @@ body.drag #content {
   outline: none;
   /* min-width: 180px; */
   top: 0;
-  position: absolute;
+  /* position: absolute; */
   padding: 0 1em;
   font-weight: normal;
   opacity:0.33;
@@ -98,8 +119,9 @@ body.drag #content {
   margin-left: -1em;
   line-height: 2.5em;
   display: inline-block;
-  /* margin-top: -31em; */
+  /* margin-top: -2.5em; */
   z-index: 100;
+  left: 0;
 }
 
 #doc-title.open {
@@ -193,7 +215,7 @@ input:focus {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
+  width: 50vw;
   height: 100vh;
   background-position: center 60px;
   box-sizing: border-box;
@@ -290,7 +312,7 @@ input:focus {
   padding:0;
   border:
   none;
-  background-color:var(--background-color);
+  /* background-color:var(--background-color); */
   display:
   flex;
   align-items: left;
@@ -299,6 +321,7 @@ input:focus {
   flex-wrap: wrap-reverse;
   /* height: 10rem; */
   padding-left: 4vmin;
+  z-index:1000;
 }
 #menubar > span {
   display: flex;
@@ -529,8 +552,8 @@ label:first-child {
   cursor:default;
 }
 
-#menubar.ql-snow.ql-toolbar button,
-#menubar.ql-snow.ql-toolbar .ql-picker {
+#formatbar.ql-snow.ql-toolbar button,
+#formatbar.ql-snow.ql-toolbar .ql-picker {
     height: 40px;
     min-width: 40px;
     float: none;
@@ -538,8 +561,8 @@ label:first-child {
     text-align: revert;
     width: 40px;
 }
-#menubar.ql-snow.ql-toolbar button,
-#menubar.ql-snow.ql-toolbar .ql-picker .ql-picker-label {
+#formatbar.ql-snow.ql-toolbar button,
+#formatbar.ql-snow.ql-toolbar .ql-picker .ql-picker-label {
   /* background-size: 24px; */
   padding: 10px;
 }
@@ -554,7 +577,7 @@ div#editor.ql-container.ql-snow {
     height: 1.5rem;
 }
 
-#menubar.ql-snow .ql-color-picker .ql-picker-options {
+#formatbar.ql-snow .ql-color-picker .ql-picker-options {
     width: 11.2rem;
     padding: 0;
 }
@@ -569,10 +592,10 @@ div#editor.ql-container.ql-snow {
 }
 
 
-#menubar .ql-toolbar, 
-#menubar .ql-stroke, 
-#menubar .ql-picker,
-#menubar.ql-snow a {
+#formatbar .ql-toolbar, 
+#formatbar .ql-stroke, 
+#formatbar .ql-picker,
+#formatbar.ql-snow a {
   color: var(--text-color) ;
   stroke: var(--text-color) ;
 }
@@ -604,9 +627,9 @@ label:not(:first-child) {
     font-size: 16px;
 }
 
-.ql-formats {
-opacity:0.0;
-}
+#formatbar .ql-formats {
+opacity:1.0;
+margin-right:0;display: contents;}
 
 body:not(.dragging) #drop-zone {
   display:none;
@@ -626,3 +649,28 @@ body:not(.dragging) #drop-zone {
   color: white;
   line-height: 100vh;
   opacity:0.2;
+}
+
+#formatbar {
+  margin-top:-8em;
+  border:
+  none;
+  /* border-bottom:1px solid
+  var(--divider-color); */
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: var(--background-color);
+  padding: 0;
+  margin: 0 -12px;
+  display: flex;
+  flex-wrap: wrap;
+  opacity:0.25;
+}
+#formatbar:hover {
+  opacity:1.0;
+}
+
+body.filecontent #formatbar {
+  display:none;
+}
