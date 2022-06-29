@@ -284,7 +284,7 @@ function render() {
       alert(isLoaded);
   }
 
-  
+
   var bgImg = new Image();
   bgImg.onload = function(){
     let thumbnail = document.querySelector("#thumbnail");
@@ -292,6 +292,7 @@ function render() {
     thumbnail.style.backgroundImage = 'url(' + bgImg.src + ')';
     thumbnail.style.filter = `blur(${thumbnailContainer.offsetHeight / bgImg.naturalHeight}px)`;
     thumbnail.style.transform = `scale(1.1)`;  
+    setTimeout(() => thumbnail.style.opacity = 1.0, 100);
   };
   bgImg.src = image;
 

@@ -22,12 +22,12 @@ body {
   width: 100%;
   padding-top: 61.8%;
   max-height:1vh;
-  background-color: var(--image-placeholder-color);
   background-size: cover;
   background-position: center;
   margin-bottom:2em;
   box-sizing: border-box;
-  transition:background-image 1s;
+  transition: opacity 200ms ease-out;
+  opacity:0;
   /* margin: 0 -2em; */
   }
 
@@ -335,7 +335,7 @@ a.action .icon {
   }
   #thumbnail-container {
     margin: 0 -8vw;
-
+    background-color: var(--image-placeholder-color);
   }
   #thumbnail {
       padding-top: 56.25%;
