@@ -118,7 +118,11 @@ body:not(.download) #download {
   margin-bottom:2em;
 }
 
-.loader{
+body:not(.loading) #loader {
+  /* display:none; */
+  opacity:0.0;
+}
+#loader{
   border-radius:50%;
   width: 1em;
   height: 1em;
@@ -126,8 +130,9 @@ body:not(.download) #download {
   margin: 0 auto;
   position: relative;
   text-indent: -9999em;
-  color:white;
-  display:none;
+  color: white;
+  opacity:1.0;
+  transition: opacity 500ms;
 
   -webkit-animation-fill-mode: both;
   animation-fill-mode: both;
@@ -140,26 +145,46 @@ body:not(.download) #download {
   animation-delay: -0.16s;
   animation-timing-function: ease-in-out;
 
-  --ld0: 0.00em 2.25em 0 0.20em rgba(127,127,127,1.50);
-  --ld1: 0.93em 2.24em 0 0.20em rgba(127,127,127,1.45);
-  --ld2: 1.76em 2.20em 0 0.18em rgba(127,127,127,1.31);
-  --ld3: 2.43em 2.15em 0 0.16em rgba(127,127,127,1.09);
-  --ld4: 2.85em 2.08em 0 0.13em rgba(127,127,127,0.81);
-  --ld5: 3.00em 2.00em 0 0.10em rgba(127,127,127,0.50);
-  --ld6: 2.85em 1.92em 0 0.07em rgba(127,127,127,0.19);
-  --ld7: 2.43em 1.85em 0 0.04em rgba(127,127,127,-0.09);
-  --ld8: 1.76em 1.80em 0 0.02em rgba(127,127,127,-0.31);
-  --ld9: 0.93em 1.76em 0 0.00em rgba(127,127,127,-0.45);
-  --ld10: 0.00em 1.75em 0 0.00em rgba(127,127,127,-0.50);
-  --ld11: -0.93em 1.76em 0 0.00em rgba(127,127,127,-0.45);
-  --ld12: -1.76em 1.80em 0 0.02em rgba(127,127,127,-0.31);
-  --ld13: -2.43em 1.85em 0 0.04em rgba(127,127,127,-0.09);
-  --ld14: -2.85em 1.92em 0 0.07em rgba(127,127,127,0.19);
-  --ld15: -3.00em 2.00em 0 0.10em rgba(127,127,127,0.50);
-  --ld16: -2.85em 2.08em 0 0.13em rgba(127,127,127,0.81);
-  --ld17: -2.43em 2.15em 0 0.16em rgba(127,127,127,1.09);
-  --ld18: -1.76em 2.20em 0 0.18em rgba(127,127,127,1.31);
-  --ld19: -0.93em 2.24em 0 0.20em rgba(127,127,127,1.45);
+  --ld0: 0.00em 2.25em 0 0.20em
+  rgba(127,127,127,1.50);
+  --ld1: 0.93em 2.24em 0 0.20em
+  rgba(127,127,127,1.45);
+  --ld2: 1.76em 2.20em 0 0.18em
+  rgba(127,127,127,1.31);
+  --ld3: 2.43em 2.15em 0 0.16em
+  rgba(127,127,127,1.09);
+  --ld4: 2.85em 2.08em 0 0.13em
+  rgba(127,127,127,0.81);
+  --ld5: 3.00em 2.00em 0 0.10em
+  rgba(127,127,127,0.50);
+  --ld6: 2.85em 1.92em 0 0.07em
+  rgba(127,127,127,0.19);
+  --ld7: 2.43em 1.85em 0 0.04em
+  rgba(127,127,127,-0.09);
+  --ld8: 1.76em 1.80em 0 0.02em
+  rgba(127,127,127,-0.31);
+  --ld9: 0.93em 1.76em 0 0.00em
+  rgba(127,127,127,-0.45);
+  --ld10: 0.00em 1.75em 0 0.00em
+  rgba(127,127,127,-0.50);
+  --ld11: -0.93em 1.76em 0 0.00em
+  rgba(127,127,127,-0.45);
+  --ld12: -1.76em 1.80em 0 0.02em
+  rgba(127,127,127,-0.31);
+  --ld13: -2.43em 1.85em 0 0.04em
+  rgba(127,127,127,-0.09);
+  --ld14: -2.85em 1.92em 0 0.07em
+  rgba(127,127,127,0.19);
+  --ld15: -3.00em 2.00em 0 0.10em
+  rgba(127,127,127,0.50);
+  --ld16: -2.85em 2.08em 0 0.13em
+  rgba(127,127,127,0.81);
+  --ld17: -2.43em 2.15em 0 0.16em
+  rgba(127,127,127,1.09);
+  --ld18: -1.76em 2.20em 0 0.18em
+  rgba(127,127,127,1.31);
+  --ld19: -0.93em 2.24em 0 0.20em
+  rgba(127,127,127,1.45);
 }
 
 

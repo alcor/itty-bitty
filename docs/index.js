@@ -16,6 +16,8 @@
     document.body.classList.remove("toasting")
   }
   
+  const isIframed = window.self !== window.top;
+        
   function addToast() {
     // `<div id="toast">
     // itty.bitty is experimental technology that renders linked content from outside sources.
@@ -25,11 +27,26 @@
     // </div>`
   }
     
-  function addLoader() {
-    let el = document.createElement("div");
-    el.className = "loader";
-    document.body.appendChild(el);
+  function showLoader(state) {
+    let loader = document.getElementById("loader");
+
+    if (state) {
+      if (!loader) {
+        loader = document.createElement("div");
+        loader.id = "loader";
+        document.body.appendChild(loader);
+      }
+
+      setTimeout(() => document.body.classList.toggle("loading", true), 1)
+      
+    } else {
+      document.body.classList.toggle("loading", false)
+      if (loader) {
+        setTimeout(() => loader?.parentElement.removeChild(loader), 500)
+      }
+    }
   }
+  window.showLoader = showLoader;
 
   function setThemeColor(color) {
     let el = document.getElementById("themeColor");
@@ -145,7 +162,8 @@
       if (e.data.getStorage) document.getElementById("iframe").postMessage(document.localStorage.getItem(contentHash), e.origin)
   }, false);  
   
-  async function renderContent() {    
+  async function renderContent() {
+    showLoader(true)    
     var fragment = window.location.hash.substring(1);
 
     if (window.location.search) { // Redirect search to path (coming out of server opengraph forwarding)
@@ -295,9 +313,11 @@
       } catch (e) {
         console.log("DL error", e)
         iframe.src = dataURL;
+        showLoader(false)   
       }
     } else if (renderMode == "data") {
       iframe.src = dataURL;
+      showLoader(false)   
     } else {
       bitty.dataToString(dataURL, function(content) {
         if (renderMode == "frame") {
@@ -308,14 +328,13 @@
       });
     }
     
-    
     let recordHistory = true
-    if (recordHistory) recordToHistory(durl);
+    if (!isIframed && recordHistory) recordToHistory(durl);
 
   };
 
-  window.addEventListener('load',renderContent);
-  // window.addEventListener('hashchange',renderContent);
+  window.addEventListener('DOMContentLoaded',renderContent);
+  window.addEventListener('hashchange',renderContent);
 
   
   const SCRIPT_LOADER = `<!doctype html><meta charset=utf-8><script src="${location.origin}/render.js"></script>`
@@ -340,6 +359,7 @@
         iframe.contentWindow.postMessage(params, "*");
         delete iframe.onload
         iframe.contentWindow.focus();
+        showLoader(false)
       });
       // writeDocContent(iframe.contentWindow.document, SCRIPT_LOADER)
       // iframe.srcdoc = SCRIPT_LOADER;
@@ -393,9 +413,11 @@ async function recordToHistory() {
     for (let el of dom.getElementsByTagName('script')) { el.parentNode.removeChild(el) }
 
     metadata.title = dom.title;
-    metadata.description = dom.body.innerText.trim();
-    if (!metadata.title.length) metadata.title = dom.title = (dom.body.children[0].innerText.trim()).split("\n").pop();
-    metadata.description = metadata.description.replace(metadata.title, "").trim();
+    metadata.description = dom.body?.innerText.trim();
+    if (!metadata.title.length) {
+      metadata.title = (dom.body?.children[0]?.innerText.trim())?.split("\n").pop();
+    }
+    metadata.description = metadata.description?.replace(metadata.title, "").trim();
     
 
     
@@ -408,9 +430,9 @@ async function recordToHistory() {
   if (navigator.storage && navigator.storage.persist)
     navigator.storage.persist().then(granted => {
     if (granted)
-      console.log("Storage will not be cleared except by explicit user action");
+      console.debug("Storage will not be cleared except by explicit user action");
     else
-      console.log("Storage may be cleared by the UA under storage pressure.");
+      console.debug("Storage may be cleared by the UA under storage pressure.");
   });
 
   let openRequest = indexedDB.open("history", 3);
