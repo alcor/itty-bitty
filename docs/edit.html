@@ -2,7 +2,7 @@
 <html>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width">
-<!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.quilljs.com/ https://cdnjs.cloudflare.com/; connect-src https://codepen.io; font-src https://fonts.gstatic.com; style-src https://fonts.googleapis.com 'unsafe-inline' 'self'"> -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src data: 'self'; script-src 'self'; connect-src https://codepen.io; font-src https://fonts.gstatic.com; style-src https://fonts.googleapis.com 'unsafe-inline' 'self'">
 <meta id="themeColor" name="theme-color" content="#f1f1f1" media="(prefers-color-scheme: light)">
 <meta id="themeColorDark" name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
 <link rel="canonical" id="canonical" href="/edit">
@@ -24,6 +24,12 @@
 <body>
 <div id="doc-file"></div>
 <input id="file-input" type="file" name="name" style="display: none;" />
+<div id="drop-zone">DROP HERE</div>
+<div id="placeholder">
+&nbsp;itty bitty things<br>
+&nbsp;can be conveyed in a link.<br>
+&nbsp;type here &ndash; and then share!<p>&nbsp;<a id="ib-info" href="http://about.bitty.site" target="_blank">about itty bitty</a><br>
+</div>
 <div id="copy-message">Link copied to clipboard.</div>
 <div id="placeholder">&nbsp;itty bitty things<br>&nbsp;can be conveyed in a link.<br>&nbsp;type here &ndash; and then share!<p>&nbsp;<a id="ib-info" href="http://about.bitty.site" target="_blank">about itty bitty</a></div>
   <div id="doc-title" class="toolbarbutton" placeholder="untitled"> 

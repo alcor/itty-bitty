@@ -53,18 +53,29 @@ window.onload = function() {
   document.body.onclick = function(e) {
     if (e.target == document.body) editor.focus();
   };
+  content = document.getElementById("content");
 
-  content.ondragenter = function(e) {
-    document.body.classList.add("drag");
-  };
-  content.ondragleave = function(e) {
-    document.body.classList.remove("drag");
-  };
+  let lastTarget;
+  window.addEventListener("dragenter", function(e){ // drag start
+    console.log("enter", e.target)
+    document.body.classList.toggle("dragging", true);
+    lastTarget = e.target; // cache the last target here
+  });
+
+  window.addEventListener("dragleave", function (e) { // user canceled
+    console.log("exit ", e.target)
+    if(e.target === lastTarget || e.target === document) {
+      document.body.classList.toggle("dragging", false);
+    }
+  });
+
   content.addEventListener("keydown", handleKey);
   content.addEventListener("keyup", handleInput);
   QS("#doc-title").addEventListener("keyup", handleInput);
   Array.from(document.getElementsByTagName("input")).forEach(i => i.addEventListener("keydown", handleInput))
-  content.addEventListener("drop", handleDrop);
+  
+  document.getElementById("drop-zone").addEventListener("drop", handleDrop);
+  document.getElementById("drop-zone").addEventListener("dragover", e => e.preventDefault());
   content.addEventListener("paste", handlePaste);
   // content.contentEditable = "true";
   editor.focus();
@@ -120,36 +131,46 @@ function updateBodyClass(hasContent) {
   document.body.classList.add("loaded");
 }
 
-function handleDrop(e) {
+async function handleDrop(e) {
+  console.log("drop", e)
   e.preventDefault();
   if (e.dataTransfer.files) {
     var file = e.dataTransfer.files[0];
     var reader = new FileReader();
     reader.addEventListener(
       "load",
-      function() {
+      async function() {
         var url = reader.result;
-        url = url.replace(DATA_PREFIX, DATA_PREFIX_8);
-        bitty.compressDataURL(url, function(url2) {
-          var ratio = url2.length / url.length;
-          console.log("Compressed to", Math.round(ratio * 100) + "%", url2, url);
-          if (e.ctrlKey)
-            bitty.decompressDataURL(url2, undefined, function(url3) {
-              console.log("Verified", url == url3);
-            });
-          if (ratio > 0.95) url2 = url;
-          if (e.altKey) url2 = url2.replace(DATA_PREFIX_BXZE, "!");
+        let durl = new bitty.DataURL(url);
+        durl = await durl.compress(bitty.GZIP_MARKER);
+        let ratio = durl.href.length / url.length;
+        console.log(`Compressed from ${url.length} to ${durl.href.length} bytes (${Math.round(ratio * 100)}%)`);
 
-          importedFileData = url2;
-          updateLink(url2, {title:file.name}, true);
-          setFileName(file.name);
-        });
+        if (ratio <= 0.95) url = durl.href;
+        importedFileData = url;
+        updateLink(url, file.name, true);
+        setFileName(file.name);
+
+        // url = url.replace(DATA_PREFIX, DATA_PREFIX_8);
+        // bitty.compressDataURL(url, function(url2) {
+        //   var ratio = url2.length / url.length;
+        //   console.log("Compressed to", Math.round(ratio * 100) + "%", url2, url);
+        //   if (e.ctrlKey)
+        //     bitty.decompressDataURL(url2, undefined, function(url3) {
+        //       console.log("Verified", url == url3);
+        //     });
+        //   if (e.altKey) url2 = url2.replace(DATA_PREFIX_BXZE, "!");
+
+        //   importedFileData = durl.href;
+        //   updateLink(url2, file.name, true);
+        //   setFileName(file.name);
+        // });
       },
       false
     );
     reader.readAsDataURL(file);
   }
-  document.body.classList.remove("drag");
+  document.body.classList.remove("dragging");
 }
 
 // TODO Command+Shift+T for title (H1), Command+Shift+H for headline (H2), Command+Shift+B for body text (remove any of the above)
