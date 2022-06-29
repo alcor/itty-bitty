@@ -6,13 +6,7 @@
 body {
   background-color: #f1f1f1;
   margin: 4vw;
-  background-image: 
-linear-gradient(45deg,rgba(128,128,128,.5) 25%,transparent 25%),
-linear-gradient(-45deg,rgba(128,128,128,.5) 25%,transparent 25%),
-linear-gradient(45deg,transparent 75%,rgba(128,128,128,.5) 75%),
-linear-gradient(-45deg,transparent 75%,rgba(128,128,128,.5) 75%);
-  background-size: 4px 4px;
-  background-position: 0 0,0 2px,2px -2px,-2px 0;
+  background: repeating-conic-gradient(rgba(128,128,128,.5) 0% 25%, transparent 0% 50%) 50% / 4px 4px;
   display: flex;
   flex-direction: column
 }
