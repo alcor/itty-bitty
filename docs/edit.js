@@ -37,7 +37,6 @@ quill.on('text-change', function(delta, oldDelta, source) {
 quill.setSelection(0, Infinity);
 
 var editor = quill.root;
-console.log("editor", editor);
 editor.autocomplete="off";
 var importedFileData = undefined;
 
@@ -69,6 +68,10 @@ window.onload = function() {
     }
   });
 
+
+  if (localStorage.getItem("preview")) {
+    togglePreview(true)
+  }
   // content.addEventListener("keydown", handleKey);
   // content.addEventListener("keyup", handleInput);
   QS("#doc-title").addEventListener("keyup", handleInput);
@@ -133,9 +136,7 @@ function updateBodyClass(hasContent) {
     document.body.classList.remove("edited");
   }
   
-  console.log("importedFileData",importedFileData != undefined)
   document.body.classList.toggle("filecontent",  importedFileData != undefined);
-
   document.body.classList.add("loaded");
 }
 
@@ -275,23 +276,18 @@ async function handleContentChange() {
     }
   
     if (text.trim().length) {
-      let durl = new bitty.DataURL(`data:text/html;charset=utf-8,${text}`)
+      let url = `data:text/html;charset=utf-8,${encodeURIComponent(text)}`;
+      let durl = new bitty.DataURL(url)
       durl = await durl.compress(bitty.GZIP_MARKER);
-      console.log("data", durl)
-      // bitty.compressString(text, bitty.GZIP64_MARKER, function(zip) {
-        // bitty.compressString(text, bitty.LZMA64_MARKER, function(zip2) {
-        //   const t2 = performance.now();
-        //   console.debug("gz", Math.round(zip.length/text.length*100) + "%", Math.round((t1-t0)),"ms");
-        //   console.debug("lz", Math.round(zip2.length/text.length*100) + "%", Math.round((t2-t1)), "ms");
-        // });
-        // zip.replace("=","")
+      let ratio = durl.href.length / url.length;
+      console.log(`Compressed from ${url.length} to ${durl.href.length} bytes (${Math.round(ratio * 100)}%)`);
 
-        if (rawHTML) {
-          updateLink(durl.href, metadata);
-        } else {
-          updateLink("?" + durl.href, metadata);
-        }
-      // });
+      if (ratio <= 0.95) url = durl.href;
+      if (rawHTML) {
+        updateLink(url, metadata);
+      } else {
+        updateLink("?" + durl.data, metadata);
+      }
       setFileName("");
     } else if (importedFileData) {
       updateLink(importedFileData, {title});
@@ -328,8 +324,7 @@ function updateLink(url, metadata, push) {
   bittyLink = new URL(url, document.location).href;
 
   document.getElementById("canonical").href = bittyLink;
-debugger
-  console.log({bittyLink});
+
   if(previewContent) QS("#preview-frame").src = bittyLink;
 
   var hash = location.hash;
@@ -385,11 +380,14 @@ function toggleMetadata(e) {
   QS("#md-title").focus();
 }
 
+
 let previewContent = false;
-function togglePreview() {
+function togglePreview(flag) {
   previewContent = !previewContent;
   document.body.classList.toggle("preview", previewContent);
 }
+
+
 function copyThenLink() {
   copyLink();
   return confirm("Copied your link to the clipboard. Paste it to share.");
