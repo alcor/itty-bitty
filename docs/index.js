@@ -2,21 +2,13 @@
 
   window.bitty = bitty;
 
-  const HEAD_TAGS = () => btoa('<base target="_top">\n');
-  const HEAD_TAGS_EXTENDED = () => btoa(`<meta charset="utf-8"><meta name="viewport" content="width=device-width"><base target="_top"><style type="text/css">body{margin:0 auto;padding:12vmin 10vmin;max-width:35em;line-height:1.5em;font-family:-apple-system,BlinkMacSystemFont,sans-serif;word-wrap:break-word;}@media(prefers-color-scheme: dark){body{color:white;background-color:#111;}}</style>  `);
-
   // if ('serviceWorker' in navigator) {
   //   navigator.serviceWorker
   //     .register('/worker.js')
   //     .then(function() { console.debug("Service Worker Registered"); });
   // }
 
-  function dismiss() {
-    if (document.getElementById("never").checked) window.localStorage.setItem('toasted', true);
-    document.body.classList.remove("toasting")
-  }
-  
-  const isIframed = window.self !== window.top;
+  const isFramed = window.self !== window.top;
         
   function addToast() {
     // `<div id="toast">
@@ -26,6 +18,10 @@
     // <br><br><button onclick="dismiss()">I understand</button> <input id="never" type="checkbox"><label for="never">Never show this</label>
     // </div>`
   }
+  // function dismiss() {
+  //   if (document.getElementById("never").checked) window.localStorage.setItem('toasted', true);
+  //   document.body.classList.remove("toasting")
+  // }
     
   function showLoader(state) {
     let loader = document.getElementById("loader");
@@ -35,16 +31,11 @@
         loader = document.createElement("div");
         loader.id = "loader";
         document.body.appendChild(loader);
-      }
-
-      setTimeout(() => document.body.classList.toggle("loading", true), 1)
-      
-    } else {
-      document.body.classList.toggle("loading", false)
-      if (loader) {
-        setTimeout(() => loader?.parentElement.removeChild(loader), 500)
-      }
+      }      
+    } else if (loader) {
+      setTimeout(() => loader?.parentElement?.removeChild(loader), 500)
     }
+    setTimeout(() => document.body.classList.toggle("loading", state), 1)
   }
   window.showLoader = showLoader;
 
@@ -164,7 +155,12 @@
   
   async function renderContent() {
     showLoader(true)    
+
     var fragment = window.location.hash.substring(1);
+
+    if (fragment.length < 3) {
+      return location.href = "/edit";
+    }
 
     if (window.location.search) { // Redirect search to path (coming out of server opengraph forwarding)
       window.history.replaceState(null, null, window.location.search.substring(1) + "#" + fragment);
@@ -174,8 +170,17 @@
     var isEdge = navigator.userAgent.match(/Edge\//);
     var isWatch = (window.outerWidth < 200);
 
-    if (fragment.length < 3) {
-      return location.href = "/edit";
+    let bittyInfo = bitty.parseBittyURL(location);
+    let durl = new bitty.DataURL(bittyInfo.hashData);
+
+    if (durl.params.compress) {
+      console.log("Compressing URL", durl);
+      delete durl.params.compress;
+      durl.compress(bitty.GZIP_MARKER).then(arg => {
+        window.history.replaceState(null, null, "/#/" + arg.href);
+        renderContent();
+      })
+      return;
     }
 
     // if (!window.localStorage.getItem('toasted')) document.body.classList.add("toasting");
@@ -216,20 +221,22 @@
     }
 
     if (fragment.startsWith("data:")) {
-      let info = bitty.infoForDataURL(fragment);
-      renderer = info.params?.render ? {script:info.params.render, sandbox:"hash"} : renderers[info.mediatype];
       
-      type = "data:" + info.mediaType;
+      renderer = durl.params?.render ? {script:durl.params.render, sandbox:"hash"} : renderers[durl.mediatype];
+      console.log("mod", durl.mediatype)
+      type = "data:" + durl.mediaype;
+      if (durl.mediatype == "text/html") {
+        dataPrefix = bitty.HEAD_TAGS();
+      } else if (durl.mediatype == "text/plain" || durl.mediatype == undefined) {
 
-      if (info.mediatype == "text/html") {
-        dataPrefix = HEAD_TAGS();
-      } else if (info.mediatype == "text/plain" || info.mediatype == undefined) {
-        dataPrefix = HEAD_TAGS_EXTENDED();
-        fragment = fragment.replace("text/plain", "text/html");
+        dataPrefix = bitty.HEAD_TAGS_EXTENDED();
+        durl.mediatype = "text/html";
+        // fragment = fragment.replace("text/plain,", "text/html").replace(",", "text/html");
+       
         renderMode = "data";
-      } else if (info.type == "text") {
-      } else if (info.type == "image") {
-      } else if (info.type == undefined) {
+      } else if (durl.type == "text") {
+      } else if (durl.type == "image") {
+      } else if (durl.type == undefined) {
       } else if (!renderer) {
         console.log("unknown type, rendering as download")
         renderMode = "download";
@@ -256,9 +263,9 @@
       }
 
       var compressed = true;
-      dataPrefix = HEAD_TAGS_EXTENDED();
+      dataPrefix = bitty.HEAD_TAGS_EXTENDED();
       let encoding = !compressed ? "base64," : (fragment.startsWith("XQA") ? bitty.LZMA_MARKER : bitty.GZIP_MARKER);
-      fragment = "data:text/html;charset=utf-8;format=" + encoding + ";base64," + fragment;
+      durl = new bitty.DataURL(`data:text/html;charset=utf-8;format=${encoding};base64,${fragment}`);
     }
 
 
@@ -266,18 +273,6 @@
       let element = document.getElementById("warning") || document.body.appendChild(el("div", {id: "warning"}))
       element.innerHTML =
         'Edge only supports shorter URLs (maximum 2083 bytes).<br>Larger sites may require a different browser.<br><a href="http://reference.bitty.site">Learn more</a>';
-    }
-
-    let durl = new bitty.DataURL(fragment);
-
-    if (durl.params.compress) {
-      console.log("Compressing URL", durl);
-      delete durl.params.compress;
-      durl.compress(bitty.GZIP_MARKER).then(arg => {
-        window.history.replaceState(null, null, "/#/" + arg.href);
-        renderContent();
-      })
-      return;
     }
 
     await durl.decompress();
@@ -329,7 +324,7 @@
     }
     
     let recordHistory = true
-    if (!isIframed && recordHistory) recordToHistory(durl);
+    if (!isFramed && recordHistory) recordToHistory(durl);
 
   };
 
@@ -398,7 +393,6 @@ async function recordToHistory() {
   let location = window.location;
   let fragment = location.hash;
 
-
   fragment = fragment.substring(fragment.indexOf("/") + 1);
   // var slashIndex = fragment.indexOf("/");
   // var title = fragment.substring(0, slashIndex) || info.title;
@@ -410,19 +404,17 @@ async function recordToHistory() {
   if (!metadata.title) {
     let dom = await (await durl.decompress()).parseDom();
 
-    for (let el of dom.getElementsByTagName('script')) { el.parentNode.removeChild(el) }
-
-    metadata.title = dom.title;
-    metadata.description = dom.body?.innerText.trim();
-    if (!metadata.title.length) {
-      metadata.title = (dom.body?.children[0]?.innerText.trim())?.split("\n").pop();
+    if (dom) {
+      for (let el of dom.getElementsByTagName('script')) { el.parentNode.removeChild(el) }
+      metadata.title = dom.title;
+      metadata.description = dom.body?.innerText.trim();
+      if (!metadata.title.length) {
+        metadata.title = (dom.body?.children[0]?.innerText.trim())?.split("\n").pop();
+      }
+      metadata.description = metadata.description?.replace(metadata.title, "").trim();
     }
-    metadata.description = metadata.description?.replace(metadata.title, "").trim();
-    
 
-    
     console.log("Extracting metadata from content", metadata);
-  
   }
 
 
