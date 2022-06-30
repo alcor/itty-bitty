@@ -1,16 +1,10 @@
-window.el = function (tagName, attrs, ...children) {
-  let l = document.createElement(tagName);
-  Object.entries(attrs).forEach(([k,v]) => l[k] = v);
-  children.forEach((c) => l.appendChild(typeof c == "string" ? document.createTextNode(c) : c));
-  return l;
-}
-
 const padForBase64 = (s, c = " ") => s.padEnd(s.length + (3 - s.length % 3) % 3, c)
 const HEAD_TAGS = () => btoa(padForBase64('<base target="_top">\n'));
-const HEAD_TAGS_EXTENDED = () => btoa(padForBase64(`<meta charset="utf-8"><meta name="viewport" content="width=device-width"><base target="_top"><style type="text/css">body{margin:0 auto;padding:12vmin 10vmin;max-width:35em;line-height:1.5em;font-family:-apple-system,BlinkMacSystemFont,sans-serif;word-wrap:break-word;}@media(prefers-color-scheme: dark){body{color:white;background-color:#111;}}</style>`));
+const HEAD_TAGS_EXTENDED = () => btoa(padForBase64(`<meta charset="utf-8"><meta name="viewport" content="width=device-width"><base target="_top"><style type="text/css">body{margin:0 auto;padding:12vmin 10vmin;max-width:35em;line-height:1.5em;font-family:-apple-system,BlinkMacSystemFont,sans-serif;word-wrap:break-word;}@media(prefers-color-scheme: dark){body{color:white;background-color:black;}}</style>`));
 
 const dataUrlRE =
-/^data:(?<mediatype>(?<type>[a-z]+)\/(?<subtype>[a-z+]+))?(?<params>(?:;[^;,]+=[^;,]+)*)?(?:;(?<encoding>\w+64))?,(?<data>.*)$/
+/^data:(?<mediatype>(?<type>[a-z]+)\/(?<subtype>[a-z+\-]+))?(?<params>(?:;[^;,]+=[^;,]+)*)?(?:;(?<encoding>\w+64))?,(?<data>.*)$/
+
 ///^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i;
 
 // dataurl    := "data:" [ mediatype ] [ ";base64" ] "," data
@@ -56,12 +50,19 @@ class DataURL {
     }
     
     let match = url.match(dataUrlRE);
+
+    this.params = {};
+    
     if (match) {
       let info = match.groups;
       Object.assign(this, info);  
       this.params = info.params ? JSON.parse('{"' + decodeURI(info.params?.substring(1)).replace(/"/g, '\\"').replace(/;/g, '","').replace(/=/g,'":"') + '"}') : {};
     }
-    if (this.encoding) this.data = this.data.replace(/=/g,"");
+    if (this.encoding) {
+      this.data = this.data.replace(/=/g,"");
+    } else {
+      this.data = decodeURIComponent(this.data);
+    }
   }
 
   get href() {
@@ -118,9 +119,12 @@ class DataURL {
   }
 
   parseDom = async () => {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(`<?xml version="1.0" encoding="UTF-8"?>` + atob(this.data), this.mediatype);
-    return doc;
+    try {
+
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(`<?xml version="1.0" encoding="UTF-8"?>` + atob(this.data), this.mediatype);
+      return doc;
+    } catch (e) {}
   }
 }
 
@@ -154,10 +158,9 @@ async function testCompression(rawData) {
 }
 
 async function compressData(data, encoding = GZIP_MARKER, callback) {
-  console.log("compressing with", encoding)
+  console.debug("Compressing with", encoding)
   if (encoding == GZIP_MARKER) {
     return import("/js/gzip/pako.js").then((module) => {
-      console.log({gzdata:data})
       return pako.deflate(data, {level:"9"});
     });
   } else if (encoding == BROT_MARKER) {
@@ -441,13 +444,53 @@ function pathToMetadata(path) {
 }
 
 function metadataToPath(data) {
-  if (!data || !data.title) return "";
+  if (!data || !data.title) return "/";
   let path = ["/" + encodePrettyComponent(data.title)];
   if (data.description) path.push("d/" + encodePrettyComponent(data.description.substring(0,200).split(". ").shift()));
   if (data.favicon) path.push("f/" + encodeURIComponent(data.favicon));
   if (data.image) path.push("i/" + encodeURIComponent(btoa(data.image).replace(/=/g, "")));
   return path.join('/') + "/";
 }
+
+// window.el = function (tagName, attrs, ...children) {
+//   let l = document.createElement(tagName);
+//   Object.entries(attrs).forEach(([k,v]) => l[k] = v);
+//   children.forEach((c) => l.appendChild(typeof c == "string" ? document.createTextNode(c) : c));
+//   return l;
+// }
+
+const el = (selector, ...args) => {
+  var attrs = (args[0] && typeof args[0] === 'object' && !Array.isArray(args[0]) && !(args[0] instanceof HTMLElement)) ? args.shift() : {};
+
+  let classes = selector.split(".");
+  if (classes.length > 0) selector = classes.shift();
+  if (classes.length) attrs.className = classes.join(" ")
+
+  let id = selector.split("#");
+  if (id.length > 0) selector = id.shift();
+  if (id.length) attrs.id = id[0];
+
+  var node = document.createElement(selector.length > 0 ? selector : "div");
+  for (let prop in attrs) {
+    if (attrs.hasOwnProperty(prop) && attrs[prop] != undefined) {
+      if (prop.indexOf("data-") == 0) {
+        let dataProp = prop.substring(5).replace(/-([a-z])/g, function(g) { return g[1].toUpperCase(); });
+        node.dataset[dataProp] = attrs[prop];
+      } else {
+        node[prop] = attrs[prop];
+      }
+    }
+  }
+
+  const append = (child) => {
+    if (Array.isArray(child)) return child.forEach(append);
+    if (typeof child == "string") child = document.createTextNode(child);
+    if (child) node.appendChild(child);
+  };
+  args.forEach(append);
+
+  return node;
+};
 
 export {
   DataURL,
@@ -464,6 +507,7 @@ export {
   metadataToPath,
   pathToMetadata,
   parseBittyURL,
+  el,
   BASE64_MARKER,
   LZMA64_MARKER,
   BASE_MARKER,
