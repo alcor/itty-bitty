@@ -39,6 +39,8 @@
   }
   window.showLoader = showLoader;
 
+  // Document Attribute Setters
+
   function setThemeColor(color) {
     let el = document.getElementById("themeColor");
     if (!el) {
@@ -158,7 +160,7 @@
 
     var fragment = window.location.hash.substring(1);
 
-    if (fragment.length < 3) {
+    if (fragment.length < 3 && !isFramed) {
       return location.href = "/edit";
     }
 
