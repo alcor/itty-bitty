@@ -22,7 +22,7 @@
 <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined">
 
 <body>
-<iframe id="preview-frame"></iframe>
+<iframe class="hide-before-edit" id="preview-frame"></iframe>
 <div class="editor-container">
 <div id="doc-file"></div>
 <input id="file-input" type="file" name="name" style="display: none;" />
@@ -32,55 +32,28 @@
 
 
 
-<div class="toolbar  hide-before-edit" id="formatbar">
-  <span class="ql-formats">
-    <button class="ql-bold"></button>
-    <button class="ql-italic"></button>
-    <select class="ql-header" id="ql-header">HX</select>
-  </span>
-  <span class="ql-formats">
-    <select class="ql-color"><option value="#F6D4D2"/><option value="#FAE4D3"/><option value="#FEF3D5"/><option value="#CFE8DC"/><option value="#CFE0E8"/><option value="#E1D7E8"/><option value="white"/><option value="#E99590"/><option value="#F3BB92"/><option value="#FDE095"/><option value="#86C6A8"/><option value="#86B1C6"/><option value="#B39BC6"/><option value="#A4A4A4"/><option value="#D42A20"/><option value="#E77625"/><option value="#FAC22B"/><option value="#0E8E51"/><option value="#0E638E"/><option value="#67378D"/><option value="#727272"/><option value="#BF0000"/><option value="#DB3F00"/><option value="#F8A600"/><option value="#005E12"/><option value="#00275E"/><option value="#2C005C"/><option value="#3D3D3D"/><option value="#860000"/><option value="#943E00"/><option value="#AE7400"/><option value="#00420D"/><option value="#001B42"/><option value="#1F0040"/><option value="black"/></select>
-    <select class="ql-background"><option value="#F6D4D2"/><option value="#FAE4D3"/><option value="#FEF3D5"/><option value="#CFE8DC"/><option value="#CFE0E8"/><option value="#E1D7E8"/><option value="white"/><option value="#E99590"/><option value="#F3BB92"/><option value="#FDE095"/><option value="#86C6A8"/><option value="#86B1C6"/><option value="#B39BC6"/><option value="#A4A4A4"/><option value="#D42A20"/><option value="#E77625"/><option value="#FAC22B"/><option value="#0E8E51"/><option value="#0E638E"/><option value="#67378D"/><option value="#727272"/><option value="#BF0000"/><option value="#DB3F00"/><option value="#F8A600"/><option value="#005E12"/><option value="#00275E"/><option value="#2C005C"/><option value="#3D3D3D"/><option value="#860000"/><option value="#943E00"/><option value="#AE7400"/><option value="#00420D"/><option value="#001B42"/><option value="#1F0040"/><option value="black"/></select>
-  </span>
-  <span class="ql-formats">
-    <select class="ql-align"></select>
-    <button class="ql-blockquote"></button>
-    <button class="ql-code-block"></button>
-  </span>
-  <span class="ql-formats">
-    <button class="ql-clean"></button>
-    <button class="ql-link"></button>
-  </span>
-  <span class="ql-formats">
-    <button type="button" class="ql-list" value="bullet"></button>
-    <button type="button" class="ql-list" value="ordered"></button>
-  </span>
-  <span class="ql-formats">
-    <button class="ql-indent" value="-1"></button>
-    <button class="ql-indent" value="+1"></button>
-  </span>
-</div>
-
-<div id="placeholder">&nbsp;itty bitty things<br>&nbsp;can be conveyed in a link.<br>&nbsp;type here &ndash; and then share!<p>&nbsp;<a id="ib-info" href="http://about.bitty.site" target="_blank">about itty bitty</a></div>
 
 <div id="doc-title" class="toolbarbutton hide-before-edit" placeholder="untitled"> 
-  <div class="title" id="doc-title-text">untitled</div>
+  <div class="title" id="doc-title-text"></div>
   <form id="md-contents" class="menu">
     <div class="inputrow"><label for="md-title">title</label><input type="text" name="title" id="md-title" placeholder="untitled"></div>
-    <div class="inputrow"><label for="md-include">metadata</label><input type="checkbox" name="includeMetadata" id="md-include" placeholder="untitled"><label for="md-include">include social metadata</label></div>
     <div class="inputrow"><label for="md-description">description</label><input type="text" name="description" id="md-description" placeholder="text"></div>
     <div class="inputrow"><label for="md-favicon">favicon</label><input type="text" name="favicon" id="md-favicon" placeholder="emoji or url"></div>
     <div class="inputrow"><label for="md-image">image</label><input type="text" name="image" id="md-image" placeholder="image url"></div>
     <div class="inputrow"><label for="md-password">password</label><input type="text" name="password" id="md-password" placeholder="encryption password"></div>
+    <div class="inputrow"><label for="md-include">metadata</label><input type="checkbox" name="includeMetadata" id="md-include" checked><label for="md-include">include link metadata</label><a href="">?</a></div>
   </form>
 </div>
+
+<div id="placeholder">&nbsp;itty bitty things<br>&nbsp;can be conveyed in a link.<br>&nbsp;type here &ndash; and then share!<p>&nbsp;<a id="ib-info" href="http://about.bitty.site" target="_blank">about itty bitty</a></p></div>
 
 <div id="editor"></div>
 
 <div class="toolbar" id="menubar">
+
    <!-- <div class="spacer"></div> -->
   <div class="toolbar-right">
-    <div id="length" class="hide-before-edit"></div>
+    <div id="length" class="hide-before-edit menu-item"></div>
     <div id="share" class="hide-before-edit menu-item">share</div>
     <div id="mainmenu">
       <div class="menu-item">menu</div>
@@ -99,6 +72,29 @@
         <a id="about" target="_blank" href="http://about.bitty.site" id="about">about itty</a>
       </div>
     </div>
+  </div>
+
+
+  <div class="toolbar hide-before-edit" id="formatbar">
+
+    <div class="menu-item" id="format-toggle">Aa</div>
+    <span class="ql-formats">
+      <button class="ql-bold"></button>
+      <button class="ql-italic"></button>
+      <select class="ql-header" id="ql-header">HX</select>
+      <select class="ql-color"><option value="#F6D4D2"/><option value="#FAE4D3"/><option value="#FEF3D5"/><option value="#CFE8DC"/><option value="#CFE0E8"/><option value="#E1D7E8"/><option value="white"/><option value="#E99590"/><option value="#F3BB92"/><option value="#FDE095"/><option value="#86C6A8"/><option value="#86B1C6"/><option value="#B39BC6"/><option value="#A4A4A4"/><option value="#D42A20"/><option value="#E77625"/><option value="#FAC22B"/><option value="#0E8E51"/><option value="#0E638E"/><option value="#67378D"/><option value="#727272"/><option value="#BF0000"/><option value="#DB3F00"/><option value="#F8A600"/><option value="#005E12"/><option value="#00275E"/><option value="#2C005C"/><option value="#3D3D3D"/><option value="#860000"/><option value="#943E00"/><option value="#AE7400"/><option value="#00420D"/><option value="#001B42"/><option value="#1F0040"/><option value="black"/></select>
+      <select class="ql-background"><option value="#F6D4D2"/><option value="#FAE4D3"/><option value="#FEF3D5"/><option value="#CFE8DC"/><option value="#CFE0E8"/><option value="#E1D7E8"/><option value="white"/><option value="#E99590"/><option value="#F3BB92"/><option value="#FDE095"/><option value="#86C6A8"/><option value="#86B1C6"/><option value="#B39BC6"/><option value="#A4A4A4"/><option value="#D42A20"/><option value="#E77625"/><option value="#FAC22B"/><option value="#0E8E51"/><option value="#0E638E"/><option value="#67378D"/><option value="#727272"/><option value="#BF0000"/><option value="#DB3F00"/><option value="#F8A600"/><option value="#005E12"/><option value="#00275E"/><option value="#2C005C"/><option value="#3D3D3D"/><option value="#860000"/><option value="#943E00"/><option value="#AE7400"/><option value="#00420D"/><option value="#001B42"/><option value="#1F0040"/><option value="black"/></select>
+      <button class="ql-clean"></button>
+    </span>
+    <span class="ql-formats">
+      <button class="ql-code-block"></button>
+      <button class="ql-link"></button>
+      <select class="ql-align"></select>
+      <button type="button" class="ql-list" value="bullet"></button>
+      <button type="button" class="ql-list" value="ordered"></button>
+      <button class="ql-indent" value="-1"></button>
+      <button class="ql-indent" value="+1"></button>
+    </span>
   </div>
 </div>
 </div>

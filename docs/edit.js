@@ -41,7 +41,7 @@ editor.autocomplete="off";
 var importedFileData = undefined;
 
 var content = editor;
-window.onload = function() {
+window.onload = async function() {
   window.onpopstate = function(e) {
     setContent(e.state);
   };
@@ -90,6 +90,8 @@ window.onload = function() {
   QS("#twitter").onclick = tweetLink;
   QS("#copy").onclick = copyLink;
   QS("#preview").onclick = togglePreview;
+  QS("#format-toggle").onclick = toggleFormat;
+  
   QS("#mainmenu").onclick = () => { toggleMenu(QS("#mainmenu"))};
 
   QS("#doc-title").onclick = toggleMetadata;
@@ -109,7 +111,10 @@ window.onload = function() {
     updateLink(hash, {title});
     if (hash.startsWith("?")) {
       hash = hash.substring(1);
-      zipToString(hash, setContent);
+      let durl = new bitty.DataURL(hash);
+      durl = await durl.decompress();
+      let htmlContent = durl.data;
+      setContent(htmlContent);
     }
   } else {
     updateBodyClass();
@@ -313,18 +318,20 @@ function updateLink(url, metadata, push) {
   let path = includeMetadata ? "/" : bitty.metadataToPath(metadata) ?? "/";
   let prefix = includeMetadata ? bitty.encodePrettyComponent(title) : "";
 
+  console.log(`path [${path}]`)
   if (url.length) {
     url = path + "#" + prefix + "/" + url;
   } else {
     url = "/edit";
   }
 
-  document.getElementById("doc-title-text").innerText = title.length ? title : "untitled";
+  document.getElementById("doc-title-text").innerText = title.length ? title : "";
 
   bittyLink = new URL(url, document.location).href;
 
   document.getElementById("canonical").href = bittyLink;
 
+  console.log("previewing", bittyLink);
   if(previewContent) QS("#preview-frame").src = bittyLink;
 
   var hash = location.hash;
@@ -385,6 +392,11 @@ let previewContent = false;
 function togglePreview(flag) {
   previewContent = !previewContent;
   document.body.classList.toggle("preview", previewContent);
+}
+let formatContent = false;
+function toggleFormat(flag) {
+  formatContent = !formatContent;
+  document.body.classList.toggle("format", formatContent);
 }
 
 
