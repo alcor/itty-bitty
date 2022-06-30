@@ -142,7 +142,7 @@ function highlightStep(e) {
 
 }
 
-const ingredientMatch = /^(?:A )?([\/0-9 \u00BC-\u00BE\u2153-\u215E\u2009]*)\s(.*)/
+const ingredientMatch = /^(?:A )?([\-\/0-9 \u00BC-\u00BE\u2153-\u215E\u2009]*)\s(.*)/
 
 
 function ingredientEl(string, terms) {
@@ -154,9 +154,9 @@ function ingredientEl(string, terms) {
   let match = FRACTION_MAP.replace(clean(string)).match(ingredientMatch);
 
   if (match) {
-    return [m("span.quantity", match[1].replace(" ", "\u202F")), m("div", {innerHTML:highlightTerms(match[2], terms)})]
+    return [m("span.quantity", match[1].replace(" ", "\u202F")), " ", m("span", {innerHTML:highlightTerms(match[2], terms)})]
   }
-  return [m("span.quantity", ""), m("div", {innerHTML:string})];
+  return [m("span.quantity", ""), m("span", {innerHTML:string})];
 }
 
 function highlightTerms(string, terms) {

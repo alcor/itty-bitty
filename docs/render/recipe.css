@@ -246,10 +246,13 @@ li:hover .noun {
   margin-left:2em;
 }
 .ingredients .quantity {
-  float:left;
-  margin-left:-2.5em;
-  width:2em;
-  text-align:right;
+  float:
+  left;
+  margin-left: -2.2em;
+  min-width: 1.8em;
+  text-align:
+  right;
+  margin-right: 0.3em;
 }
 
 .ingredient.complete,
