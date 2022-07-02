@@ -88,9 +88,8 @@ let timeout;
 function updateURL() {
   clearTimeout(timeout)
   timeout = setTimeout(() => {
-    parent.postMessage({updateHash:"#/c:" + currentColor}, "*");
+    parent.postMessage({updateHash:"#/c:" + new Color(currentColor).to("srgb").toString({format: "hex"})}, "*");
   },100);
-  
 }
 
 function renderCanvas() {
@@ -116,7 +115,7 @@ function renderCanvas() {
   ctx.fillRect(0, 0, w, h/4);
 
   let color = new Color(currentColor);
-  document.body.style.backgroundColor = currentColor;
+  document.body.style.backgroundColor = color;
 
 
   color.hsl.s = 100;
