@@ -65,6 +65,9 @@
 
   const renderers = {
     "application/ld+json": {script:"recipe"},
+    "text/canvas+javascript": {script:"canvas"},
+    "text/javascript": {script:"script"},
+    "c": {script:"color"},
     "text/rawhtml": {script:"parse"},
     "javascript": {script:"bookmarklet"},
     "ipfs": {script:"ipfs", sandbox:"ipfs"},
@@ -225,7 +228,7 @@
     if (fragment.startsWith("data:")) {
       
       renderer = durl.params?.render ? {script:durl.params.render, sandbox:"hash"} : renderers[durl.mediatype];
-      console.log("mod", durl.mediatype)
+
       type = "data:" + durl.mediaype;
       if (durl.mediatype == "text/html") {
         dataPrefix = bitty.HEAD_TAGS();
@@ -292,7 +295,7 @@
       console.log("Rendering for watch")
       contentTarget = document;
     }
-    console.log("Rendering mode: " + "\x1B[1m" + renderMode, durl)
+    console.log("🖋 Rendering mode: " + "\x1B[1m" + renderMode, {url:durl})
     // dataURL = dataURL.replace("application/ld+json", "text/plain");
     if (renderMode == "download") {
       try {
@@ -372,7 +375,7 @@
       } else { // Render using data url (storage disabled)
         src = "data:text/html," + SCRIPT_LOADER;
       }
-      console.log("Loading script with source:\n" + src)
+      console.log("📜 Loading script with source:", src)
       iframe.src = src;
     }
   }
@@ -416,7 +419,7 @@ async function recordToHistory() {
       metadata.description = metadata.description?.replace(metadata.title, "").trim();
     }
 
-    console.log("Extracting metadata from content", metadata);
+    console.debug("Extracting metadata from content", metadata);
   }
 
 
@@ -473,12 +476,12 @@ async function recordToHistory() {
       created: new Date()
     };
 
-    console.log("Adding history", entry)
+    console.log("🕙 Adding history", {entry})
 
     let request = history.put(entry); // (3)
 
     request.onsuccess = function() { // (4)
-      console.log("entry added to the history", request.result);
+      console.debug("entry added to the history", request.result);
     };
 
     request.onerror = function() {
