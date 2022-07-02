@@ -1,0 +1,18 @@
+* {
+  font-family:  -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  display:flex;
+  min-height:100vh;
+  justify-content: center;
+  align-items: center;
+  font-size:10vmin;
+  margin:0
+}
+
+canvas {
+  border:2px solid black;
+  box-shadow: 2px 2px 0 black;
+  border-radius:4px
+}
