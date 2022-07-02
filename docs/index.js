@@ -139,6 +139,9 @@
       if (e.data.wakeLock) {
         getWakeLock();
       }
+      if (e.data.updateHash) {
+        window.history.replaceState(null, null, e.data.updateHash);
+      }
       if (e.data.replaceURL) {
         if (e.data.compressURL) {
           let durl = new bitty.DataURL(e.data.replaceURL);
