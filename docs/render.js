@@ -1,12 +1,45 @@
-window.el = function (tagName, attrs, ...children) {
-  let l = document.createElement(tagName);
-  Object.entries(attrs).forEach(([k,v]) => l[k] = v);
-  children.forEach((c) => l.appendChild(typeof c == "string" ? document.createTextNode(c) : c));
-  return l;
-}
+// window.el = function (tagName, attrs, ...children) {
+//   let l = document.createElement(tagName);
+//   Object.entries(attrs).forEach(([k,v]) => l[k] = v);
+//   children.forEach((c) => l.appendChild(typeof c == "string" ? document.createTextNode(c) : c));
+//   return l;
+// }
+const el = (selector, ...args) => {
+  var attrs = (args[0] && typeof args[0] === 'object' && !Array.isArray(args[0]) && !(args[0] instanceof HTMLElement)) ? args.shift() : {};
 
-function loadScript(src, callback) {
-  let script = el("script", { src });
+  let classes = selector.split(".");
+  if (classes.length > 0) selector = classes.shift();
+  if (classes.length) attrs.className = classes.join(" ")
+
+  let id = selector.split("#");
+  if (id.length > 0) selector = id.shift();
+  if (id.length) attrs.id = id[0];
+
+  var node = document.createElement(selector.length > 0 ? selector : "div");
+  for (let prop in attrs) {
+    if (attrs.hasOwnProperty(prop) && attrs[prop] != undefined) {
+      if (prop.indexOf("data-") == 0) {
+        let dataProp = prop.substring(5).replace(/-([a-z])/g, function(g) { return g[1].toUpperCase(); });
+        node.dataset[dataProp] = attrs[prop];
+      } else {
+        node[prop] = attrs[prop];
+      }
+    }
+  }
+
+  const append = (child) => {
+    if (Array.isArray(child)) return child.forEach(append);
+    if (typeof child == "string") child = document.createTextNode(child);
+    if (child) node.appendChild(child);
+  };
+  args.forEach(append);
+
+  return node;
+};
+window.el = el;
+
+function loadScript(src, callback, type = "module") {
+  let script = el("script", { src, type });
   script.addEventListener('load', function(e) {
     console.debug("Loaded script", src);
     if (callback) callback(e);
@@ -32,11 +65,11 @@ function loadSyle(href, callback) {
 
 
 function renderScriptContent(data, origin) {
-  var base = el('base', {href: data});
+  var base = el('base', {href: data.script});
   document.head.appendChild(base);
   window.params = data;
   window.params.origin = origin;
-  console.log("Rendering with", data.script, data)
+  console.log("🖊 Rendering with", {script:data.script, params:data})
   loadScript(data.script);
 }
 
