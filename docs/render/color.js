@@ -2,8 +2,6 @@ let script = document.currentScript?.src || import.meta?.url;
 
 // import Color from "https://colorjs.io/dist/color.js";
 import Color from "/js/color.min.js";
-// import Color from (new URL("/js/color.global.min.js", script.src)).href;
-console.log("script",script)
 
 function share() {
   parent.postMessage({share:{}}, "*");
@@ -47,8 +45,6 @@ function edit() {
 }
 function render() {
   let colors = params.body.substring(2).split(";");
-  console.log("params", params, colors)
-  //parent.postMessage({title:title, favicon:"🍴", image:image, description:description, wakeLock:true, updateURL:true}, "*");
   document.body.style.backgroundColor = colors[0];
   document.body.style.color = colors[1];
   currentColor = colors[0];
@@ -58,7 +54,6 @@ function render() {
   document.body.appendChild(
     el("div", {}, [ 
         el("div#rectangle", window.lumCanvas, window.hueCanvas),
-        
         el("div#info",
           el("div#title", colors[0]),
           el("div#copy", ""),
@@ -89,26 +84,19 @@ function update (e){
   y = Math.min(Math.max(0, y),e.target.height);
 
   var pixelData = context.getImageData(x, y, 1, 1).data; 
-
   currentColor = `rgb(${pixelData[0]},${pixelData[1]},${pixelData[2]})`;
-
-  console.log("currentColor", currentColor)
   document.body.style.backgroundColor = currentColor;
 
   updateURL();
   if (isHue) renderLumCanvas()
-
-
-  console.log(pixelData[0], pixelData[1], pixelData[2]);
-  // Convert it to HEX if you want using the rgbToHex method.
-  // var hex = "#" + ("000000" + rgbToHex(pixelData[0], pixelData[1], pixelData[2])).slice(-6);
 }
 
 let timeout;
 function updateURL() {
   clearTimeout(timeout)
+  let hex = new Color(currentColor).to("srgb").toString({format: "hex"});
+  document.getElementById("title").innerText = hex.toString().toUpperCase();
   timeout = setTimeout(() => {
-    let hex = new Color(currentColor).to("srgb").toString({format: "hex"});
     parent.postMessage({title:hex, updateHash:"#/c:" + hex}, "*");
   },100);
 }
@@ -120,7 +108,7 @@ function renderCanvas() {
 function renderHueCanvas() {
   let ctx = hueCanvas.getContext("2d");
   let w = hueCanvas.width, h = hueCanvas.height;
-console.log("hue", hueCanvas)
+
   var hue = ctx.createLinearGradient(0, 0, w, 0);
   hue.addColorStop(0.02, "#FAC22B");
   hue.addColorStop(0.16, "#099351");

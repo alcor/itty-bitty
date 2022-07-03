@@ -82,10 +82,13 @@ div#title {
 
 #copy, #edit {
   font-size:12px;
-  font-weight:bold;
+  font-weight:
+  bold;
   text-transform: uppercase;
   margin-left:1em;
-  cursor:default;
+  cursor:
+  default;
+  height: 2.5em;
 }
 
 #edit:before {
