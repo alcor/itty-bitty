@@ -304,7 +304,7 @@ function render() {
         m("header",
           m("a", {href:originalURL, target:"_blank"},
             m("img.publisher", { src: json.publisher?.image ?.[0]?.url ?? json.publisher ?.logo ?.url }),
-          ), 
+          ),
           m("h1", title),
           m(".metadata",
             (yield) ? m("div", m("span.yield", m(".icon.material-icons-outlined", "restaurant"), yield)) : null,
@@ -349,9 +349,6 @@ function render() {
       )
     )
   )
-
-
-
 }
 
 var path = script.src.substring(0, script.src.lastIndexOf("."));
