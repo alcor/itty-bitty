@@ -149,13 +149,18 @@ async function handleDrop(e) {
   console.log("drop", e)
   e.preventDefault();
   if (e.dataTransfer.files) {
-    var file = e.dataTransfer.files[0];
-    var reader = new FileReader();
+    let file = e.dataTransfer.files[0];
+    let extension = file.name.split(".").pop();
+    let reader = new FileReader();
     reader.addEventListener(
       "load",
       async function() {
         var url = reader.result;
         let durl = new bitty.DataURL(url);
+        if (durl.mediatype == "application/octet-stream") {
+          durl.mediatype = "application/" + extension;
+        }
+        console.log(durl.mediatype)
         durl = await durl.compress(bitty.GZIP_MARKER);
         let ratio = durl.href.length / url.length;
         console.log(`Compressed from ${url.length} to ${durl.href.length} bytes (${Math.round(ratio * 100)}%)`);
