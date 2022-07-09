@@ -67,6 +67,7 @@
     "application/ld+json": {script:"recipe"},
     "text/canvas+javascript": {script:"canvas"},
     "text/javascript": {script:"script"},
+    "application/bitsy": {script:"/render/bitsy.html", sandbox:"bitsy"},
     "c": {script:"color"},
     "text/rawhtml": {script:"parse"},
     "javascript": {script:"bookmarklet"},
@@ -369,6 +370,10 @@
 
       let src = window.scriptDomain ?? location.origin;
       src += "/render";
+
+      if (params.script.endsWith(".html")) {
+        src = params.script;
+      }
       let sandbox = params.renderer?.sandbox;
       if (sandbox == "hash") { // Generate sandbox based off of body hash
         let hash = await bitty.hashString(params.body);
