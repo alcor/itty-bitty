@@ -219,36 +219,42 @@ function handlePaste(e) {
 
 var TEMPLATE_MARKER = "/*use-itty-bitty-template*/";
 function fetchCodepen(url) {
-  var h, c, j;
-  $.when(
-    $.get({ url: url + ".html", cache: false }, function(html) {
-      h = html;
-    }),
-    $.get({ url: url + ".css", cache: false }, function(css) {
-      c = css;
-    }),
-    $.get({ url: url + ".js", cache: false }, function(js) {
-      j = js;
-    })
-  ).then(function() {
+
+  Promise.all([
+    fetch(url + ".html"),
+    fetch(url + ".css"),
+    fetch(url + ".js"),
+  ]).then(async function(responses) {
+    console.log("responses", responses);
+    let h = await responses[0].text();
+    let c = await responses[1].text();
+    let j = await responses[2].text();
+
+    console.log({h,c,j})
+
     var useTemplate = c.indexOf(TEMPLATE_MARKER) >= 0;
     var string =
-      '<style type="text/css">' +
-      c +
-      "</style>" +
+      '<style type="text/css">' + c + "</style>" +
       h +
-      '<script type="text/javascript">' +
-      j +
-      "</script>";
-    stringToZip(string, function(zip) {
-      setFileName("✒️" + url);
-      var title = QS("#doc-title").innerText;
-      setTimeout(function() {
-        var data = (useTemplate ? "" : DATA_PREFIX_BXZE) + zip;
-        importedFileData = data;
-        updateLink(data, {title});
-      }, 300);
-    });
+      '<script type="text/javascript">' + j + "</script>";
+      console.log("string", string);
+
+    let url = `data:text/html;charset=utf-8,${encodeURIComponent(string)}`;
+
+    let durl = new bitty.DataURL(url);
+    durl = await durl.compress(bitty.GZIP_MARKER);
+
+    let ratio = durl.href.length / url.length;
+    console.log(`Compressed from ${url.length} to ${durl.href.length} bytes (${Math.round(ratio * 100)}%)`);
+
+    // setFileName("✒️" + "codepen");
+    var title = QS("#doc-title").innerText;
+    setTimeout(function() {
+      // var data = (useTemplate ? "" : DATA_PREFIX_BXZE) + zip;
+      // importedFileData = url;
+      updateLink(durl.href, {title:"CODEPEN"});
+    }, 300);
+
   });
 }
 
