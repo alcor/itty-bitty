@@ -225,7 +225,7 @@ input:focus {
   position: fixed;
   top: 0;
   left: 0;
-  width: 50vw;
+  width: 100vw;
   height: 100vh;
   background-position: center 60px;
   box-sizing: border-box;

@@ -346,11 +346,11 @@ function updateLink(url, metadata, push) {
   if(previewContent) QS("#preview-frame").src = bittyLink;
 
   var hash = location.hash;
-  // if (push || !hash || !hash.length) {
-  //   window.history.pushState(content.innerHTML, null, url);
-  // } else {
-  //   window.history.replaceState(content.innerHTML, null, url);
-  // }
+  if (push || !hash || !hash.length) {
+    window.history.pushState(null, null, bittyLink);
+  } else {
+    window.history.replaceState(null, null, bittyLink);
+  }
   var length = bittyLink.length;
 
   QS("#length").innerText = length + " bytes";
@@ -416,7 +416,7 @@ function copyThenLink() {
   return confirm("Copied your link to the clipboard. Paste it to share.");
 }
 function copyLink() {
-  var text = location.href;
+  var text = bittyLink;
   var dummy = document.createElement("input");
   document.body.appendChild(dummy);
   dummy.value = text;
