@@ -13,10 +13,16 @@ function render() {
   window.ctx = canvas.getContext("2d");
   window.w = window.canvas.width
   window.h = window.canvas.height
-  document.body.appendChild(window.canvas);
+
+  document.body.appendChild(el("div.window",
+    el("div.titlebar", {}, "Axiom QuickServe", el("span#title")),
+    window.canvas 
+    )
+  );
   document.body.appendChild(el("script", {}, params.body))
   setTimeout(() => {
     document.title = getName();
+    document.getElementById("title").innerText = " - " + document.title;
     parent.postMessage({ title: document.title }, "*");
     onConnect()
     setInterval(() => { onUpdate() }, 1000 / 30)
@@ -32,7 +38,6 @@ function render() {
 }
 
 function drawChar(cx, cy, c) {
-  if (c == " ") return;
   
   let x = cx * xs;
   let y = cy * ys;
@@ -44,6 +49,8 @@ function drawChar(cx, cy, c) {
   
   if (c == "™" || c == "%") { w *= 2; x -= 7; i -= 4 / 9; }; // special case wide characters
   
+  if (c == " ") i = 121;
+
   ctx.drawImage(img,
     (i % 42) * xs, Math.floor(i / 42) * ys, w, h,
     x, y, w, h);
@@ -90,6 +97,7 @@ function drawChar(cx, cy, c) {
   
   // Draw a box using the built-in box drawing characters.
   window.drawBox = (color, x, y, width, height) => {
+    ctx.fillStyle = colors[color];
     for (var i = 1; i < width - 1; i++) {
       drawChar(x + i, y, "═");
       drawChar(x + i, y + height - 1, "═");
@@ -125,5 +133,8 @@ function drawChar(cx, cy, c) {
   window.loadData = () => {
     try {
       return localStorage.getItem(document.title) || "";
-    } catch (e) { return "" }
+    } catch (e) { 
+      console.log("cannot load data", e)
+      return "" 
+    }
   };

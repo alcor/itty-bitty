@@ -12,6 +12,7 @@
 
 body {
     display: flex;
+    flex-direction: column;
     min-height: 100vh;
     justify-content: center;
     align-items: center;
@@ -21,13 +22,28 @@ body {
     background-color: var(--background-color);
     background: linear-gradient(107.56deg, #6D5C69 0%, #2C2B2A 100%);
 }
-
-canvas {
+.window {
     border: 2px solid #87EDD3;
+    box-shadow: 5px 12px rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+    color: #87EDD3;
+    display:flex;
+    flex-direction: column;
+    background-color:#384747;
+}
+.titlebar {
+    font-size:18px;
+    text-align:left;
+        width: 1000px;
+    max-width: 90vw;
+    padding:8px;
+    box-sizing: border-box;
+    border-bottom: 2px solid #87EDD3;
+
+}
+canvas {
     width: 1000px;
     max-width: 90vw;
     image-rendering: pixelated;
     background-color: #192F30;
-    letter-spacing: 1px;
-    box-shadow: 5px 12px rgba(0, 0, 0, 0.2);
 }
