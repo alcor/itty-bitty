@@ -1,7 +1,6 @@
-let script = document.currentScript?.src ;
+let script = document.currentScript?.src 
 
-var path = script.substring(0, script.lastIndexOf("."));
-var cssURL = path + ".css";
+var cssURL = "/render/axiom.css";
 Promise.all([loadSyle(cssURL)]).then(render);
 
 let colors = ["#192F30", "#2A4546", "#2E4A4B", "#264A4B", "#274E50", "#225A5D", "#1B666A", "#207479", "#27898F", "#2E9EA1", "#37A7AA", "#3FB6BA", "#39C9CE", "#3CD0D5", "#40D7DC", "#46DCE1", "#5CE6EB", "#ACF6F4"]
@@ -55,7 +54,7 @@ function drawChar(cx, cy, c) {
   
   let ys = 15;
   let xs = 9
-  
+
   // Clear the screen.
   window.clearScreen = () => {
     ctx.fillStyle = colors[0];
@@ -117,10 +116,14 @@ function drawChar(cx, cy, c) {
   
   // Write this server's persisted data string. You can convert a JavaScript object to a JSON string using JSON.stringify().
   window.saveData = (data) => {
-    localStorage.setItem(document.title, data);
+    try {
+      localStorage.setItem(document.title, data);
+    } catch (e) {}
   }
   
   // Read this server's persisted data string. You can convert a JSON string to a JavaScript object using JSON.parse().
   window.loadData = () => {
-    return localStorage.getItem(document.title) || "";
+    try {
+      return localStorage.getItem(document.title) || "";
+    } catch (e) { return "" }
   };
