@@ -1,0 +1,33 @@
+* {
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    --color: black;
+}
+
+@media(prefers-color-scheme:dark) {
+    body {
+        --color: white;
+        --background-color: #111;
+    }
+}
+
+body {
+    display: flex;
+    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+    font-size: 10vmin;
+    margin: 0;
+    color: var(--color);
+    background-color: var(--background-color);
+    background: linear-gradient(107.56deg, #6D5C69 0%, #2C2B2A 100%);
+}
+
+canvas {
+    border: 2px solid #87EDD3;
+    width: 1000px;
+    max-width: 90vw;
+    image-rendering: pixelated;
+    background-color: #192F30;
+    letter-spacing: 1px;
+    box-shadow: 5px 12px rgba(0, 0, 0, 0.2);
+}
