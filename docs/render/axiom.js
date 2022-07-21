@@ -15,13 +15,23 @@ function render() {
   window.h = window.canvas.height
 
   document.body.appendChild(el("div.window",
-    el("div.titlebar", {}, "Axiom QuickServe", el("span#title")),
+    el("div#titlebar", {}, "Axiom QuickServe", el("span#title")),
     window.canvas 
     )
   );
   document.body.appendChild(el("script", {}, params.body))
+  
   setTimeout(() => {
     document.title = getName();
+
+    var a = new FileReader();
+    a.onload = function(e) { 
+      console.log("e.target.result", e.target.result)
+      document.getElementById("titlebar").appendChild(el("a", {href:e.target.result, download:document.title}, "Download QuickServe Script"))
+    }
+    a.readAsDataURL(new Blob([params.body], {encoding:"UTF-8",type:"text/javascript;charset=UTF-8"}));
+    
+    
     document.getElementById("title").innerText = " - " + document.title;
     parent.postMessage({ title: document.title }, "*");
     onConnect()

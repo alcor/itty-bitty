@@ -31,7 +31,7 @@ body {
     flex-direction: column;
     background-color:#384747;
 }
-.titlebar {
+#titlebar {
     font-size:18px;
     text-align:left;
         width: 1000px;
@@ -39,8 +39,13 @@ body {
     padding:8px;
     box-sizing: border-box;
     border-bottom: 2px solid #87EDD3;
-
 }
+
+#titlebar a {
+    float:right;
+    color: #87EDD3;
+}
+
 canvas {
     width: 1000px;
     max-width: 90vw;
