@@ -1,4 +1,4 @@
-let script = document.currentScript?.src || import.meta?.url;
+let script = window.script;
 
 // import Color from "https://colorjs.io/dist/color.js";
 import Color from "/js/color.min.js";

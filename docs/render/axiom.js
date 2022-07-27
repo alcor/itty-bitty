@@ -1,4 +1,4 @@
-let script = document.currentScript?.src 
+let script = window.script 
 
 var cssURL = "/render/axiom.css";
 Promise.all([loadSyle(cssURL)]).then(render);

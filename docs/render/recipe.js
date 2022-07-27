@@ -1,7 +1,6 @@
-let script = document.currentScript;
 let reformat = true;
 
-FRACTION_MAP = {
+let FRACTION_MAP = {
   '1/4': '\u00BC',
   '1/2': '\u00BD',
   '3/4': '\u00BE',
@@ -191,7 +190,7 @@ function render() {
   let image = json.image;
   if (Array.isArray(image)) image = image.shift();
   image = image?.url || image;
-  instructions = json.recipeInstructions;
+  let instructions = json.recipeInstructions;
   let title = clean(json.name);
   let description = clean(json.description);
   parent.postMessage({title:title, favicon:"🍴", image:image, description:description, wakeLock:true, updateURL:true}, "*");
@@ -274,8 +273,8 @@ function render() {
 
 
 
-  let yield = (getStringProperty(json.recipeYield));
-  if (!isNaN(parseInt(yield?.charAt(yield?.length - 1)))) yield += " servings";
+  let recipeYield = (getStringProperty(json.recipeYield));
+  if (!isNaN(parseInt(recipeYield?.charAt(recipeYield?.length - 1)))) recipeYield += " servings";
 
   function imgload(e) {
       console.log(e, "img");
@@ -307,7 +306,7 @@ function render() {
           ),
           m("h1", title),
           m(".metadata",
-            (yield) ? m("div", m("span.yield", m(".icon.material-icons-outlined", "restaurant"), yield)) : null,
+            (recipeYield) ? m("div", m("span.yield", m(".icon.material-icons-outlined", "restaurant"), recipeYield)) : null,
             json.totalTime ? m(".time",
               m(".icon.material-icons-outlined", "timer"),
 
@@ -351,7 +350,7 @@ function render() {
   )
 }
 
-var path = script.src.substring(0, script.src.lastIndexOf("."));
+var path = window.script.substring(0, window.script.lastIndexOf("."));
 var cssURL = path + ".css";
 loadSyle("https://fonts.googleapis.com/icon?family=Material+Icons+Outlined")
 .then(() => loadSyle(cssURL)).then(render);

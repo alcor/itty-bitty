@@ -1,4 +1,4 @@
-loadSyle(document.currentScript.src.replace("js", "css"))
+loadSyle(window.script.replace("js", "css"))
 
 try {
   let filename = params.title 

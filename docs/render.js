@@ -67,6 +67,7 @@ function loadSyle(href, callback) {
 function renderScriptContent(data, origin) {
   var base = el('base', {href: data.script});
   document.head.appendChild(base);
+  window.script = data.script
   window.params = data;
   window.params.origin = origin;
   console.log("🖊 Rendering with", {script:data.script, params:data})

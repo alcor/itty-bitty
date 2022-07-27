@@ -1,3 +1,3 @@
-let script = document.currentScript?.src || import.meta?.url;
+let script = window.script;
 
 loadScript(params.url);

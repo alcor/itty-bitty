@@ -1,4 +1,4 @@
-let script = document.currentScript?.src || import.meta?.url;
+let script = window.script;
 
 function render() {
   let colors = params.body;

@@ -12,7 +12,9 @@ let barName = ua.match(/Chrome/i) ? "Bookmarks" : "Favorites"
 let managerName = ua.match(/Edge/i) ? "Favorites" : "Bookmarks"
 let cmdKey = ua.match(/Mac/i) ? "⇧⌘B" : "Ctrl + Shift + B"
 
-loadSyle(document.currentScript.src.replace("js", "css")).then(() => {
+let script = window.script;
+
+loadSyle(script.replace("js", "css")).then(() => {
   document.body.appendChild(
     el("div", {id:"content"},
     el("div", {className:"description"}, params.info?.d ?? ""),
