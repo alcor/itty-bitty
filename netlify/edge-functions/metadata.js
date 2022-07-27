@@ -21,7 +21,7 @@ export default async (request, context) => {
   const ua = request.headers.get("user-agent");
   let url = new URL(request.url);
   let path = url.pathname;
-  let geo = context.geo.city + ", " + context.geo.subdivision.code + ", " + context.geo.country.code
+  let geo = context.geo.city + ", " + context?.geo?.subdivision?.code + ", " + context?.geo?.country?.code
 
   let uaArray = Deno.env.get("UA_ARRAY")?.split(",") || [];
   let uaMatch = uaArray.some(a => ua.indexOf(a) != -1);
