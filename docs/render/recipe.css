@@ -300,12 +300,9 @@ text-decoration: rgba(0,0,0,0.75) solid 0.5px line-through; /* Ignored in CSS1/C
   opacity: 1;
   border:
   none;
-  margin: 1em 0 0.25em 0 ;
+  margin: 1em 0 0.2em 0 ;
 }
 
-.instructions hr:first-child {
-  display:none;
-}
 hr {
   /* width: 100px;
   float: left;
@@ -392,6 +389,10 @@ a.action .icon {
   }
   .ingredients .yield {
    margin-left:3em;
+  }
+  
+  .instructions hr:first-child {
+    display:none;
   }
 }
 
