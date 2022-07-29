@@ -139,6 +139,7 @@ function highlightStep(e) {
   //     el.classList.toggle("complete", )
   //   }
   if (e.target.classList.contains("noun")) return;
+  if (e.target.tagName == "A") return;
   e.target.closest("li").classList.toggle("complete")
 
 }
@@ -190,6 +191,7 @@ function render() {
     console.error("Data", e, {e, body: window.params.body});
     return;
   }
+  document.head.appendChild(el("base", {target: "_blank"}));
 
   delete document.documentElement.style.display;
   document.body.childNodes.forEach((c) => document.body.removeChild(c))

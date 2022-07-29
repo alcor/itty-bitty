@@ -46,6 +46,7 @@ body {
   /* padding:0 0.3em; */
   /* border:1px solid currentColor; */
   text-decoration:underline;
+  text-decoration-style: dotted;
 }
 
 img.publisher {
