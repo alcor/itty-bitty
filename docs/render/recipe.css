@@ -216,6 +216,7 @@ li:hover {
   /* color: rgba(0,0,0,0.8); */
   /* color:rgb(0, 118, 173); */
 }
+
 .noun {
   font-weight: 600;
   color: var(--opaque-text-color);
@@ -299,7 +300,7 @@ text-decoration: rgba(0,0,0,0.75) solid 0.5px line-through; /* Ignored in CSS1/C
   opacity: 1;
   border:
   none;
-  margin: 0.25em 0;
+  margin: 1em 0 0.25em 0 ;
 }
 
 .instructions hr:first-child {
@@ -372,6 +373,18 @@ a.action .icon {
   header {
     padding: 0 0em;
   }
+
+  .ingredients {
+    border-top:0.5px solid currentColor;
+    padding-top:1em;
+    padding-bottom:1em;
+    border-bottom:0.5px solid currentColor;
+    margin-bottom:1em;
+  }
+  .instructions hr:first-child {
+    display:none;
+  }
+
   .ingredient {
     margin: 0;
     margin-left:2em;
