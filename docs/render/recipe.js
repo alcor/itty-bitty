@@ -24,7 +24,7 @@ let FRACTION_MAP = {
 }
 
 let ignoredTerms = [
-  "note", "teaspoon", "teaspoons", "tablespoon", "tablespoons", "cup", "cups", "taste", "more", "melted", "into", "wide", "pound", "pounds", "gram", "grams", "you", "ounce", "ounces", "thinly", "sliced",
+  "with", "crust", "very", "cold", "hot", "top", "warm", "one", "note", "teaspoon", "teaspoons", "tablespoon", "tablespoons", "cup", "cups", "taste", "more", "melted", "into", "wide", "pound", "pounds", "gram", "grams", "you", "ounce", "ounces", "thinly", "sliced",
   "pan", "cube", "cubes", "finely", "ground", "garnish", "about", "cut", "and", "smashed", "each", "the", "medium", "large", "small", "for", "chopped", "minced", "grated", "box", "softened", "directed", "shredded", "cooked", "from", "frozen", "thawed"
 ]
 
@@ -192,9 +192,10 @@ function render() {
   image = image?.url || image;
   let instructions = json.recipeInstructions;
   let title = clean(json.name);
-  let description = clean(json.description);
+  let description = clean(json.description.replace(/\\n/g, "<br>"))
   parent.postMessage({title:title, favicon:"🍴", image:image, description:description, wakeLock:true, updateURL:true}, "*");
-
+  description = description.split("\n").join("<p>")
+  console.log(description)
 
   // let text = instructions.join(" ");
   let ingredients = json.recipeIngredient;
@@ -250,7 +251,6 @@ function render() {
 
     let text = (instruction.text || instruction);
  
-
     if (reformat) {
       text = text.match( /[0-9\. ]{0,6}[^\.!\?]+[\.!\?]+/g );
     } else {
@@ -334,8 +334,7 @@ function render() {
               m("a.action", { title:"Print", onclick: () => {window.print(); return false;} }, m(".icon.material-icons-outlined", "print")),
             )
           ),
-          json.description ? m(".description",
-            clean(json.description),
+          description ? m(".description", {innerHTML:description},
             json.author?.name ? m("span.author", (" —⁠" + json.author?.name)) : null,
             m("p"),
           ) : null,

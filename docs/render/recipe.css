@@ -31,6 +31,10 @@ body {
   /* margin: 0 -2em; */
   }
 
+  .description {
+    white-space:pre-wrap;
+
+  }
 .ingredients:hover .noun {
 /* text-decoration:underline;   */
 }
