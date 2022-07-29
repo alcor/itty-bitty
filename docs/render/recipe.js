@@ -1,4 +1,4 @@
-let reformat = true;
+let reformat = false;
 
 let FRACTION_MAP = {
   '1/4': '\u00BC',
@@ -24,7 +24,7 @@ let FRACTION_MAP = {
 }
 
 let ignoredTerms = [
-  "with", "crust", "very", "cold", "hot", "top", "warm", "one", "note", "teaspoon", "teaspoons", "tablespoon", "tablespoons", "cup", "cups", "taste", "more", "melted", "into", "wide", "pound", "pounds", "gram", "grams", "you", "ounce", "ounces", "thinly", "sliced",
+  "with", "beat", "together", "crust", "very", "cold", "hot", "top", "warm", "one", "note", "teaspoon", "teaspoons", "tablespoon", "tablespoons", "cup", "cups", "taste", "more", "melted", "into", "wide", "pound", "pounds", "gram", "grams", "you", "ounce", "ounces", "thinly", "sliced",
   "pan", "cube", "cubes", "finely", "ground", "garnish", "about", "cut", "and", "smashed", "each", "the", "medium", "large", "small", "for", "chopped", "minced", "grated", "box", "softened", "directed", "shredded", "cooked", "from", "frozen", "thawed"
 ]
 
@@ -46,9 +46,9 @@ window.addEventListener("mouseover", (e) => {
     }
   }
 })
+
 window.addEventListener("mouseout", (e) => {
   let target = e.target;
-
 
   if (target.classList.contains("noun")) {
     let els = document.querySelectorAll("#" + e.target.id);
@@ -129,6 +129,7 @@ function formatTime(time) {
 }
 
 function markIngredient(e) {
+  if (e.target.classList.contains("noun")) return;  
   e.target.closest(".ingredient").classList.toggle("complete")
 }
 
@@ -137,6 +138,7 @@ function highlightStep(e) {
   //   e.target.parent.children.forEach((i,el) => {
   //     el.classList.toggle("complete", )
   //   }
+  if (e.target.classList.contains("noun")) return;
   e.target.closest("li").classList.toggle("complete")
 
 }
@@ -161,6 +163,13 @@ function ingredientEl(string, terms) {
 function highlightTerms(string, terms) {
   const pattern = new RegExp(`\\b(${Array.from(terms).join('|').replace("-","\\-") })\\b`, 'gi'); 
   return string.replace(pattern, match => `<span class="noun" id="term-${match}">${match}</span>`);
+}
+
+function highlightTimes(string) {
+  const pattern = /([0-9]+) ?(minutes|hours)/g; 
+  return string.replace(pattern, match => {
+    return `<span class="time-button" onclick="setTimer(${match})">${match}</span>`
+  });
 }
 
 function share() {
@@ -236,7 +245,7 @@ function render() {
     if (!text) return;
     return m("li", { onclick: highlightStep }, 
       m("span.number" + (step>9 ? ".big" : ""), `${step++}`),
-      m("span.substep",{innerHTML:highlightTerms(FRACTION_MAP.replace(text.trim()), terms)}))
+      m("span.substep",{innerHTML:highlightTimes(highlightTerms(FRACTION_MAP.replace(text.trim()), terms))}))
   }
 
   function flattenInstructions(instruction) {
@@ -251,6 +260,7 @@ function render() {
 
     let text = (instruction.text || instruction);
  
+    console.log()
     if (reformat) {
       text = text.match( /[0-9\. ]{0,6}[^\.!\?]+[\.!\?]+/g );
     } else {
@@ -301,37 +311,41 @@ function render() {
       image ? m("#thumbnail-container", m("#thumbnail.thumbnail.print-hide", { style: "background-image:url(" + ");" })) : null,
       m(".recipe-content",
         m("header",
-          m("a", {href:originalURL, target:"_blank"},
+          m("a.publisherlink", {href:originalURL, target:"_blank"},
             m("img.publisher", { src: json.publisher?.image ?.[0]?.url ?? json.publisher ?.logo ?.url }),
           ),
-          m("h1", title),
-          m(".metadata",
-            (recipeYield) ? m("div", m("span.yield", m(".icon.material-icons-outlined", "restaurant"), recipeYield)) : null,
-            json.totalTime ? m(".time",
-              m(".icon.material-icons-outlined", "timer"),
+          m(".headerflex",
+            m(".headerleft",
+              m("h1", title),
+              m(".metadata",
+                (recipeYield) ? m("div", m("span.yield", m(".icon.servings"), recipeYield)) : null,
+                json.totalTime ? m(".time",
+                  m(".icon.timer"),
 
-              json.totalTime ? m("span", formatTime(json.totalTime)) : undefined,
-              // " (",
-              // json.prepTime ? m("span", formatTime(json.prepTime), " prep") : undefined,
-              // json.cookTime ? m("span",  ", ",  formatTime(json.cookTime), " cook") : undefined,
-              // ")"
-            ) : null,
-            (rating) ? m("div.rating",
-                m(".icon.material-icons-outlined", "grade"),
-                parseFloat(rating.ratingValue).toFixed(1), " ",
-                // ratingCount ? m("span.count", ratingCount.toString()) : null
-                )
-            : null,
-            json.nutrition?.calories ? 
-              m("div", m(".icon.material-icons-outlined", "info"),
-                (json.nutrition?.calories.toString().replace("calories", "Cal").replace("kcal", "Cal")) + (isNaN(json.nutrition?.calories) ? '' : ' Cal')) : null,
+                  json.totalTime ? m("span", formatTime(json.totalTime)) : undefined,
+                  // " (",
+                  // json.prepTime ? m("span", formatTime(json.prepTime), " prep") : undefined,
+                  // json.cookTime ? m("span",  ", ",  formatTime(json.cookTime), " cook") : undefined,
+                  // ")"
+                ) : null,
+                (rating) ? m("div.rating",
+                    m(".icon.rating"),
+                    parseFloat(rating.ratingValue).toFixed(1), " ",
+                    // ratingCount ? m("span.count", ratingCount.toString()) : null
+                    )
+                : null,
+                json.nutrition?.calories ? 
+                  m("div", m(".icon.info"),
+                    (json.nutrition?.calories.toString().replace("calories", "Cal").replace("kcal", "Cal")) + (isNaN(json.nutrition?.calories) ? '' : ' Cal')) : null,
 
-            m("div.spacer"),
+                // m("div.spacer"),
+              ),
+            ),
             m(".actions.print-hide",
-              originalURL ? m("a.action", { title:"Open original", href: originalURL, target:"_blank"}, m(".icon.material-icons-outlined", "public")) : null,
-              m("a.action", { title:"Share", onclick: share}, m(".icon.material-icons-outlined", "share")),
-              m("a.action", { title:"Show steps as list", onclick: () => {reformat = !reformat; render(); return false;}}, m(".icon.material-icons-outlined", "notes")),
-              m("a.action", { title:"Print", onclick: () => {window.print(); return false;} }, m(".icon.material-icons-outlined", "print")),
+              originalURL ? m("a.action", { title:"Open original", href: originalURL, target:"_blank"}, m(".icon.public")) : null,
+              m("a.action", { title:"Share", onclick: share}, m(".icon.share")),
+              m("a.action", { title:"Show steps as list", onclick: () => {reformat = !reformat; render(); return false;}}, m(".icon.checklist")),
+              m("a.action", { title:"Print", onclick: () => {window.print(); return false;} }, m(".icon.print")),
             )
           ),
           description ? m(".description", {innerHTML:description},
@@ -351,7 +365,6 @@ function render() {
 
 var path = window.script.substring(0, window.script.lastIndexOf("."));
 var cssURL = path + ".css";
-loadSyle("https://fonts.googleapis.com/icon?family=Material+Icons+Outlined")
-.then(() => loadSyle(cssURL)).then(render);
+loadSyle(cssURL).then(render);
 
 
