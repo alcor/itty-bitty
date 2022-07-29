@@ -24,9 +24,133 @@ let FRACTION_MAP = {
 }
 
 let ignoredTerms = [
-  "with", "beat", "together", "crust", "very", "cold", "hot", "top", "warm", "one", "note", "teaspoon", "teaspoons", "tablespoon", "tablespoons", "cup", "cups", "taste", "more", "melted", "into", "wide", "pound", "pounds", "gram", "grams", "you", "ounce", "ounces", "thinly", "sliced",
+  "see", "notes", "with", "beat", "together", "crust", "very", "cold", "hot", "top", "warm", "one", "note", "teaspoon", "teaspoons", "tablespoon", "tablespoons", "cup", "cups", "taste", "more", "melted", "into", "wide", "pound", "pounds", "gram", "grams", "you", "ounce", "ounces", "thinly", "sliced",
   "pan", "cube", "cubes", "finely", "ground", "garnish", "about", "cut", "and", "smashed", "each", "the", "medium", "large", "small", "for", "chopped", "minced", "grated", "box", "softened", "directed", "shredded", "cooked", "from", "frozen", "thawed"
 ]
+let emojiMap = {
+  "grape": "🍇",
+  "watermelon": "🍉",
+  "melon": "🍈",
+  "orange": "🍊",
+  "lemon": "🍋",
+  "banana": "🍌",
+  "pineapple": "🍍",
+  "mango": "🥭",
+  "apple": "🍎",
+  "apple": "🍏",
+  "pear": "🍐",
+  "peach": "🍑",
+  "cherry": "🍒",
+  "strawberry": "🍓",
+  "blueberry": "🫐",
+  "kiwi": "🥝",
+  "garlic": "🧄",
+  "tomato": "🍅",
+  "olive": "🫒",
+  "coconut": "🥥",
+  "avocado": "🥑",
+  "eggplant": "🍆",
+  "potato": "🥔",
+  "carrot": "🥕",
+  "corn": "🌽",
+  "spicy": "🌶️",
+  "bell pepper": "🫑",
+  "cucumber": "🥒",
+  "leafy green": "🥬",
+  "broccoli": "🥦",
+  "onion": "🧅",
+  "mushroom": "🍄",
+  "peanut": "🥜",
+  "bean": "🫘",
+  "chestnut": "🌰",
+  "bread": "🍞",
+  "croissant": "🥐",
+  "baguette": "🥖",
+  "flatbread": "🫓",
+  "pretzel": "🥨",
+  "bagel": "🥯",
+  "pancake": "🥞",
+  "waffle": "🧇",
+  "cheese": "🧀",
+  "meat": "🍖",
+  "beef": "🥩",
+  "turkey": "🍗",
+  "chicken": "🍗",
+  "steak": "🥩",
+  "bacon": "🥓",
+  "hamburger": "🍔",
+  "french fries": "🍟",
+  "pizza": "🍕",
+  "hot dog": "🌭",
+  "sandwich": "🥪",
+  "taco": "🌮",
+  "burrito": "🌯",
+  "tamale": "🫔",
+  "stuffed flatbread": "🥙",
+  "falafel": "🧆",
+  "egg": "🥚",
+  "cooking": "🍳",
+  "shallow pan of food": "🥘",
+  "pot of food": "🍲",
+  "fondue": "🫕",
+  "dip": "🫕",
+  "bowl with spoon": "🥣",
+  "green salad": "🥗",
+  "popcorn": "🍿",
+  "butter": "🧈",
+  "salt": "🧂",
+  "canned food": "🥫",
+  "bento box": "🍱",
+  "rice cracker": "🍘",
+  "rice ball": "🍙",
+  "cooked rice": "🍚",
+  "curry rice": "🍛",
+  "steaming bowl": "🍜",
+  "spaghetti": "🍝",
+  "roasted sweet potato": "🍠",
+  "oden": "🍢",
+  "sushi": "🍣",
+  "fried shrimp": "🍤",
+  "fish cake with swirl": "🍥",
+  "moon cake": "🥮",
+  "dango": "🍡",
+  "dumpling": "🥟",
+  "oyster": "🦪",
+  "soft ice cream": "🍦",
+  "shaved ice": "🍧",
+  "ice cream": "🍨",
+  "doughnut": "🍩",
+  "cookie": "🍪",
+  "birthday": "🎂",
+  "cake": "🍰",
+  "cupcake": "🧁",
+  "pie": "🥧",
+  "chocolate": "🍫",
+  "candy": "🍬",
+  "custard": "🍮",
+  "honey": "🍯",
+  "milk": "🥛",
+  "cream": "🥛",
+  "coffee": "☕",
+  "tea": "🫖",
+  "tea": "🍵",
+  "sake": "🍶",
+  "champagne": "🍾",
+  "wine glass": "🍷",
+  "cocktail": "🍸",
+  "tropical drink": "🍹",
+  "beer": "🍺",
+  "tumbler glass": "🥃",
+  "cup with straw": "🥤",
+  "bubble tea": "🧋",
+  "beverage box": "🧃",
+  "mate": "🧉",
+  "frozen": "🧊",
+  "chopsticks": "🥢",
+  "fork and knife": "🍴",
+  "spoon": "🥄"
+  
+}
 
 const replacements = {
   "teaspoon": "tsp.",
@@ -177,6 +301,15 @@ function share() {
   parent.postMessage({share:{}}, "*");
 }
 
+function faviconForTitle(title) {
+  title = title.toLowerCase()
+  for (let f in emojiMap) {
+    if (title.indexOf(f) != -1) {
+      return emojiMap[f];
+    }
+  }
+  return undefined;
+}
 function render() {
   try {
     let data = JSON.parse(window.params.body);
@@ -204,7 +337,8 @@ function render() {
   let instructions = json.recipeInstructions;
   let title = clean(json.name);
   let description = clean(json.description.replace(/\\n/g, "<br>"))
-  parent.postMessage({title:title, favicon:"🍴", image:image, description:description, wakeLock:true, updateURL:true}, "*");
+  let favicon = faviconForTitle(title) || "🍴";
+  parent.postMessage({title:title, favicon:favicon, image:image, description:description, wakeLock:true, updateURL:true}, "*");
   description = description.split("\n").join("<p>")
   console.log(description)
 

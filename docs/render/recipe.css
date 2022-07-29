@@ -218,9 +218,8 @@ li:hover {
 }
 
 .noun {
-  font-weight: 600;
+  font-weight: 700;
   color: var(--opaque-text-color);
-
 }
 .complete .noun {
   color:var(--disabled-text-color);
