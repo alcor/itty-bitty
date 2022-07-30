@@ -1,4 +1,4 @@
-let reformat = false;
+let reformat = true;
 
 let FRACTION_MAP = {
   '1/4': '\u00BC',
@@ -24,7 +24,7 @@ let FRACTION_MAP = {
 }
 
 let ignoredTerms = [
-  "see", "notes", "with", "beat", "together", "crust", "very", "cold", "hot", "top", "warm", "one", "note", "teaspoon", "teaspoons", "tablespoon", "tablespoons", "cup", "cups", "taste", "more", "melted", "into", "wide", "pound", "pounds", "gram", "grams", "you", "ounce", "ounces", "thinly", "sliced",
+  "room", "temperature", "still", "see", "notes", "with", "beat", "together", "crust", "very", "cold", "hot", "top", "warm", "one", "note", "teaspoon", "teaspoons", "tablespoon", "tablespoons", "cup", "cups", "taste", "more", "melted", "into", "wide", "pound", "pounds", "gram", "grams", "you", "ounce", "ounces", "thinly", "sliced",
   "pan", "cube", "cubes", "finely", "ground", "garnish", "about", "cut", "and", "smashed", "each", "the", "medium", "large", "small", "for", "chopped", "minced", "grated", "box", "softened", "directed", "shredded", "cooked", "from", "frozen", "thawed"
 ]
 let emojiMap = {
@@ -90,21 +90,22 @@ let emojiMap = {
   "falafel": "🧆",
   "egg": "🥚",
   "cooking": "🍳",
-  "shallow pan of food": "🥘",
-  "pot of food": "🍲",
+  "pan": "🥘",
+  "pot": "🍲",
+  "soup": "🍲",
   "fondue": "🫕",
   "dip": "🫕",
-  "bowl with spoon": "🥣",
-  "green salad": "🥗",
+  "bowl": "🥣",
+  "salad": "🥗",
   "popcorn": "🍿",
   "butter": "🧈",
   "salt": "🧂",
-  "canned food": "🥫",
+  "can": "🥫",
   "bento box": "🍱",
   "rice cracker": "🍘",
   "rice ball": "🍙",
-  "cooked rice": "🍚",
-  "curry rice": "🍛",
+  "rice": "🍚",
+  "curry": "🍛",
   "steaming bowl": "🍜",
   "spaghetti": "🍝",
   "roasted sweet potato": "🍠",
@@ -113,6 +114,7 @@ let emojiMap = {
   "fried shrimp": "🍤",
   "fish cake with swirl": "🍥",
   "moon cake": "🥮",
+  "fruit": "🍓",
   "dango": "🍡",
   "dumpling": "🥟",
   "oyster": "🦪",
@@ -398,7 +400,7 @@ function render() {
  
     console.log()
     if (reformat) {
-      text = text.match( /[0-9\. ]{0,6}[^\.!\?]+[\.!\?]+/g );
+      text = text.replace(/(\.\)? )+/g,"$1\n").split("\n")///text.match( /[0-9\. ]{0,6}[^\.!\?]+[\.!\?]+/g );
     } else {
       text = text.match( /[^\n]+/g );
     }
@@ -435,7 +437,7 @@ function render() {
     let thumbnail = document.querySelector("#thumbnail");
     let thumbnailContainer = document.querySelector("#thumbnail-container");
     thumbnail.style.backgroundImage = 'url(' + bgImg.src + ')';
-    thumbnail.style.filter = `blur(${thumbnailContainer.offsetHeight / bgImg.naturalHeight}px)`;
+    thumbnail.style.filter = `blur(${thumbnailContainer.offsetHeight / bgImg.naturalHeight * 1}px)`;
     thumbnail.style.transform = `scale(1.1)`;  
     setTimeout(() => thumbnail.style.opacity = 1.0, 100);
   };
@@ -480,7 +482,7 @@ function render() {
             m(".actions.print-hide",
               originalURL ? m("a.action", { title:"Open original", href: originalURL, target:"_blank"}, m(".icon.public")) : null,
               m("a.action", { title:"Share", onclick: share}, m(".icon.share")),
-              m("a.action", { title:"Show steps as list", onclick: () => {reformat = !reformat; render(); return false;}}, m(".icon.checklist")),
+              // m("a.action", { title:"Show steps as list", onclick: () => {reformat = !reformat; render(); return false;}}, m(".icon.checklist")),
               m("a.action", { title:"Print", onclick: () => {window.print(); return false;} }, m(".icon.print")),
             )
           ),
@@ -491,8 +493,17 @@ function render() {
 
         ),
         m(".columns",
-          m("section.ingredients", ingredients, m("img.qr.print-show", {src:QRCodeURL(params.originalURL, {margin:0})})),
-          m(reformat ? "section.instructions.numbered" : "section.instructions",  instructions)
+          m("section.ingredients", 
+            m("caption.ingredients-title", "Ingredients"),
+            ingredients,
+            m("img.qr.print-show", {src:QRCodeURL(params.originalURL, {margin:0})})
+          ),
+          m(reformat ? "section.instructions.numbered" : "section.instructions", 
+             m("caption.ingredients-title", {onclick:() => {reformat = !reformat; render(); return false;}},
+             reformat ? "Steps" : "Instructions", 
+             m("div.listtoggle.print-hide", {innerHTML: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 16 16"><mask id="a" width="16" height="16" x="0" y="0" maskUnits="userSpaceOnUse" style="mask-type:alpha"><path fill="#D9D9D9" d="M0 0h16v16H0z"/></mask><g mask="url(#a)"><path fill="#000" d="M3.7 12.667 1.333 10.3l.934-.933 1.416 1.416L6.517 7.95l.933.95-3.75 3.767Zm0-5.334L1.333 4.967l.934-.934L3.683 5.45l2.834-2.833.933.95L3.7 7.333Zm4.967 4V10h6v1.333h-6Zm0-5.333V4.667h6V6h-6Z"/></g></svg>'}),
+            ),
+            instructions)
         ),
       )
     )
