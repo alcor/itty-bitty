@@ -442,22 +442,25 @@ function render() {
   }
 
   function stepsFromText(text) {
-    let steps = []
-    let components = text.split(/(?<=[\.\!\?]|[\.\!\?]\)|\))\s+(?!\()/);
-
-    let append = false;
-    while (components.length) {
-      let step = components.shift()
-      if (append) {
-        steps.push(steps.pop() + " " + step)
-      } else {
-        steps.push(step);
+    try {
+      let steps = []
+      let components = text.split(new RegExp("(?<=[\.\!\?]|[\.\!\?]\)|\))\s+(?!\()"));
+  
+      let append = false;
+      while (components.length) {
+        let step = components.shift()
+        if (append) {
+          steps.push(steps.pop() + " " + step)
+        } else {
+          steps.push(step);
+        }
+        if (step.indexOf("(") >= 0) { append = true; }
+        if (step.includes(")")) { append = false; }
       }
-      if (step.indexOf("(") >= 0) { append = true; }
-      if (step.includes(")")) { append = false; }
+      return steps;
+    } catch (e) {
+      return text.replace(/(\.\)? )+/g,"$1\n").split("\n")
     }
-    
-    return steps;
   }
   function flattenInstructions(instruction) {
     if (instruction.itemListElement) {
