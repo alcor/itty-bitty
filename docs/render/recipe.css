@@ -14,8 +14,11 @@ body {
   rgba(16, 12, 12, 0.54);
   --hover-background-color:
   rgba(16, 12, 12, 0.07);
-  --image-placeholder-color: var(--hover-background-color);
+  --image-placeholder-color:
+  var(--hover-background-color);
   --background-color:white;
+--alt-text-color:
+  rgb(0, 118, 173);
 }
 
 .thumbnail {
@@ -39,18 +42,62 @@ body {
 /* text-decoration:underline;   */
 }
 
-.time-button {
-  /* background-color:cyan; */
-  white-space: nowrap;
-  border-radius:1em;
-  /* padding:0 0.3em; */
-  /* border:1px solid currentColor; */
-  text-decoration:underline;
-  text-decoration-style: dotted;
+
+@media screen {
+  .timer {
+    /* background-color:cyan; */
+    white-space: nowrap;
+    border-radius: 2px;
+    padding: 0 0.1em;
+    margin: 0 -0.1em;
+    /* text-decoration:underline; */
+    text-decoration-style: dotted;
+    box-sizing: border-box;
+    /* color: var(--background-color); */
+
+    border-bottom:1px solid transparent;
+    border-bottom-color: currentColor;
+    /* background-color: var(--text-color); */
+  }
+
+  .timer:hover,
+  .timer.active {
+    color: var(--background-color);
+    background-color:var(--text-color);
+    z-index:100;
+    /* border:1px solid currentColor; */
+    position:relative;
+
+    border-bottom-color: transparent;
+  }
+
+  .timer.active .label{
+    opacity:0.0;
+  }
+  .timer .countdown{
+   position:
+   absolute;
+   display:
+   none;
+   width: 100%;
+   text-align: center;
+   left: 0;
+  }
+  .timer.active .countdown {
+    display:inline-block;
+  }
+}
+
+
+@media print {
+  .timer {
+      font-weight:800;
+  }
 }
 
 img.publisher {
   max-width: 5em;
+  max-height: 2em;
   /* margin-top: -0.1em; */
   /* transform:scale(0.7); */
   /* float:
@@ -65,11 +112,11 @@ img.publisher {
 
 .columns {
   display: flex;
-  gap: 2em;
+  gap: 3em;
   margin-bottom: 4em;
   align-content: center;
   justify-content: center;
-  flex-direction: row;
+  flex-direction: row-reverse;
   margin-top: 1em;
   }
 
@@ -136,15 +183,29 @@ span.number {
   /* background: black; */
 }
 
-.complete span.number,
-li:hover span.number {
-  color:transparent;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='48' width='48'%3E%3Cpath d='M18.9 36.9 6.5 24.5 9.9 21.1 18.9 30.1 38.05 10.95 41.45 14.35Z'/%3E%3C/svg%3E");  background-size:cover;
+@media screen {
+  .complete span.number, li:hover span.number {
+    color:transparent;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='48' width='48'%3E%3Cpath d='M18.9 36.9 6.5 24.5 9.9 21.1 18.9 30.1 38.05 10.95 41.45 14.35Z'/%3E%3C/svg%3E");  background-size:cover;
 
-}
-.complete span.number {
-  border-color:transparent;
+  }
+  .complete span.number {
+    border-color:transparent;
 
+  }
+
+  .complete .noun {
+    color:var(--disabled-text-color);
+  }
+  .ingredient.complete,
+  li.complete {
+    text-decoration: line-through;
+    color:var(--disabled-text-color);
+
+  text-decoration: line-through;
+  /*noinspection CssOverwrittenProperties*/
+  text-decoration: rgba(0,0,0,0.75) solid 0.5px line-through; /* Ignored in CSS1/CSS2 UAs */
+  }
 }
 
 .number.big {
@@ -212,22 +273,20 @@ li:hover {
 .ingredients {
   font-weight: 600;
   font-size: 88%;
-  /* position:
-  sticky; */
+  position: sticky;
   /* top: 0px; */
   /* padding-top: 1.5em; */
   flex: 0 1 35%;
   /* color: rgba(0,0,0,0.8); */
-  /* color:rgb(0, 118, 173); */
+  /* color:
+  rgb(0, 118, 173); */
 }
 
 .noun {
   font-weight: 700;
-  color: var(--opaque-text-color);
+  color: var(--alt-text-color);
 }
-.complete .noun {
-  color:var(--disabled-text-color);
-}
+
 li:hover .noun {
   text-decoration: 1px dotted underline;
   /* background-color: var(--hover-background-color); */
@@ -274,16 +333,6 @@ li:hover .noun {
   right;
 }
 
-.ingredient.complete,
-li.complete {
-  text-decoration: line-through;
-  color:var(--disabled-text-color);
-
-text-decoration: line-through;
-/*noinspection CssOverwrittenProperties*/
-text-decoration: rgba(0,0,0,0.75) solid 0.5px line-through; /* Ignored in CSS1/CSS2 UAs */
-}
-
 .ingredient:hover {
   opacity: 1.0;
   background-color: rgba(128, 128, 128, 0.1)
@@ -291,7 +340,7 @@ text-decoration: rgba(0,0,0,0.75) solid 0.5px line-through; /* Ignored in CSS1/C
 
 .step {
   max-width: 80em;
-  cursor: pointer;
+  cursor: default;
   /* border:1px solid red; */
   margin-bottom: 1em;
 }
@@ -422,6 +471,7 @@ a.action .icon {
   user-select: none;
   /* float: left; */
   display: inline-block;
+  -webkit-print-color-adjust: exact; 
 }
 
 
@@ -431,7 +481,7 @@ a.action .icon {
     min-height:100vh;
   }
   .print-hide {
-    display: none;
+    display: none !important;
   }
 
   @page { 
@@ -544,7 +594,7 @@ img.qr {
   width: 16px;
   height: 16px;
 }
-.icon.timer {
+.icon.time {
   background-position: -72px -16px;
   width: 16px;
   height: 16px;
@@ -647,4 +697,12 @@ a.publisherlink {
     /* order: -2; */
     /* width: 100%; */
     float: left;
+}
+
+.headerleft h1 {
+    max-width: 16em;
+}
+
+span.timer.active.expired {
+    background-color: rgb(221, 40, 0);
 }

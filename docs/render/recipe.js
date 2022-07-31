@@ -265,6 +265,7 @@ function highlightStep(e) {
   //     el.classList.toggle("complete", )
   //   }
   if (e.target.classList.contains("noun")) return;
+  if (e.target.closest(".timer")) return;
   if (e.target.tagName == "A") return;
   e.target.closest("li").classList.toggle("complete")
 
@@ -293,11 +294,66 @@ function highlightTerms(string, terms) {
 }
 
 function highlightTimes(string) {
-  const pattern = /([0-9]+) ?(minutes|hours)/g; 
-  return string.replace(pattern, match => {
-    return `<span class="time-button" onclick="setTimer(${match})">${match}</span>`
+  const pattern = /([0-9]+)\s*(?:to|-|–)?\s*([0-9]+)?\s?(minutes?|hours?)/g; 
+  return string.replace(pattern, (match, t1, t2, tt, offset, groups) => {
+    // console.log("match", t1, t2, tt)
+    
+    return `<span class="timer" onclick="startTimer(this, ${t1}, ${t2})"><span class="countdown"></span><span class="label">${match}</span></span>`
   });
 }
+
+function dismissTimer(e) {
+  console.log(e.target);
+}
+
+function playSound(loc) {
+  var audio = new Audio(loc);
+  // audio.play();  
+}
+
+function startTimer(e, t1, t2) {
+  if (!e.startTime) {
+    e.startTime = new Date();
+    let duration = t1 * 60
+    e.endTime = new Date(e.startTime.getTime() + duration * 1000);
+
+    console.log("end", e.endTime);
+    let countdownEl = e.querySelector(".countdown");
+
+    console.log(e, t1, t2);
+    e.classList.add("active")
+    let update = () => {
+      let now = new Date();
+      let percent = (now - e.startTime) / 1000 / duration * 100;
+      // console.log("perc", (now - e.startTime)/1000 , percent, duration)
+      e.style.backgroundImage = `linear-gradient(to right, transparent ${percent}%, rgba(255,255,255,0.4) ${percent}%)`
+      let remaining = Math.round((e.endTime - now)/1000);
+      let expired = percent > 100;
+      if (expired) {
+        playSound("recipe/beep.mp4")
+        delete e.style.backgroundImage;
+        // clearInterval(e.interval);
+        remaining = -remaining;
+        e.classList.add("expired")
+      }
+
+      let countdownString = `${expired ? "-": ""}${Math.floor(remaining / 60)}m ${remaining % 60}s`
+      countdownEl.innerText = countdownString;
+
+    }
+    e.interval = setInterval(update, 1000)
+    update();
+  } else {
+    e.interval = clearInterval(e.interval)
+    e.classList.remove("active");
+    e.classList.remove("expired");
+
+    e.style.backgroundImage = '';
+    delete e.startTime;
+  }
+}
+
+window.startTimer = startTimer;
 
 function share() {
   parent.postMessage({share:{}}, "*");
@@ -342,7 +398,6 @@ function render() {
   let favicon = faviconForTitle(title) || "🍴";
   parent.postMessage({title:title, favicon:favicon, image:image, description:description, wakeLock:true, updateURL:true}, "*");
   description = description.split("\n").join("<p>")
-  console.log(description)
 
   // let text = instructions.join(" ");
   let ingredients = json.recipeIngredient;
@@ -386,6 +441,24 @@ function render() {
       m("span.substep",{innerHTML:highlightTimes(highlightTerms(FRACTION_MAP.replace(text.trim()), terms))}))
   }
 
+  function stepsFromText(text) {
+    let steps = []
+    let components = text.split(/(?<=[\.\!\?]|[\.\!\?]\)|\))\s+(?!\()/);
+
+    let append = false;
+    while (components.length) {
+      let step = components.shift()
+      if (append) {
+        steps.push(steps.pop() + " " + step)
+      } else {
+        steps.push(step);
+      }
+      if (step.indexOf("(") >= 0) { append = true; }
+      if (step.includes(")")) { append = false; }
+    }
+    
+    return steps;
+  }
   function flattenInstructions(instruction) {
     if (instruction.itemListElement) {
       return ["= " + instruction.name].concat(flattenInstructions(instruction.itemListElement).flat());
@@ -400,7 +473,7 @@ function render() {
  
     console.log()
     if (reformat) {
-      text = text.replace(/(\.\)? )+/g,"$1\n").split("\n")///text.match( /[0-9\. ]{0,6}[^\.!\?]+[\.!\?]+/g );
+      text = stepsFromText(text);
     } else {
       text = text.match( /[^\n]+/g );
     }
@@ -436,13 +509,16 @@ function render() {
   bgImg.onload = function(){
     let thumbnail = document.querySelector("#thumbnail");
     let thumbnailContainer = document.querySelector("#thumbnail-container");
-    thumbnail.style.backgroundImage = 'url(' + bgImg.src + ')';
+    thumbnail.style.backgroundImage = 'url("' + bgImg.src + '")';
     thumbnail.style.filter = `blur(${thumbnailContainer.offsetHeight / bgImg.naturalHeight * 1}px)`;
     thumbnail.style.transform = `scale(1.1)`;  
     setTimeout(() => thumbnail.style.opacity = 1.0, 100);
   };
   bgImg.src = image;
 
+  console.log("image", bgImg.src)
+
+  let qrImage = QRCodeURL(params.originalURL, {margin:0});
   let originalURL = json.mainEntityOfPage?.["@id"] || json.mainEntityOfPage || json.url;
   document.body.appendChild(
     m(".recipe", {},
@@ -458,7 +534,7 @@ function render() {
               m(".metadata",
                 (recipeYield) ? m("div", m("span.yield", m(".icon.servings"), recipeYield)) : null,
                 json.totalTime ? m(".time",
-                  m(".icon.timer"),
+                  m(".icon.time"),
 
                   json.totalTime ? m("span", formatTime(json.totalTime)) : undefined,
                   // " (",
@@ -496,7 +572,7 @@ function render() {
           m("section.ingredients", 
             m("caption.ingredients-title", "Ingredients"),
             ingredients,
-            m("img.qr.print-show", {src:QRCodeURL(params.originalURL, {margin:0})})
+            qrImage ? m("img.qr.print-show", {src:qrImage}) : null
           ),
           m(reformat ? "section.instructions.numbered" : "section.instructions", 
              m("caption.ingredients-title", {onclick:() => {reformat = !reformat; render(); return false;}},

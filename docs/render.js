@@ -79,6 +79,7 @@ window.addEventListener("message", function(e) {
 }, false);
 
 function QRCodeURL(url, options) {
+  if (url.length > 2953) return undefined;
   let size = options?.size ?? 547;
   let errorCorrection = options?.correction ?? 'L';
   let margin = options?.margin?.toString() || "1";
