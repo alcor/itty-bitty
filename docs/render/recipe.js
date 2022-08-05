@@ -232,6 +232,7 @@ const m = (selector, ...args) => {
 };
 
 function clean(html) {
+  if (!html) return;
   let doc = new DOMParser().parseFromString(html, 'text/html');
   return doc.body.textContent || "";
 }
@@ -394,11 +395,10 @@ function render() {
   image = image?.url || image;
   let instructions = json.recipeInstructions;
   let title = clean(json.name);
-  let description = clean(json.description.replace(/\\n/g, "<br>"))
+  let description = clean(json.description?.replace(/\\n/g, "<br>"))
   let favicon = faviconForTitle(title) || "🍴";
   parent.postMessage({title:title, favicon:favicon, image:image, description:description, wakeLock:true, updateURL:true}, "*");
-  description = description.split("\n").join("<p>")
-
+  description = description?.split("\n").join("<p>")
   // let text = instructions.join(" ");
   let ingredients = json.recipeIngredient;
 
@@ -472,9 +472,8 @@ function render() {
       return instruction.map(i => flattenInstructions(i));
     }
 
-    let text = (instruction.text || instruction);
+    let text = (instruction.text || instruction.name || instruction);
  
-    console.log()
     if (reformat) {
       text = stepsFromText(text);
     } else {
