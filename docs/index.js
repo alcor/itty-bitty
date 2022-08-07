@@ -108,13 +108,42 @@
   let wakeLock;
   const getWakeLock = async () => {
     try {
-      wakeLock = await navigator.wakeLock.request();
-      wakeLock.addEventListener('release', () => {});
-      console.log('Keeping Screen Awake:', !wakeLock.released);
+      if (navigator.wakeLock) {
+        wakeLock = await navigator.wakeLock.request();
+        wakeLock.addEventListener('release', () => {});
+        console.log('Keeping Screen Awake:', !wakeLock.released);
+      } else {
+        // keepAwake();
+      }
     } catch (err) {
       console.error(`${err.name}, ${err.message}`);
     }
   };
+
+  function keepAwake() {
+    let ctx = new AudioContext();
+  
+    let bufferSize = 2 * ctx.sampleRate, 
+        emptyBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate), 
+        output = emptyBuffer.getChannelData(0);
+  
+    for(let i = 0; i < bufferSize; i++) output[i] = 0;
+  
+    let source = ctx.createBufferSource();
+    source.buffer = emptyBuffer;
+    source.loop = true;
+  
+    let node = ctx.createMediaStreamDestination();
+    source.connect(node);
+  
+    let audio = document.createElement("audio");
+    audio.style.display = "none";
+    document.body.appendChild(audio);
+  
+    audio.srcObject = node.stream;
+    audio.play();
+  }
+  
 
   const handleVisibilityChange = async () => {
     if (wakeLock !== null && document.visibilityState === 'visible') {

@@ -532,7 +532,7 @@ function render() {
     // thumbnail.style.transform = `scale(1.1)`;  
     setTimeout(() => thumbnail.style.opacity = 1.0, 0);
     if (window.scrollY == 0) setTimeout(() => {
-      const yOffset = -10; 
+      const yOffset = -20; 
       const element = document.querySelector('.recipe-content');
       const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;  
       window.scrollTo({top: y, behavior: 'smooth'});  
@@ -554,7 +554,7 @@ function render() {
           ),
           m(".headerflex",
             m(".headerleft",
-              m("h1", title),
+              m("h1", {onclick:keepAwake}, title),
               m(".metadata",
                 (recipeYield) ? m("div", m("span.yield", m(".icon.servings", {innerHTML:icons.servings}), recipeYield)) : null,
                 json.totalTime ? m(".time",
@@ -610,14 +610,9 @@ function render() {
   )
 }
 
-var path = window.script.substring(0, window.script.lastIndexOf("."));
-var cssURL = path + ".css";
-loadSyle(cssURL).then(render);
-
-
-
 function keepAwake() {
-  let ctx = null;
+  let ctx = new AudioContext();
+
   let bufferSize = 2 * ctx.sampleRate, 
       emptyBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate), 
       output = emptyBuffer.getChannelData(0);
@@ -637,4 +632,10 @@ function keepAwake() {
 
   audio.srcObject = node.stream;
   audio.play();
+  console.log("playing", audio)
 }
+
+
+var path = window.script.substring(0, window.script.lastIndexOf("."));
+var cssURL = path + ".css";
+loadSyle(cssURL).then(render);
