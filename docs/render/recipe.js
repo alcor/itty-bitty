@@ -529,8 +529,8 @@ function render() {
     let thumbnailContainer = document.querySelector("#thumbnail-container");
     thumbnail.style.backgroundImage = 'url("' + bgImg.src + '")';
     thumbnail.style.filter = `blur(${thumbnailContainer.offsetHeight / bgImg.naturalHeight * 1}px)`;
-    thumbnail.style.transform = `scale(1.1)`;  
-    setTimeout(() => thumbnail.style.opacity = 1.0, 100);
+    // thumbnail.style.transform = `scale(1.1)`;  
+    setTimeout(() => thumbnail.style.opacity = 1.0, 0);
     if (window.scrollY == 0) setTimeout(() => {
       const yOffset = -10; 
       const element = document.querySelector('.recipe-content');
@@ -546,7 +546,7 @@ function render() {
   let originalURL = json.mainEntityOfPage?.["@id"] || json.mainEntityOfPage || json.url;
   document.body.appendChild(
     m(".recipe", {},
-      image ? m("#thumbnail-container", m("#thumbnail.thumbnail.print-hide", { style: "background-image:url(" + ");" })) : null,
+      image ? m("#thumbnail-container", m("#thumbnail.thumbnail.print-hide", { style: "background-image:url(" + image + ");" })) : null,
       m(".recipe-content",
         m("header",
           m("a.publisherlink", {href:originalURL, target:"_blank"},

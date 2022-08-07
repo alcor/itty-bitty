@@ -28,8 +28,8 @@ body {
   background-position: center;
   margin-bottom: 1.3em;
   box-sizing: border-box;
-  transition: opacity 200ms ease-out;
-  opacity:0;
+  /* transition: opacity 200ms ease-out; */
+  /* opacity:0; */
   /* margin: 0 -2em; */
   }
 
@@ -98,9 +98,11 @@ img.publisher {
   max-width: 5em;
   max-height: 2em;
   /* margin-top: -0.1em; */
-  /* transform:scale(0.7); */
+  transform:
+  scale(0.7);
   /* float:
   right; */
+  transform-origin: left;
 }
 
 .recipe {
@@ -115,7 +117,7 @@ img.publisher {
   margin-bottom: 4em;
   align-content: center;
   justify-content: center;
-  flex-direction: row-reverse;
+  /* flex-direction: row-reverse; */
   margin-top: 1em;
   }
 
@@ -321,7 +323,7 @@ li:hover .noun {
   margin-bottom:0.2em;
 }
 .hanging .ingredient {
-  margin-left:-3em;
+  margin-left: -3rem;
   padding-left: 3rem;
 }
 
@@ -415,11 +417,12 @@ hr {
   height: 24px;
 }
 
-@media screen and (max-width: 520px) {
+.instructions hr:nth-child(2) {
+  display:none;
+}
 
-  .instructions hr:first-child {
-    display:block;
-  }
+
+@media screen and (max-width: 520px) {
   #thumbnail-container {
     margin: 0 -8vw;
     background-color: var(--image-placeholder-color);
@@ -677,6 +680,7 @@ section.ingredients caption {
 .instructions caption {
     content: "Steps";
     /* padding-right: 24px; */
+    margin-bottom: 1.3rem;
 }
 
 .ingredients caption, .instructions caption {
@@ -689,7 +693,8 @@ section.ingredients caption {
     text-transform: uppercase;
     letter-spacing: 0.01rem;
     user-select: none;
-    margin: 0;
+    /* margin: 0; */
+    color: var(--accent-color);
 }
 
 .listtoggle {
