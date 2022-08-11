@@ -321,6 +321,12 @@ li:hover .noun {
   /* margin-top: -0.7em; */
 }
 
+.instructions h3 {
+  font-weight: 500;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+
 .instructions.numbered li {
   padding-left: 3rem;
   margin-left: 0;
