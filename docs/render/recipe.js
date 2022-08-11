@@ -444,16 +444,21 @@ function render() {
   let step = 1;
   function renderInstructions(instruction, terms) {
     if (Array.isArray(instruction)) {
-      // if (Array.isArray(instruction[0])) instruction = instruction.flat();
-      return [m("hr"), m("ul.step", instruction.map(i => renderInstructions(i, terms)))];
+      let instructions = instruction.map(i => renderInstructions(i, terms));
+      let className = "step";
+      console.log(instructions[0].tagName, instructions[0].tagName=="H3")
+      if (instructions[0].tagName=="H3") className = "step header"
+      return m("ul", {className}, instructions);
     }
 
     let text = (instruction?.text || instruction);
-    if (text?.startsWith("= ")) return m("h3", text.substring(2));
-
     if (!text) return;
+
+    if (text?.startsWith("= ")) return m("h3", text.substring(2));
+    if (text?.endsWith(":")) return m("h3", text);
+
     return m("li", { onclick: highlightStep }, 
-      m("span.number" + (step>9 ? ".big" : ""), `${step++}`),
+      m("span.number" + (step > 9 ? ".big" : ""), `${step++}`),
       m("span.substep",{innerHTML:highlightTimes(highlightTerms(FRACTION_MAP.replace(text.trim()), terms))}))
   }
 

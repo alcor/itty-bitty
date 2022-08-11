@@ -166,6 +166,22 @@ ul.step {
   padding: 0;margin: 0em;
 }
 
+ul.step:after {
+  content: "";
+  display: block;
+  width: 5em;
+  height: 0.5px;
+  background-color: currentColor;
+  opacity: 1;
+  border:none;
+  margin: 1em 0 0.2em 0 ;
+}
+
+ul.step.header:after,
+ul.step:last-child:after {
+  display:none;
+}
+
 .instructions:not(.numbered) .number {
   display: none;
 }
