@@ -38,15 +38,6 @@ const el = (selector, ...args) => {
 };
 window.el = el;
 
-function loadScript(src, callback, type = "module") {
-  let script = el("script", { src, type });
-  script.addEventListener('load', function(e) {
-    console.debug("Loaded script", src);
-    if (callback) callback(e);
-  });
-  document.head.appendChild(script);
-}
-
 function async(u, c) {
   var d = document, t = 'script',
       o = d.createElement(t),
@@ -56,11 +47,18 @@ function async(u, c) {
   s.parentNode.insertBefore(o, s);
 }
 
+function loadScript(src, callback, type = "module") {
+  let promise =  new Promise((resolve, reject) => {
+    document.head.appendChild(el("script", { src, type, onload:resolve}));
+  })
+  return callback ? promise.then(callback) : promise;
+}
+
 function loadSyle(href, callback) {
   let promise =  new Promise((resolve, reject) => {
     document.head.appendChild(el("link", { type: "text/css", rel: "stylesheet", href, onload:resolve}));
   })
-  return callback ?  promise.then(callback) : promise;
+  return callback ? promise.then(callback) : promise;
 }
 
 

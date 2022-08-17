@@ -24,7 +24,7 @@ let FRACTION_MAP = {
 }
 
 let ignoredTerms = [
-  "fresh", "out", "not", "sprig", "sprigs", "room", "temperature", "still", "see", "notes", "with", "beat", "together", "crust", "very", "cold", "hot", "top", "warm", "one", "note", "teaspoon", "teaspoons", "tablespoon", "tablespoons", "cup", "cups", "taste", "more", "melted", "into", "wide", "pound", "pounds", "gram", "grams", "you", "ounce", "ounces", "thinly", "sliced",
+  "broken", "pieces", "tbsp", "tsp", "peeled", "then", "can", "oz", "fresh", "out", "not", "sprig", "sprigs", "room", "temperature", "still", "see", "notes", "with", "beat", "together", "crust", "very", "cold", "hot", "top", "warm", "one", "note", "teaspoon", "teaspoons", "tablespoon", "tablespoons", "cup", "cups", "taste", "more", "melted", "into", "wide", "pound", "pounds", "gram", "grams", "you", "ounce", "ounces", "thinly", "sliced",
   "pan", "cube", "cubes", "finely", "ground", "garnish", "about", "cut", "and", "smashed", "each", "the", "medium", "large", "small", "for", "chopped", "minced", "grated", "box", "softened", "directed", "shredded", "cooked", "from", "frozen", "thawed"
 ]
 let emojiMap = {
@@ -315,7 +315,7 @@ function highlightTimes(string) {
   return string.replace(pattern, (match, t1, t2, tt, offset, groups) => {
     // console.log("match", t1, t2, tt)
     
-    return `<span class="timer" onclick="startTimer(this, ${t1}, ${t2})"><span class="countdown"></span><span class="label">${match}</span></span>`
+    return `<span class="timer" onclick="startTimer(this, ${t1}, ${t2})">${icons.timer}<span class="countdown"></span><span class="label">${match}</span></span>`
   });
 }
 
@@ -411,7 +411,8 @@ function render() {
   image = image?.url || image;
   let instructions = json.recipeInstructions;
   let title = clean(json.name);
-  let description = clean(json.description?.replace(/\\n/g, "<br>"))
+  let description = json.description || json.articleBody;
+  description = clean(description?.replace(/\\n/g, "<br>"))
   let favicon = faviconForTitle(title) || "🍴";
   parent.postMessage({title:title, favicon:favicon, image:image, description:description, wakeLock:true, updateURL:true}, "*");
   description = description?.split("\n").join("<p>")
@@ -461,26 +462,49 @@ function render() {
       m("span.substep",{innerHTML:highlightTimes(highlightTerms(FRACTION_MAP.replace(text.trim()), terms))}))
   }
 
-  function stepsFromText(text) {
-    try {
-      let steps = []
-      let components = text.split(new RegExp("(?<=[\.\!\?]|[\.\!\?]\)|\))\s+(?!\()"));
   
-      let append = false;
-      while (components.length) {
-        let step = components.shift()
-        if (append) {
-          steps.push(steps.pop() + " " + step)
-        } else {
-          steps.push(step);
-        }
-        if (step.indexOf("(") >= 0) { append = true; }
-        if (step.includes(")")) { append = false; }
+  function stepsFromText(text) {
+    let abbreviations = ["tsp", "tbsp", "oz", "lb", "lbs"];
+    let steps = [];
+    let i = 0;
+    let start = 0;
+    let depth = 0;
+    let lastSpace = 0;
+    for (let i = 0; i < text.length; i++) {
+      switch (text[i]) {
+        case "(": depth++; break;
+        case ")": depth--; break;
+        case " ": lastSpace = i; break;
+        case ".":
+        case "!":
+        case "?":
+          let lastWord = text.substring(lastSpace, i).trim();
+          lastWord = lastWord.match(/\w+$/)?.pop().toLowerCase();
+          if (abbreviations.includes(lastWord)) { continue; }
+          let end;
+          if (text[i+1] == ")" && text[i+2] == " ") {
+            end = i + 2;
+          } else if (text[i+1] == " " && text[i+2] != "(" && depth == 0) {
+            end = i + 1;
+          }
+          if (end) {
+            let string = text.substring(start, end);
+            steps.push(string);
+            start = end;  
+          }
+          break;
+        case "\n":
+          steps.push(text.substring(start, i));
+          start = i;
+        default:
       }
-      return steps;
-    } catch (e) {
-      return text.replace(/(\.\)? )+/g,"$1\n").split("\n")
     }
+
+    steps.push (text.substring(start));
+    console.log("step", steps)
+
+    return steps;
+
   }
   function flattenInstructions(instruction) {
     if (instruction.itemListElement) {
@@ -532,8 +556,11 @@ function render() {
     let thumbnail = document.querySelector("#thumbnail");
     let thumbnailContainer = document.querySelector("#thumbnail-container");
     thumbnail.style.backgroundImage = 'url("' + bgImg.src + '")';
-    thumbnail.style.filter = `blur(${thumbnailContainer.offsetHeight / bgImg.naturalHeight * 1}px)`;
-    // thumbnail.style.transform = `scale(1.1)`;  
+    
+    let blur = 1;
+    blur = Math.max(blur, Math.max(thumbnailContainer.offsetHeight * window.devicePixelRatio / bgImg.naturalHeight, thumbnailContainer.offsetWidth * window.devicePixelRatio / bgImg.naturalWidth))
+    if (blur > 1) thumbnail.style.filter = `blur(${blur/2}px)`;
+
     setTimeout(() => thumbnail.style.opacity = 1.0, 0);
     if (window.scrollY == 0) setTimeout(() => {
       const yOffset = -20; 
@@ -597,10 +624,11 @@ function render() {
 
         ),
         m(".columns",
-          m("section.ingredients", 
+          m("section.ingredients.hanging", 
             m("caption.ingredients-title", {onclick:(e) => {e.target.closest("section").classList.toggle("hanging")}},"Ingredients"),
             ingredients,
-            qrImage ? m("img.qr.print-show", {src:qrImage}) : null
+            qrImage ? m("img#qr.qr.print-show", {src:qrImage}) : null,
+            // m("canvas#qr")
           ),
           m(reformat ? "section.instructions.numbered" : "section.instructions", 
              m("caption.ingredients-title", {onclick:() => {reformat = !reformat; render(); return false;}},
@@ -642,4 +670,14 @@ function keepAwake() {
 
 var path = window.script.substring(0, window.script.lastIndexOf("."));
 var cssURL = path + ".css";
+loadScript(path + '/../../js/qrious.min.js', null, "").then(() => {
+  console.log("qrious loaded");
+  var qr = new QRious({
+    element: document.getElementById("qr"),
+    background: 'transparent',
+    foreground: 'currentColor',
+    size: 512,
+    value: params.originalUrl,
+  });
+})
 loadSyle(cssURL).then(render);

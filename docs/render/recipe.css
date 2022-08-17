@@ -53,10 +53,10 @@ body {
     text-decoration-style: dotted;
     box-sizing: border-box;
     /* color: var(--background-color); */
-
-    border-bottom:1px solid transparent;
+    /* border-bottom:1px solid transparent; */
     border-bottom-color: currentColor;
     /* background-color: var(--text-color); */
+    font-weight: bold;
   }
 
   .timer:hover,
@@ -85,12 +85,20 @@ body {
   .timer.active .countdown {
     display:inline-block;
   }
+  .timer svg {
+    width: 1em;
+    vertical-align: sub;
+    margin-bottom: 1px;
+  }
 }
 
 
 @media print {
   .timer {
       font-weight:800;
+  }
+  .timer svg {
+    display:none;
   }
 }
 
@@ -173,8 +181,12 @@ ul.step:after {
   height: 0.5px;
   background-color: currentColor;
   opacity: 1;
-  border:none;
-  margin: 1em 0 0.2em 0 ;
+  border:
+  none;
+  margin: 1em 0 0.2em 0;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+  /* margin-left: -19em; */
 }
 
 ul.step.header:after,
@@ -200,8 +212,10 @@ span.number {
   /* line-height: 16px; */
   opacity: 1;
   user-select: none;
-  color:var(--accent-color)
-  /* background: black; */
+  color:
+  var(--accent-color)
+  /* background: black; */;
+  display: none;
 }
 
 @media screen {
@@ -282,7 +296,7 @@ li:hover {
 } */
 .time:before {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='22' fill='none' viewBox='0 0 18 22'%3E%3Cpath fill='%23000' d='M4.031 17.953C5.406 19.328 7.063 20.016 9 20.016c1.938 0 3.578-.688 4.922-2.063 1.375-1.375 2.062-3.031 2.062-4.969 0-1.937-.687-3.578-2.062-4.921C12.578 6.687 10.937 6 9 6c-1.938 0-3.594.688-4.969 2.063-1.343 1.343-2.015 2.984-2.015 4.921 0 1.938.671 3.594 2.015 4.97zm12-10.547c.532.688.985 1.578 1.36 2.672.406 1.063.609 2.031.609 2.906 0 2.47-.875 4.594-2.625 6.375-1.75 1.75-3.875 2.625-6.375 2.625s-4.625-.875-6.375-2.625C.875 17.58 0 15.453 0 12.984c0-2.468.875-4.578 2.625-6.328C4.375 4.875 6.5 3.984 9 3.984c.844 0 1.813.204 2.906.61C13.031 5 13.937 5.469 14.625 6l1.406-1.453c.5.406.969.875 1.407 1.406L16.03 7.406zm-8.015 6.61v-6h1.968v6H8.016zM12 .984V3H6V.984h6z'/%3E%3C/svg%3E%0A");
-} */
+} 
 
 .time {
   background-size:18px;
@@ -301,6 +315,7 @@ li:hover {
   /* color: rgba(0,0,0,0.8); */
   /* color:
   rgb(0, 118, 173); */
+  max-width: 16em;
 }
 
 .noun {
@@ -317,7 +332,7 @@ li:hover .noun {
   white-space: pre-wrap;
   /* line-height: 125%; */
   /* font-size: 100%; */
-  flex: 0 1 65%;
+  flex: 1 1 65%;
   /* margin-top: -0.7em; */
 }
 
@@ -328,8 +343,8 @@ li:hover .noun {
 }
 
 .instructions.numbered li {
-  padding-left: 3rem;
-  margin-left: 0;
+  /* padding-left: 3rem; */
+  /* margin-left: 0; */
 }
 
 .substep {
@@ -362,6 +377,8 @@ li:hover .noun {
   min-width: 3rem;
   text-align:
   right;
+  color: var(--accent-color);
+  /* font-weight: bold; */
 }
 
 .ingredient:hover {
@@ -512,44 +529,19 @@ hr {
 }
 
 
-@media print {
-  body {
-    font-size: 14px;
-    min-height:100vh;
-  }
-  .print-hide {
-    display: none !important;
-  }
-
-  @page { 
-    size: auto;   /* auto is the initial value */ 
-    /* margin: 1cm;   */
-  } 
-
-  a[href]:after { content: none !important; }
-  img[src]:after { content: none !important; }
-}
-
-@media not print {
-  body {
-    color:var(--text-color);
-  }
-  .print-show {
-    display:none;
-  }
-}
-
 .instructions.numbered hr {/* margin: 0.7em -1px; *//* height: 1.5px; *//* opacity: 0.2; *//* width: auto; */}
 
 .instructions.numbered {/* margin-top: -1.6em; */}
 
 
 img.qr {
-  margin-top:2em;
-  position:absolute;
+  /* margin-top:2em; */
+  position:
+  absolute;
   bottom:0;
-  right:0;
-  width:2in;
+  left: 0;
+  max-width: 1in;
+  height: auto;
 }
 
 @media screen and (max-width: 1199px) {
@@ -561,6 +553,7 @@ img.qr {
 .recipe-content {
   max-width:50em;
   padding: 1em 0;
+  /* padding-left: 2em; */
 }
 @media screen and (min-width: 1200px) {
   body {
@@ -746,3 +739,43 @@ a.publisherlink {
 span.timer.active.expired {
     background-color: rgb(221, 40, 0);
 }
+
+@media print {
+  body {
+    font-size: 14px;
+    min-height:100vh;
+    margin: 0;
+    padding: 0;
+  }
+  .print-hide {
+    display: none !important;
+  }
+
+  .recipe {
+    margin:0;
+    max-width:unset;
+  }
+  .recipe-content {
+    max-width:
+    unset;
+    padding-left: 2em;
+  }
+
+  @page { 
+    size: auto;   /* auto is the initial value */ 
+    /* margin: 1cm;   */
+  } 
+
+  a[href]:after { content: none !important; }
+  img[src]:after { content: none !important; }
+}
+
+@media not print {
+  body {
+    color:var(--text-color);
+  }
+  .print-show {
+    display:none;
+  }
+}
+

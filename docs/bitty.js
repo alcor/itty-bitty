@@ -113,6 +113,7 @@ class DataURL {
     let rawData = this.encoding ? await base64ToByteArray(this.data) : stringToByteArray(this.data);
     let compressedData = await compressData(rawData, format);
     var base64String = dataToBase64(compressedData);
+    base64String = base64String.replace(/=+$/, "");
     this.data = base64String;
     this.params.format = format;
     return this;
@@ -420,7 +421,7 @@ function encodePrettyComponent(s) {
   let replacements = {' - ': '---', '-': '--', ' ' : '-'}
   let re = new RegExp('(' + Object.keys(replacements).join('|') + ')', 'g');
   return encodeURIComponent(s.replace(re, e => replacements[e] ?? '-'))
-    .replace(/\%2C/g, ",")
+    // .replace(/\%2C/g, ",")
     .replace(/[!'()*]/g, (c) => '%' + c.charCodeAt(0).toString(16));
 }
 
