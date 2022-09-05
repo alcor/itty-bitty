@@ -691,7 +691,7 @@ loadScript(path + '/../../js/qrious.min.js', null, "").then(() => {
     background: 'transparent',
     foreground: 'currentColor',
     size: 512,
-    value: params.originalUrl,
+    value: params.originalUrl.substring(),
   });
 })
 loadSyle(cssURL).then(render);

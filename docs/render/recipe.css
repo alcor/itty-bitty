@@ -103,8 +103,8 @@ body {
 }
 
 img.publisher {
-  max-width: 5em;
-  max-height: 2em;
+  max-width: 8em;
+  max-height: 3em;
   /* margin-top: -0.1em; */
   transform:
   scale(0.7);
@@ -549,10 +549,13 @@ hr {
 img.qr {
   /* margin-top:2em; */
   position: absolute;
-  bottom:0;
-  left: 0;
-  max-width: 1in;
+  /* bottom:0; */
+  /* left: 0; */
+  max-width: 100%;
   height: auto;
+  /* background-color: var(--background-color); */
+  /* display: table-caption; */
+  /* width: 100%; */
 }
 
 @media screen and (max-width: 1199px) {
