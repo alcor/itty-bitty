@@ -24,7 +24,7 @@ let FRACTION_MAP = {
 }
 
 let ignoredTerms = [
-  "broken", "pieces", "tbsp", "tsp", "peeled", "then", "can", "oz", "fresh", "out", "not", "sprig", "sprigs", "room", "temperature", "still", "see", "notes", "with", "beat", "together", "crust", "very", "cold", "hot", "top", "warm", "one", "note", "teaspoon", "teaspoons", "tablespoon", "tablespoons", "cup", "cups", "taste", "more", "melted", "into", "wide", "pound", "pounds", "gram", "grams", "you", "ounce", "ounces", "thinly", "sliced",
+  "but", "broken", "pieces", "tbsp", "tsp", "peeled", "then", "can", "oz", "fresh", "out", "not", "sprig", "sprigs", "room", "temperature", "still", "see", "notes", "with", "beat", "together", "crust", "very", "cold", "hot", "top", "warm", "one", "note", "teaspoon", "teaspoons", "tablespoon", "tablespoons", "cup", "cups", "taste", "more", "melted", "into", "wide", "pound", "pounds", "gram", "grams", "you", "ounce", "ounces", "thinly", "sliced",
   "pan", "cube", "cubes", "finely", "ground", "garnish", "about", "cut", "and", "smashed", "each", "the", "medium", "large", "small", "for", "chopped", "minced", "grated", "box", "softened", "directed", "shredded", "cooked", "from", "frozen", "thawed"
 ]
 let emojiMap = {
@@ -294,10 +294,11 @@ const ingredientMatch = /^(?:A )?([\-\/0-9 \u00BC-\u00BE\u2153-\u215E\u2009]*)\s
 function ingredientEl(string, terms) {
   if (string == "-") return m("hr");
 
-  string = highlightTerms(string, terms)
+  // string = highlightTerms(string, terms)
   //console.log("terms", terms);
 
   let match = FRACTION_MAP.replace(clean(string)).match(ingredientMatch);
+  // let emoji = faviconForTitle(string);
 
   if (match) {
     return [m("span.quantity", match[1].replace(" ", "\u202F")), " ", m("span", {innerHTML:highlightTerms(match[2], terms)})]
@@ -306,8 +307,11 @@ function ingredientEl(string, terms) {
 }
 
 function highlightTerms(string, terms) {
-  const pattern = new RegExp(`\\b(${Array.from(terms).join('|').replace("-","\\-") })\\b`, 'gi'); 
-  return string.replace(pattern, match => `<span class="noun" id="term-${match}">${match}</span>`);
+  const pattern = new RegExp(`\\b((${Array.from(terms).join('|').replace("-","\\-")}))\\b`, 'gi'); 
+  return string.replace(pattern, match => {
+    let emoji = undefined //faviconForTitle(match);
+    return `<span class="noun" id="term-${match.trim().replace(" ","-")}">${ emoji ? emoji + "&nbsp;" : ""}${match}</span>`
+  });
 }
 
 function highlightTimes(string) {
@@ -420,10 +424,11 @@ function render() {
   let ingredients = json.recipeIngredient;
 
   var ingredientTerms = new Set(
-    Array.from(ingredients.join("\n").matchAll(/[A-Za-z\-]+/g)).map(m => m[0].length > 2 ? m[0].toLowerCase(): "")
+    Array.from(ingredients.join("\n").matchAll(/(\p{L}\p{M}?)+/gu)).map(m => m[0].length > 2 ? m[0].toLowerCase(): "")
   );
   if (typeof instructions === "string") instructions = [instructions]
   instructions = flattenInstructions(instructions)
+  console.log("instructions", instructions)
   let intructionTerms = new Set(
     Array.from(instructions.flat().join("\n").matchAll(/[A-Za-z\-]+/g)).map(m => m[0].length > 2 ? m[0].toLowerCase(): "")
   );
@@ -443,12 +448,14 @@ function render() {
   ingredients = ingredients.map(i => m("div.ingredient", { onclick: markIngredient }, ingredientEl(clean(i), ingredientTerms)));
 
   let step = 1;
-  function renderInstructions(instruction, terms) {
+  function renderInstructions(instruction, terms, i) {
     if (Array.isArray(instruction)) {
-      let instructions = instruction.map(i => renderInstructions(i, terms));
+      let instructions = instruction.map((inst,i) => renderInstructions(inst, terms, i));
       let className = "step";
-      if (instructions[0].tagName=="H3") className = "step header"
-      return m("ul", {className}, instructions);
+    
+      if (instructions[0].tagName=="H3") className = "step header";
+      let number = undefined // m("div.number", {}, "" + step++)
+      return m("ul", {className}, number, instructions);
     }
 
     let text = (instruction?.text || instruction);
@@ -458,7 +465,9 @@ function render() {
     if (text?.endsWith(":")) return m("h3", text);
 
     return m("li", { onclick: highlightStep }, 
-      m("span.number" + (step > 9 ? ".big" : ""), `${step++}`),
+      i == 0 ? 
+        m("span.bullet.number" + (step > 9 ? ".big" : ""), (step++).toString()) :
+        m("span.bullet.substep", "·"),
       m("span.substep",{innerHTML:highlightTimes(highlightTerms(FRACTION_MAP.replace(text.trim()), terms))}))
   }
 
@@ -489,26 +498,25 @@ function render() {
           }
           if (end) {
             let string = text.substring(start, end);
-            steps.push(string);
+            steps.push(string.trim());
             start = end;  
           }
           break;
         case "\n":
-          steps.push(text.substring(start, i));
+          steps.push(text.substring(start, i).trim());
           start = i;
         default:
       }
     }
 
     steps.push (text.substring(start));
-    console.log("step", steps)
 
     return steps;
 
   }
   function flattenInstructions(instruction) {
     if (instruction.itemListElement) {
-      return ["= " + instruction.name].concat(flattenInstructions(instruction.itemListElement).flat());
+      return ["= " + instruction.name].concat(flattenInstructions(instruction.itemListElement));
     }
 
     if (Array.isArray(instruction)) {
@@ -528,8 +536,9 @@ function render() {
     return text;
   }
 
-  instructions = instructions.map(i => renderInstructions(i, ingredientTerms));
+  if (instructions.length == 1) console.log("One instruction")
 
+  instructions = instructions.map(inst => renderInstructions(inst, ingredientTerms));
 
 
   // instructions = instructions.map(i => m("div.step", { onclick: highlightStep }, i))
@@ -554,6 +563,7 @@ function render() {
   var bgImg = new Image();
   bgImg.onload = function(){
     let thumbnail = document.querySelector("#thumbnail");
+    if (!thumbnail) return;
     let thumbnailContainer = document.querySelector("#thumbnail-container");
     thumbnail.style.backgroundImage = 'url("' + bgImg.src + '")';
     
@@ -573,15 +583,19 @@ function render() {
 
   console.log("image", bgImg.src)
 
+  let originalURL = json.mainEntityOfPage?.["@id"] ?? ((json.mainEntityOfPage == true) ? false : json.mainEntityOfPage) ?? json.url;
+  console.log({originalURL})
+  let hostname = originalURL ? new URL(originalURL).hostname.replace("www.","") : ""
   let qrImage = QRCodeURL(params.originalURL, {margin:0});
-  let originalURL = json.mainEntityOfPage?.["@id"] || json.mainEntityOfPage || json.url;
+  let publisherImage = json.publisher?.image ?.[0]?.url ?? json.publisher ?.logo ?.url;
+
   document.body.appendChild(
     m(".recipe", {},
       image ? m("#thumbnail-container", m("#thumbnail.thumbnail.print-hide", { style: "background-image:url(" + image + ");" })) : null,
       m(".recipe-content",
         m("header",
           m("a.publisherlink", {href:originalURL, target:"_blank"},
-            m("img.publisher", { src: json.publisher?.image ?.[0]?.url ?? json.publisher ?.logo ?.url }),
+            publisherImage ? m("img.publisher", { src: publisherImage }) : hostname,
           ),
           m(".headerflex",
             m(".headerleft",
@@ -630,7 +644,7 @@ function render() {
             qrImage ? m("img#qr.qr.print-show", {src:qrImage}) : null,
             // m("canvas#qr")
           ),
-          m(reformat ? "section.instructions.numbered" : "section.instructions", 
+          m(reformat ? "section.instructions.numbered" : "section.instructions.numbered", 
              m("caption.ingredients-title", {onclick:() => {reformat = !reformat; render(); return false;}},
              reformat ? "Steps" : "Instructions", 
              m("div.listtoggle.print-hide", {innerHTML: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 16 16"><mask id="a" width="16" height="16" x="0" y="0" maskUnits="userSpaceOnUse" style="mask-type:alpha"><path fill="#D9D9D9" d="M0 0h16v16H0z"/></mask><g mask="url(#a)"><path fill="#000" d="M3.7 12.667 1.333 10.3l.934-.933 1.416 1.416L6.517 7.95l.933.95-3.75 3.767Zm0-5.334L1.333 4.967l.934-.934L3.683 5.45l2.834-2.833.933.95L3.7 7.333Zm4.967 4V10h6v1.333h-6Zm0-5.333V4.667h6V6h-6Z"/></g></svg>'}),
@@ -671,7 +685,7 @@ function keepAwake() {
 var path = window.script.substring(0, window.script.lastIndexOf("."));
 var cssURL = path + ".css";
 loadScript(path + '/../../js/qrious.min.js', null, "").then(() => {
-  console.log("qrious loaded");
+  console.log("qrious loaded", params.originalURL.length);
   var qr = new QRious({
     element: document.getElementById("qr"),
     background: 'transparent',
