@@ -408,8 +408,9 @@
         src = params.script;
       }
       let sandbox = params.renderer?.sandbox;
-      if (sandbox == "none") { // passthrough
-      } else if (sandbox == "hash") { // Generate sandbox based off of body hash
+      // if (sandbox == "none") { // passthrough
+      // } else 
+      if (sandbox == "hash") { // Generate sandbox based off of body hash
         let hash = await bitty.hashString(params.body);
         src = src.replace("https://", "https://script-" + hash + ".");
       } else if (sandbox) { // Use named sandbox
