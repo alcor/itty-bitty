@@ -584,7 +584,7 @@ function render() {
   console.log("image", bgImg.src)
 
   let originalURL = json.mainEntityOfPage?.["@id"] ?? ((json.mainEntityOfPage == true) ? false : json.mainEntityOfPage) ?? json.url;
-  console.log({originalURL})
+  
   let hostname = originalURL ? new URL(originalURL).hostname.replace("www.","") : ""
   let qrImage = QRCodeURL(params.originalURL, {margin:0});
   let publisherImage = json.publisher?.image ?.[0]?.url ?? json.publisher ?.logo ?.url;
@@ -593,55 +593,56 @@ function render() {
     m(".recipe", {},
       image ? m("#thumbnail-container", m("#thumbnail.thumbnail.print-hide", { style: "background-image:url(" + image + ");" })) : null,
       m(".recipe-content",
-        m("header",
-          m("a.publisherlink", {href:originalURL, target:"_blank"},
-            publisherImage ? m("img.publisher", { src: publisherImage }) : hostname,
-          ),
-          m(".headerflex",
-            m(".headerleft",
-              m("h1", {onclick:keepAwake}, title),
-              m(".metadata",
-                (recipeYield) ? m("div", m("span.yield", m(".icon.servings", {innerHTML:icons.servings}), recipeYield)) : null,
-                json.totalTime ? m(".time",
-                  m(".icon.time", {innerHTML:icons.timer}),
-
-                  json.totalTime ? m("span", formatTime(json.totalTime)) : undefined,
-                  // " (",
-                  // json.prepTime ? m("span", formatTime(json.prepTime), " prep") : undefined,
-                  // json.cookTime ? m("span",  ", ",  formatTime(json.cookTime), " cook") : undefined,
-                  // ")"
-                ) : null,
-                (rating) ? m("div.rating",
-                    m(".icon.rating", {innerHTML:icons.rating}),
-                    parseFloat(rating.ratingValue).toFixed(1), " ",
-                    // ratingCount ? m("span.count", ratingCount.toString()) : null
-                    )
-                : null,
-                json.nutrition?.calories ? 
-                  m("div", m(".icon.info", {innerHTML:icons.info}),
-                    (json.nutrition?.calories.toString().replace("calories", "Cal").replace("kcal", "Cal")) + (isNaN(json.nutrition?.calories) ? '' : ' Cal')) : null,
-
-                // m("div.spacer"),
-              ),
+        m("div.headercolumns",
+          m("header",
+            m("a.publisherlink", {href:originalURL, target:"_blank"},
+              publisherImage ? m("img.publisher", { src: publisherImage }) : hostname,
             ),
-            m(".actions.print-hide",
-              originalURL ? m("a.action", { title:"Open original", href: originalURL, target:"_blank"}, m(".icon.public", {innerHTML:icons.public})) : null,
-              m("a.action", { title:"Share", onclick: share}, m(".icon.share", {innerHTML:icons.share})),
-              // m("a.action", { title:"Show steps as list", onclick: () => {reformat = !reformat; render(); return false;}}, m(".icon.checklist")),
-              m("a.action", { title:"Print", onclick: () => {window.print(); return false;} }, m(".icon.print", {innerHTML:icons.print})),
-            )
-          ),
-          description ? m(".description", {innerHTML:description},
-            json.author?.name ? m("span.author", (" —⁠" + json.author?.name)) : null,
-            m("p"),
-          ) : null,
+            m(".headerflex",
+              m(".headerleft",
+                m("h1", {onclick:keepAwake}, title),
+                m(".metadata",
+                  (recipeYield) ? m("div", m("span.yield", m(".icon.servings", {innerHTML:icons.servings}), recipeYield)) : null,
+                  json.totalTime ? m(".time",
+                    m(".icon.time", {innerHTML:icons.timer}),
 
+                    json.totalTime ? m("span", formatTime(json.totalTime)) : undefined,
+                    // " (",
+                    // json.prepTime ? m("span", formatTime(json.prepTime), " prep") : undefined,
+                    // json.cookTime ? m("span",  ", ",  formatTime(json.cookTime), " cook") : undefined,
+                    // ")"
+                  ) : null,
+                  (rating) ? m("div.rating",
+                      m(".icon.rating", {innerHTML:icons.rating}),
+                      parseFloat(rating.ratingValue).toFixed(1), " ",
+                      // ratingCount ? m("span.count", ratingCount.toString()) : null
+                      )
+                  : null,
+                  json.nutrition?.calories ? 
+                    m("div", m(".icon.info", {innerHTML:icons.info}),
+                      (json.nutrition?.calories.toString().replace("calories", "Cal").replace("kcal", "Cal")) + (isNaN(json.nutrition?.calories) ? '' : ' Cal')) : null,
+
+                  // m("div.spacer"),
+                ),
+              ),
+              m(".actions.print-hide",
+                originalURL ? m("a.action", { title:"Open original", href: originalURL, target:"_blank"}, m(".icon.public", {innerHTML:icons.public})) : null,
+                m("a.action", { title:"Share", onclick: share}, m(".icon.share", {innerHTML:icons.share})),
+                // m("a.action", { title:"Show steps as list", onclick: () => {reformat = !reformat; render(); return false;}}, m(".icon.checklist")),
+                m("a.action", { title:"Print", onclick: () => {window.print(); return false;} }, m(".icon.print", {innerHTML:icons.print})),
+              )
+            ),
+            description ? m(".description", {innerHTML:description},
+              json.author?.name ? m("span.author", (" —⁠" + json.author?.name)) : null,
+              m("p"),
+            ) : null,
+
+          ),
         ),
         m(".columns",
           m("section.ingredients.hanging", 
             m("caption.ingredients-title", {onclick:(e) => {e.target.closest("section").classList.toggle("hanging")}},"Ingredients"),
             ingredients,
-            qrImage ? m("img#qr.qr.print-show", {src:qrImage}) : null,
             // m("canvas#qr")
           ),
           m(reformat ? "section.instructions.numbered" : "section.instructions.numbered", 
@@ -651,7 +652,9 @@ function render() {
             ),
             instructions)
         ),
-      )
+      ),
+      qrImage ? m("img#qr.qr.print-show", {src:qrImage, onclick:() => window.print()}) : null,
+
     )
   )
 }
@@ -691,7 +694,7 @@ loadScript(path + '/../../js/qrious.min.js', null, "").then(() => {
     background: 'transparent',
     foreground: 'currentColor',
     size: 512,
-    value: params.originalUrl.substring(),
+    value: params.originalUrl.substring(0),
   });
 })
 loadSyle(cssURL).then(render);

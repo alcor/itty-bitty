@@ -127,6 +127,13 @@ img.publisher {
   justify-content: center;
   /* flex-direction: row-reverse; */
   margin-top: 1em;
+  /* height: auto; */
+  }
+
+
+.headercolumns {
+  display: flex;
+  flex-direction: row-reverse;
   }
 
 header {
@@ -548,14 +555,17 @@ hr {
 
 img.qr {
   /* margin-top:2em; */
-  position: absolute;
+  /* position: absolute; */
   /* bottom:0; */
   /* left: 0; */
-  max-width: 100%;
-  height: auto;
+  /* max-width: 100%; */
+  /* height: auto; */
   /* background-color: var(--background-color); */
   /* display: table-caption; */
-  /* width: 100%; */
+  width: 5cm;
+  height: 5cm;
+  margin-left: 1em;
+  page-break-before: always;
 }
 
 @media screen and (max-width: 1199px) {
@@ -768,6 +778,7 @@ span.timer.active.expired {
     min-height:100vh;
     margin: 0;
     padding: 0;
+    height: 100%;
   }
   .print-hide {
     display: none !important;
@@ -775,12 +786,16 @@ span.timer.active.expired {
 
   .recipe {
     margin:0;
-    max-width:unset;
+    max-width:
+    unset;
+    min-height: 100vh;
   }
   .recipe-content {
     max-width:
     unset;
-    padding-left: 2em;
+    /* padding-left: 2em; */
+    /* min-height: 100vh; */
+    height: 100%;
   }
 
   @page { 

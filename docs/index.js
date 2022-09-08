@@ -64,7 +64,7 @@
   }
 
   const renderers = {
-    "application/ld+json": {script:"recipe"},
+    "application/ld+json": {script:"recipe", sandbox:"none"},
     "text/canvas+javascript": {script:"canvas"},
     "text/javascript": {script:"script"},
     "application/bitsy": {script:"/render/bitsy.html", sandbox:"bitsy"},
@@ -156,11 +156,15 @@
 
   window.addEventListener("message", function(e) {
     console.debug("Message:", e.origin, e.data)
+    showLoader(false);
+      if (e.data.loading != undefined) showLoader(e.data.loading);
+
       if (e.data.title) document.title = e.data.title;
       if (e.data.favicon) setFavicon(e.data.favicon);
       if (e.data.themeColor) setThemeColor(e.data.themeColor);
       if (e.data.updateURL) {
-        window.location.pathname = bitty.metadataToPath(e.data);
+        let path = bitty.metadataToPath(e.data) + window.location.hash;
+        window.history.replaceState(null, null, path);
       }
 
       if (e.data.share) {
@@ -392,7 +396,7 @@
         iframe.contentWindow.postMessage(params, "*");
         delete iframe.onload
         iframe.contentWindow.focus();
-        showLoader(false)
+        // showLoader(false)
       });
       // writeDocContent(iframe.contentWindow.document, SCRIPT_LOADER)
       // iframe.srcdoc = SCRIPT_LOADER;
@@ -404,7 +408,8 @@
         src = params.script;
       }
       let sandbox = params.renderer?.sandbox;
-      if (sandbox == "hash") { // Generate sandbox based off of body hash
+      if (sandbox == "none") { // passthrough
+      } else if (sandbox == "hash") { // Generate sandbox based off of body hash
         let hash = await bitty.hashString(params.body);
         src = src.replace("https://", "https://script-" + hash + ".");
       } else if (sandbox) { // Use named sandbox
