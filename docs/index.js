@@ -64,7 +64,7 @@
   }
 
   const renderers = {
-    "application/ld+json": {script:"recipe", sandbox:"none"},
+    "application/ld+json": {script:"recipe"},
     "text/canvas+javascript": {script:"canvas"},
     "text/javascript": {script:"script"},
     "application/bitsy": {script:"/render/bitsy.html", sandbox:"bitsy"},
@@ -210,7 +210,7 @@
 
     var isIE = navigator.userAgent.match(/rv:11/);
     var isEdge = navigator.userAgent.match(/Edge\//);
-    var isWatch = (window.outerWidth < 200);
+    var isWatch = (window.outerWidth < 220);
 
     let bittyInfo = bitty.parseBittyURL(location);
     let durl = new bitty.DataURL(bittyInfo.hashData);

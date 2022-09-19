@@ -126,7 +126,7 @@ img.publisher {
   align-content: center;
   justify-content: center;
   /* flex-direction: row-reverse; */
-  margin-top: 1em;
+  /* margin-top: 1em; */
   /* height: auto; */
   }
 
@@ -137,8 +137,8 @@ img.publisher {
   }
 
 header {
-  gap: 2em;
-  margin-bottom: 2em;
+  /* gap: 2em; */
+  /* margin-bottom: 1rem; */
   /* padding-left: 18em; */
 }
 
@@ -147,6 +147,7 @@ h1 {
   margin-bottom: 0;
   line-height:125%;
   font-weight:500;
+  font-size: 2em;
 }
 .noun.hovered {
   background-color:#FAC22B;
@@ -169,7 +170,7 @@ background-color:#f1f1f1;
   gap: 0.5em 1em;
   /* margin-bottom: 1em; */
   text-transform: uppercase;
-  font-size: 88%;
+  font-size: 0.88rem;
   font-weight: 500;
   line-height: 0.8em;
   margin-top: 0.7em;
@@ -324,8 +325,8 @@ li:hover {
 }
 
 .ingredients {
-  font-weight: 600;
-  font-size: 88%;
+  /* font-weight: 600; */
+  font-size: 100%;
   position: sticky;
   /* top: 0px; */
   /* padding-top: 1.5em; */
@@ -362,7 +363,7 @@ li:hover .noun {
 
 .instructions.numbered li {
   padding-left: 2rem;
-  margin-left: -0.6rem;
+  margin-left: -0.5rem;
 }
 
 .substep {
@@ -380,6 +381,9 @@ li:hover .noun {
 .hanging .ingredient {
   /* margin-left: -3rem; */
   /* padding-left: 3rem; */
+  /* padding: 0.2em; */
+  /* padding-left: 2rem; */
+  display: table-row;
 }
 
 .ingredients .yield {
@@ -389,15 +393,16 @@ li:hover .noun {
   margin-left:2em;
 }
 .ingredients.hanging .quantity {
+  /* height: 2em; */
   /* float:
   left; */
-  /* margin-left: -3rem; */
-  /* max-width: 1rem; */
-  text-align:
-  right;
+  /* margin-left: -2.1rem; */
+  /* max-width: 3rem; */
+  text-align: right;
   color: var(--accent-color);
-  width: auto;
+  /* min-width: 2rem; */
   white-space: nowrap;
+  width: 1em;
 }
 
 .ingredient:hover {
@@ -498,14 +503,19 @@ hr {
   .instructions,
   header {
     /* padding: 0 .4em; */
+    padding-top: 0.5em;
   }
 
+  caption {
+    padding-bottom:0.5em;
+    border-bottom:1px solid currentColor;
+  }
   .ingredients {
-    border-top:0.5px solid currentColor;
-    padding-top:1em;
+    /* border-top:0.5px solid currentColor; */
+    /* padding-top:1em; */
     padding-bottom:1em;
-    border-bottom:0.5px solid currentColor;
     margin-bottom:1em;
+    max-width: unset;
   }
   .instructions hr:first-child {
     display:none;
@@ -709,8 +719,10 @@ span.number:after {
 
 section.ingredients caption {
     content: "Ingredients";
-    display: table-caption;
     margin-bottom: calc(1.3rem - 1em);
+}
+section.ingredients.hanging caption {
+  display: table-caption;
 }
 
 .hanging .ingredient .quantity:after {
@@ -726,9 +738,9 @@ a.publisherlink,
 .ingredients caption,
 .instructions caption {
     font-weight: 600;
-    font-size: 0.8rem;
+    font-size: 0.88rem;
     text-transform: uppercase;
-    letter-spacing: 0.01rem;
+    /* letter-spacing: 0.01rem; */
     user-select: none;
     color: var(--accent-color);
 }
@@ -737,7 +749,6 @@ a.publisherlink,
   text-align: left;
   display: block;
   margin-bottom: 1em;
-
 }
 
 
@@ -770,6 +781,26 @@ a.publisherlink {
 
 span.timer.active.expired {
     background-color: rgb(221, 40, 0);
+}
+
+/* Watches */
+@media screen and (max-width: 220px) {
+  .watch-hide {
+    display: none !important;
+  }
+  body {
+    margin: 0 0vw 0 6vw;
+  }
+  html {
+    font-size:18px;
+  }
+  /* .quantity, span.bullet {
+    font-size:150%;
+  } */
+}
+
+html.watch .watch-hide {
+  display: none !important;
 }
 
 @media print {
@@ -822,7 +853,6 @@ span.timer.active.expired {
 
 
 .ingredients {
-  display: table;
   width: auto;
   /* background-color: #eee; */
   /* border: 1px solid #666666; */
@@ -832,19 +862,29 @@ span.timer.active.expired {
   height: auto;
   margin-bottom: auto;
 }
+.ingredients.hanging {
+  display: table;
+
+}
+
 .ingredient {
-  display: table-row;
   width: auto;
   clear: both;
 }
+.hanging .ingredient {
+}
+.hanging .ingredient > * {
+  display: table-cell;
+  width: 99%;
+}
+
 .ingredient > * {
   /* float: left; */ /* fix for  buggy browsers */
-  display: table-cell;
-  width: 100%;
   /* background-color: red; */
   /* padding: 0; */
   /* margin: 0; */
   /* margin-bottom: 1em; */
+  /* display: block; */
 }
 
 a.publisherlink:hover {

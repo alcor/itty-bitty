@@ -23,6 +23,9 @@ let FRACTION_MAP = {
   }
 }
 
+var isWatch = (window.outerWidth < 220);
+if (isWatch) document.documentElement.classList.add("watch")
+
 let ignoredTerms = [
   "but", "broken", "pieces", "tbsp", "tsp", "peeled", "then", "can", "oz", "fresh", "out", "not", "sprig", "sprigs", "room", "temperature", "still", "see", "notes", "with", "beat", "together", "crust", "very", "cold", "hot", "top", "warm", "one", "note", "teaspoon", "teaspoons", "tablespoon", "tablespoons", "cup", "cups", "taste", "more", "melted", "into", "wide", "pound", "pounds", "gram", "grams", "you", "ounce", "ounces", "thinly", "sliced",
   "pan", "cube", "cubes", "finely", "ground", "garnish", "about", "cut", "and", "smashed", "each", "the", "medium", "large", "small", "for", "chopped", "minced", "grated", "box", "softened", "directed", "shredded", "cooked", "from", "frozen", "thawed"
@@ -175,17 +178,25 @@ const replacements = {
   "tablespoon": "Tbsp."
 }
 
+let lastNoun = undefined;
 window.addEventListener("mouseover", (e) => {
   let target = e.target;
 
   if (target.classList.contains("noun")) {
     let els = document.querySelectorAll("#" + e.target.id);
     
+    let isIngredient = target.closest(".ingredients");
     for (const noun of els) {
       noun.classList.add("hovered");
       noun.closest(".substep")?.classList.add("hovered")
       noun.closest(".ingredient")?.classList.add("hovered")
+      if (noun.closest(".ingredients") != isIngredient) {
+        noun.scrollIntoView({behavior:"smooth", block: "center"})
+        console.log("focusing", noun)
+        if (noun == lastNoun) break;
+      }
     }
+    lastNoun = target;
   }
 })
 
@@ -303,7 +314,7 @@ function ingredientEl(string, terms) {
   if (match) {
     return [m("span.quantity", match[1].replace(" ", "\u202F")), " ", m("span", {innerHTML:highlightTerms(match[2], terms)})]
   }
-  return [m("span.quantity", ""), m("span", {innerHTML:string})];
+  return [m("span.quantity", ""), m("span", {innerHTML:highlightTerms(string, terms)})];
 }
 
 function highlightTerms(string, terms) {
@@ -572,12 +583,12 @@ function render() {
     if (blur > 1) thumbnail.style.filter = `blur(${blur/2}px)`;
 
     setTimeout(() => thumbnail.style.opacity = 1.0, 0);
-    if (window.scrollY == 0) setTimeout(() => {
-      const yOffset = -20; 
-      const element = document.querySelector('.recipe-content');
-      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;  
-      window.scrollTo({top: y, behavior: 'smooth'});  
-    }, 1000)
+    // if (window.scrollY == 0) setTimeout(() => {
+    //   const yOffset = -20; 
+    //   const element = document.querySelector('.recipe-content');
+    //   const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;  
+    //   window.scrollTo({top: y, behavior: 'smooth'});  
+    // }, 1000)
   };
   bgImg.src = image;
 
@@ -625,7 +636,7 @@ function render() {
                   // m("div.spacer"),
                 ),
               ),
-              m(".actions.print-hide",
+              m(".actions.print-hide.watch-hide",
                 originalURL ? m("a.action", { title:"Open original", href: originalURL, target:"_blank"}, m(".icon.public", {innerHTML:icons.public})) : null,
                 m("a.action", { title:"Share", onclick: share}, m(".icon.share", {innerHTML:icons.share})),
                 // m("a.action", { title:"Show steps as list", onclick: () => {reformat = !reformat; render(); return false;}}, m(".icon.checklist")),
@@ -640,7 +651,7 @@ function render() {
           ),
         ),
         m(".columns",
-          m("section.ingredients.hanging", 
+          m(isWatch ? "section.ingredients" : "section.ingredients.hanging", 
             m("caption.ingredients-title", {onclick:(e) => {e.target.closest("section").classList.toggle("hanging")}},"Ingredients"),
             ingredients,
             // m("canvas#qr")
