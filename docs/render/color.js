@@ -44,7 +44,7 @@ function edit() {
   document.body.classList.toggle("edit");
 }
 function render() {
-  let colors = params.body.substring(2).split(";");
+  let colors = decodeURIComponent(params.body.substring(2)).split(";");
   document.body.style.backgroundColor = colors[0];
   document.body.style.color = colors[1];
   currentColor = colors[0];

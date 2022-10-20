@@ -1,4 +1,4 @@
-  import * as bitty from './bitty.js';
+  import * as bitty from '/bitty.js';
 
   window.bitty = bitty;
 
@@ -64,7 +64,7 @@
   }
 
   const renderers = {
-    "application/ld+json": {script:"recipe"},
+    "application/ld+json": {script:"/render/recipe.min.html"},
     "text/canvas+javascript": {script:"canvas"},
     "text/javascript": {script:"script"},
     "application/bitsy": {script:"/render/bitsy.html", sandbox:"bitsy"},
@@ -404,13 +404,15 @@
       let src = window.scriptDomain ?? location.origin;
       src += "/render";
 
+      let sandbox = params.renderer?.sandbox;
+
       if (params.script.endsWith(".html")) {
         src = params.script;
+        if (!sandbox) sandbox = "none";
       }
-      let sandbox = params.renderer?.sandbox;
-      // if (sandbox == "none") { // passthrough
-      // } else 
-      if (sandbox == "hash") { // Generate sandbox based off of body hash
+
+      if (sandbox == "none") { // passthrough
+      } else if (sandbox == "hash") { // Generate sandbox based off of body hash
         let hash = await bitty.hashString(params.body);
         src = src.replace("https://", "https://script-" + hash + ".");
       } else if (sandbox) { // Use named sandbox

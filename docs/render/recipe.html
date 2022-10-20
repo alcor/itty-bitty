@@ -1,0 +1,43 @@
+<link rel="stylesheet" href="recipe.css" inline>
+<script src="recipe.js" inline></script>
+<script>
+  function loadScript(src, callback, type = "module") {
+    let promise =  new Promise((resolve, reject) => {
+      let script = document.createElement("script")
+      script.type = type;
+      script.onload = resolve;
+      script.src = src
+      document.head.appendChild(script);
+      console.log("script", script)
+    })
+    return callback ? promise.then(callback) : promise;
+  }
+
+  window.addEventListener("message", function(e) {
+    let data = e.data;
+    // var base = el('base', {href: data.script});
+    // console.log("MESSAGE", data, base, data.script);
+    // document.head.appendChild(base);
+    window.script = data.script
+    console.log("data.script", data)
+    window.params = data;
+    window.params.origin = e.origin;
+    console.log("🖊 Rendering with", {script:data.script, params:data})
+
+    render()
+
+    loadScript("../js/qrious.min.js", null, "").then(() => {
+      console.log("qrious loaded", window.params, window.params.originalURL);
+var qr = new QRious({
+        element: document.getElementById("qr"),
+        background: 'transparent',
+        foreground: 'currentColor',
+        size: 512,
+        value: params.originalURL.substring(0),
+      });
+      
+    })
+  }, false);
+</script>
+
+

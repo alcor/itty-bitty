@@ -179,6 +179,26 @@ const replacements = {
 }
 
 let lastNoun = undefined;
+
+window.addEventListener("click", (e) => {
+  let target = e.target;
+
+  if (target.classList.contains("noun")) {
+    let els = document.querySelectorAll("#" + e.target.id);
+    
+    let isIngredient = target.closest(".ingredients");
+    for (const noun of els) {
+      noun.classList.add("hovered");
+      if (noun.closest(".ingredients") != isIngredient) {
+        noun.scrollIntoView({behavior:"smooth", block: "center"})
+        console.log("focusing", noun)
+        if (noun == lastNoun) break;
+      }
+    }
+    lastNoun = target;
+  }
+})
+
 window.addEventListener("mouseover", (e) => {
   let target = e.target;
 
@@ -190,11 +210,11 @@ window.addEventListener("mouseover", (e) => {
       noun.classList.add("hovered");
       noun.closest(".substep")?.classList.add("hovered")
       noun.closest(".ingredient")?.classList.add("hovered")
-      if (noun.closest(".ingredients") != isIngredient) {
-        noun.scrollIntoView({behavior:"smooth", block: "center"})
-        console.log("focusing", noun)
-        if (noun == lastNoun) break;
-      }
+      // if (noun.closest(".ingredients") != isIngredient) {
+      //   noun.scrollIntoView({behavior:"smooth", block: "center"})
+      //   console.log("focusing", noun)
+      //   if (noun == lastNoun) break;
+      // }
     }
     lastNoun = target;
   }
@@ -400,6 +420,7 @@ function faviconForTitle(title) {
   }
   return undefined;
 }
+
 function render() {
   try {
     let data = JSON.parse(window.params.body);
@@ -414,7 +435,8 @@ function render() {
     console.error("Data", e, {e, body: window.params.body});
     return;
   }
-  document.head.appendChild(el("base", {target: "_blank"}));
+  // console.log("head", document.head, .el, el("base", {target: "_blank"}))
+  document.head.appendChild(m("base", {target: "_blank"}));
 
   delete document.documentElement.style.display;
   document.body.childNodes.forEach((c) => document.body.removeChild(c))
@@ -597,7 +619,7 @@ function render() {
   let originalURL = json.mainEntityOfPage?.["@id"] ?? ((json.mainEntityOfPage == true) ? false : json.mainEntityOfPage) ?? json.url;
   
   let hostname = originalURL ? new URL(originalURL).hostname.replace("www.","") : ""
-  let qrImage = QRCodeURL(params.originalURL, {margin:0});
+  let qrImage = undefined // QRCodeURL(params.originalURL, {margin:0});
   let publisherImage = json.publisher?.image ?.[0]?.url ?? json.publisher ?.logo ?.url;
 
   document.body.appendChild(
@@ -696,16 +718,16 @@ function keepAwake() {
 }
 
 
-var path = window.script.substring(0, window.script.lastIndexOf("."));
-var cssURL = path + ".css";
-loadScript(path + '/../../js/qrious.min.js', null, "").then(() => {
-  console.log("qrious loaded", params.originalURL.length);
-  var qr = new QRious({
-    element: document.getElementById("qr"),
-    background: 'transparent',
-    foreground: 'currentColor',
-    size: 512,
-    value: params.originalUrl.substring(0),
-  });
-})
-loadSyle(cssURL).then(render);
+// var path = window.script.substring(0, window.script.lastIndexOf("."));
+// var cssURL = path + ".css";
+// loadScript(path + '/../../js/qrious.min.js', null, "").then(() => {
+//   console.log("qrious loaded", params.originalURL.length);
+//   var qr = new QRious({
+//     element: document.getElementById("qr"),
+//     background: 'transparent',
+//     foreground: 'currentColor',
+//     size: 512,
+//     value: params.originalUrl.substring(0),
+//   });
+// })
+// loadSyle(cssURL).then(render);

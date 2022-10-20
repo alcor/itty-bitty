@@ -161,7 +161,7 @@ async function testCompression(rawData) {
 async function compressData(data, encoding = GZIP_MARKER, callback) {
   console.debug("Compressing with", encoding)
   if (encoding == GZIP_MARKER) {
-    return import("/js/gzip/pako.js").then((module) => {
+    return import("/js/gzip/pako.min.js").then((module) => {
       return pako.deflate(data, {level:"9"});
     });
   } else if (encoding == BROT_MARKER) {
@@ -188,9 +188,36 @@ function byteArrayToString(bytes) {
   return String.fromCharCode.apply(null, new Uint8Array(bytes));
 }
 
+function browserDecompressData(data) {
+
+  const cs = new DecompressionStream("gzip");
+  const writer = cs.writable.getWriter();
+  writer.write(data);
+  writer.close();
+
+  return new Response(cs.readable).arrayBuffer().then(function (arrayBuffer) {
+    return new TextDecoder().decode(arrayBuffer);
+  });
+
+  // const stream = new Response(data).body.pipeThrough(new DecompressionStream('gzip'));
+  // return  (new Response(stream).arrayBuffer());
+
+
+  // var blob = new Blob([data], {type: "octet/stream"});
+  // const ds = new DecompressionStream("gzip");
+  // const decompressedStream = blob.stream().pipeThrough(ds);
+  // data =  await new Response(decompressedStream).arrayBuffer(); 
+  // console.log(blob, data);
+
+  // console.log(blob, data);
+
+  // return data
+}
+
 async function decompressData(data, encoding, callback) {
   if (encoding == GZIP_MARKER) {
-    return import("/js/gzip/pako.js").then((module) => {
+    // return await browserDecompressData(data);
+    return import("/js/gzip/pako.min.js").then((module) => {
       let byteArray = pako.inflate(data);
       return byteArray;
     });
