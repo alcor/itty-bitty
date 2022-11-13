@@ -27,10 +27,14 @@ var isWatch = (window.outerWidth < 220);
 if (isWatch) document.documentElement.classList.add("watch")
 
 let ignoredTerms = [
-  "but", "broken", "pieces", "tbsp", "tsp", "peeled", "then", "can", "oz", "fresh", "out", "not", "sprig", "sprigs", "room", "temperature", "still", "see", "notes", "with", "beat", "together", "crust", "very", "cold", "hot", "top", "warm", "one", "note", "teaspoon", "teaspoons", "tablespoon", "tablespoons", "cup", "cups", "taste", "more", "melted", "into", "wide", "pound", "pounds", "gram", "grams", "you", "ounce", "ounces", "thinly", "sliced",
+  "freshly", "use", "dry", "but", "broken", "pieces", "tbsp", "tsp", "peeled", "then", "can", "oz", "fresh", "out", "not", "sprig", "sprigs", "room", "temperature", "still", "see", "notes", "with", "beat", "together", "crust", "very", "cold", "hot", "top", "warm", "one", "note", "teaspoon", "teaspoons", "tablespoon", "tablespoons", "cup", "cups", "taste", "more", "melted", "into", "wide", "pound", "pounds", "gram", "grams", "you", "ounce", "ounces", "thinly", "sliced",
   "pan", "cube", "cubes", "finely", "ground", "garnish", "about", "cut", "and", "smashed", "each", "the", "medium", "large", "small", "for", "chopped", "minced", "grated", "box", "softened", "directed", "shredded", "cooked", "from", "frozen", "thawed"
 ]
 let emojiMap = {
+  "duck": "🍗",
+  "beef": "🥩",
+  "turkey": "🍗",
+  "chicken": "🍗",
   "grape": "🍇",
   "watermelon": "🍉",
   "melon": "🍈",
@@ -76,9 +80,6 @@ let emojiMap = {
   "waffle": "🧇",
   "cheese": "🧀",
   "meat": "🍖",
-  "beef": "🥩",
-  "turkey": "🍗",
-  "chicken": "🍗",
   "steak": "🥩",
   "bacon": "🥓",
   "hamburger": "🍔",
@@ -286,7 +287,7 @@ function clean(html) {
 
 function formatTime(time) {
   const timeRE = /(?<sign>-)?P(?:(?<years>[.,\d]+)Y)?(?:(?<months>[.,\d]+)M)?(?:(?<weeks>[.,\d]+)W)?(?:(?<days>[.,\d]+)D)?T(?:(?<hours>[.,\d]+)H)?(?:(?<minutes>[.,\d]+)M)?(?:(?<seconds>[.,\d]+)S)?/
-  let duration = time.match(timeRE).groups;
+  let duration = time.match(timeRE)?.groups;
   if (duration) {
     time = [];
 
@@ -425,10 +426,10 @@ function render() {
   try {
     let data = JSON.parse(window.params.body);
     var json = data; //JSON.parse(data);
-    if (json["@type"] != "Recipe") {
+    if (!json["@type"]?.includes("Recipe")) {
       json = (json["@graph"] ?? json).find((item) => item["@type"] == "Recipe")
     }
-    console.log("Recipe", json);
+    console.log("🍗 Rendering Recipe:", json);
   } catch (e) {
 
     document.body.appendChild(m("div", "Error parsing recipe", m("p", e.message), m("p", e.stack), m("pre", window.params.body) ));
@@ -461,7 +462,7 @@ function render() {
   );
   if (typeof instructions === "string") instructions = [instructions]
   instructions = flattenInstructions(instructions)
-  console.log("instructions", instructions)
+  
   let intructionTerms = new Set(
     Array.from(instructions.flat().join("\n").matchAll(/[A-Za-z\-]+/g)).map(m => m[0].length > 2 ? m[0].toLowerCase(): "")
   );
@@ -613,8 +614,6 @@ function render() {
     // }, 1000)
   };
   bgImg.src = image;
-
-  console.log("image", bgImg.src)
 
   let originalURL = json.mainEntityOfPage?.["@id"] ?? ((json.mainEntityOfPage == true) ? false : json.mainEntityOfPage) ?? json.url;
   

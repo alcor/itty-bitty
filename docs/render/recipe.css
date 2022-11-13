@@ -137,6 +137,7 @@ img.publisher {
   }
 
 header {
+  flex: 1 1 auto;
   /* gap: 2em; */
   /* margin-bottom: 1rem; */
   /* padding-left: 18em; */
