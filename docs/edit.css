@@ -87,6 +87,7 @@ body.loaded:not(.edited) #placeholder {
   color: var(--text-placeholder-color);
   pointer-events: none;
   position: absolute;
+  z-index: 100;
 }
 
 body.drag #content {
@@ -115,10 +116,10 @@ body.drag #content {
 #doc-title {
   outline: none;
   /* min-width: 180px; */
-  top: 0;
-  /* position: absolute; */
+  /* top: 0; */
+  position: absolute;
   padding: 0 1em;
-  font-weight: normal;
+  font-weight: bold;
   /* opacity:0.33; */
   user-select: none;
   cursor:
@@ -141,10 +142,14 @@ body.drag #content {
   bold;
 }
 
+.no-metadata .metadata-on {
+  display:none;
+}
 
 #doc-title-text:empty:after {
   content:"untitled";
   opacity:0.5;
+  font-weight:normal;
 }
 
 #doc-title.open #metadata-text {
@@ -239,7 +244,7 @@ input:focus {
 }
 #ib-info:hover {
   pointer-events: all;
-  color: black;
+  color: var(--text-color);
 }
 
 /*#toolbar a#copy {
@@ -620,10 +625,9 @@ div#editor.ql-container.ql-snow {
     margin-left: auto;
 }
 
-
 #formatbar .ql-toolbar, 
 #formatbar .ql-stroke, 
-#formatbar .ql-picker,
+#formatbar .ql-picker:not(.ql-color-picker),
 #formatbar.ql-snow a {
   color: var(--text-color) ;
   stroke: var(--text-color) ;
@@ -649,7 +653,7 @@ div#mainmenu {
     position: relative;
 }
 
-input#md-include {min-width: unset;height: 2em; width: 1em;margin-right: 1em;}
+input#md-include {min-width: unset;/* height: 2em; */width: 1em;margin-right: 0.5em;}
 
 label:not(:first-child) {
     font-weight: normal;

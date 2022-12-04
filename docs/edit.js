@@ -76,7 +76,8 @@ window.onload = async function() {
   // content.addEventListener("keyup", handleInput);
   QS("#doc-title").addEventListener("keyup", handleInput);
   Array.from(document.getElementsByTagName("input")).forEach(i => i.addEventListener("keydown", handleInput))
-  
+  document.getElementById("md-include").addEventListener("change", handleMetadataCheckbox);
+
   document.getElementById("drop-zone").addEventListener("drop", handleDrop);
   document.getElementById("drop-zone").addEventListener("dragover", e => e.preventDefault());
   editor.addEventListener("paste", handlePaste);
@@ -118,6 +119,8 @@ window.onload = async function() {
     }
   } else {
     updateBodyClass();
+    setContent(sessionStorage.getItem("editor-content"))
+
   }
 };
 
@@ -263,20 +266,25 @@ function fetchCodepen(url) {
   });
 }
 
-
-
 function handleInput(e) {
-   handleContentChange(e);
+  handleContentChange(e);
+}
+
+function handleMetadataCheckbox(e) {
+  document.body.classList.toggle("no-metadata", !e.target.checked)
+  handleContentChange(e);
 }
 function getMetadata() {
   let formData = new FormData(document.forms[0]);
   var object = {};
   formData.forEach((value, key) => object[key] = value);
+
   return object;
 }
 
 async function handleContentChange() {
 
+  sessionStorage.setItem("editor-content", editor.innerHTML);
   var text = editor.innerText;
   let hasContent = text.trim().length > 0;
 
@@ -284,32 +292,44 @@ async function handleContentChange() {
   if (!hasContent) return;
 
   var metadata = getMetadata();
-    var rawHTML = text.indexOf("</") > 0;
-    if (rawHTML) {
-      text = text.replace(/[ |\t]+/g, " ").replace(/> +</g, "> <");
-    } else {
-      text = editor.innerHTML;
-    }
-  
-    if (text.trim().length) {
-      let url = `data:text/html;charset=utf-8,${encodeURIComponent(text)}`;
-      let durl = new bitty.DataURL(url)
-      durl = await durl.compress(bitty.GZIP_MARKER);
-      let ratio = durl.href.length / url.length;
-      console.log(`Compressed from ${url.length} to ${durl.href.length} bytes (${Math.round(ratio * 100)}%)`);
+  var rawHTML = text.indexOf("</") > 0;
+  if (rawHTML) {
+    text = text.replace(/[ |\t]+/g, " ").replace(/> +</g, "> <");
+  } else {
+    text = editor.innerHTML;
+  }
 
-      if (ratio <= 0.95) url = durl.href;
-      if (rawHTML) {
-        updateLink(url, metadata);
-      } else {
-        updateLink("?" + durl.data, metadata);
-      }
-      setFileName("");
-    } else if (importedFileData) {
-      updateLink(importedFileData, {title});
-    } else {
-      updateLink("");
+  if (text.trim().length) {
+    let url = `data:text/html;charset=utf-8,${encodeURIComponent(text)}`;
+    let durl = new bitty.DataURL(url)
+
+    if (metadata.password) {
+      durl.params.cipher = "aes-gcm"
+      durl.params.style = "default"
+      durl.params._password = metadata.password;
     }
+
+    durl = await durl.compress(bitty.GZIP_MARKER);
+    let ratio = durl.href.length / url.length;
+    console.debug(`Compressed from ${url.length} to ${durl.href.length} bytes (${Math.round(ratio * 100)}%)`);
+
+    
+
+
+    if (ratio <= 0.95) url = durl.href;
+    if (rawHTML) {
+      updateLink(url, metadata);
+    } else if (metadata.password) {
+      updateLink(durl.href, metadata);
+    } else {
+      updateLink("?" + durl.data, metadata);
+    }
+    setFileName("");
+  } else if (importedFileData) {
+    updateLink(importedFileData, {title});
+  } else {
+    updateLink("");
+  }
   
 }
 
@@ -323,13 +343,11 @@ let bittyLink = undefined;
 function updateLink(url, metadata, push) {
   
   let title = metadata.title;
-  // if (title) title = encodeURIComponent(title.trim().replace(/\s/g, "_"));
   
   let includeMetadata = !metadata.includeMetadata;
   let path = includeMetadata ? "/" : bitty.metadataToPath(metadata) ?? "/";
   let prefix = includeMetadata ? bitty.encodePrettyComponent(title) : "";
 
-  console.log(`path [${path}]`)
   if (url.length) {
     url = path + "#" + prefix + "/" + url;
   } else {
@@ -342,15 +360,20 @@ function updateLink(url, metadata, push) {
 
   document.getElementById("canonical").href = bittyLink;
 
-  console.log("previewing", bittyLink);
-  if(previewContent) QS("#preview-frame").src = bittyLink;
+  if(previewContent) {
+    console.log("previewing", bittyLink);
+    QS("#preview-frame").src = bittyLink;
+  }
 
   var hash = location.hash;
-  if (push || !hash || !hash.length) {
-    window.history.pushState(null, null, bittyLink);
-  } else {
-    window.history.replaceState(null, null, bittyLink);
+  if (true) {
+    if (push || !hash || !hash.length) {
+      window.history.pushState(null, null, bittyLink);
+    } else {
+      window.history.replaceState(null, null, bittyLink);
+    }
   }
+
   var length = bittyLink.length;
 
   QS("#length").innerText = length + " bytes";
@@ -372,7 +395,7 @@ function share() {
     title: 'itty.bitty',
     url: bittyLink
   }).then(() => {
-    console.log('Thanks for sharing!');
+    console.log('Shared!');
   })
   .catch(console.error);
 }
@@ -392,7 +415,7 @@ function toggleMenu(el) {
 
 function toggleMetadata(e) {
   if (e.target.closest(".menu")) return;
-  console.log(e)
+
   QS("#md-contents").classList.toggle("menu-visible");
   QS("#doc-title").classList.toggle("open");
   QS("#md-title").focus();
