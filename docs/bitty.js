@@ -26,8 +26,15 @@ let schemeMappings = {
   "h": "text/html;charset=utf-8;format=gz;base64,",
   "t": ","
 }
+/**
+ * Wrapper class for data urls and operations
+ */
 
 class DataURL {
+  /**
+   * @constructor
+   * @param {URL} url - data url
+   */
   constructor(url) {
     this.initString = url;
 
@@ -69,7 +76,7 @@ class DataURL {
     let urlString = "data:";
 
     if (this.mediatype) urlString += this.mediatype
-    if (this.params) Object.entries(this.params).forEach( e => urlString += `;${e[0]}=${e[1]}`)
+    if (this.params) Object.entries(this.params).forEach( e => { if (!e[0].startsWith("_")) urlString += `;${e[0]}=${e[1]}`})
     if (this.encoding) urlString += ";" + this.encoding
 
     if (!this.encoding && this.dataPrefix) {
@@ -90,18 +97,33 @@ class DataURL {
   }
   
  decompress = async () => {
+    if (!this.format && !this.cipher) {
+      return;
+    }
+
+    let bytes = base64ToByteArray(this.data);
 
     // Decrypt if needed
     if (this.params.cipher) {
-      console.log(this.params.cipher, decryptData)
-      this.data = await decryptData(this.params.cipher, this.data);
+      try {
+        bytes = await decryptData(this.params.cipher, bytes, this.params.password);
+      } catch (e) {
+        this.error = "Decryption Error - Incorrect password?"
+        return;      
+      }
     }
 
     // Decompress if needed
     if (this.format && (this.format != "base64")) {
-      let bytes = base64ToByteArray(this.data);
       this.rawData = await decompressData(bytes, this.format)
-      this.data = await dataToBase64(this.rawData);
+
+      try {
+        this.data =  dataToBase64(this.rawData);
+      } catch (e) {
+        console.log("dataToBase64FR used:", e);
+        this.data = await dataToBase64FR(this.rawData);
+      }
+
       delete this.params.format
       this.encoding = BASE64_MARKER
     }
@@ -112,10 +134,19 @@ class DataURL {
   compress = async (format = GZIP_MARKER) => {
     let rawData = this.encoding ? await base64ToByteArray(this.data) : stringToByteArray(this.data);
     let compressedData = await compressData(rawData, format);
+
+    if (this.params.cipher && this.params._password) {
+      let encryptedData = await encryptData(this.params.cipher, this.params._password, compressedData);
+      console.log("ENCRYPTED", compressedData, encryptedData)
+      compressedData = encryptedData
+    }
+
     var base64String = dataToBase64(compressedData);
     base64String = base64String.replace(/=+$/, "");
     this.data = base64String;
     this.params.format = format;
+
+    // await testCompression(rawData)
     return this;
   }
 
@@ -142,34 +173,35 @@ function parseBittyURL(url) {
 }
 
 async function testCompression(rawData) {
+  console.group("Testing compression")
+  let t1 = performance.now()
   let gz = await compressData(rawData, GZIP_MARKER);
-  console.log(gz.length, typeof gz, dataToBase64(gz).length);
-
+  let t2 = performance.now()
+  console.log("gz", dataToBase64(gz).length, Math.round(t2 - t1));
   let xz = await compressData(rawData, LZMA_MARKER);
-  console.log(xz.length, typeof xz, dataToBase64(xz).length);
+  let t3 = performance.now()
+  console.log("xz", dataToBase64(xz).length, Math.round(t3 - t2));
 
-  let ungz = await decompressData(gz, GZIP_MARKER);
-  let unxz = await decompressData(xz, LZMA_MARKER);
+  console.groupEnd();
+
+  // let ungz = await decompressData(gz, GZIP_MARKER);
+  // let unxz = await decompressData(xz, LZMA_MARKER);
   
-  console.log("unzip", ungz == rawData, unxz==rawData,{ungz, unxz,rawData,
-    raw: byteArrayToString(rawData).substring(684),
-  ungzs: byteArrayToString(ungz).substring(684), 
-  unxzs: byteArrayToString(unxz).substring(684)
-  }, (byteArrayToString(ungz)) ==  byteArrayToString(unxz))
+  // console.log("unzip", ungz == rawData, unxz==rawData,{ungz, unxz,rawData,
+  //   raw: byteArrayToString(rawData).substring(684),
+  // ungzs: byteArrayToString(ungz).substring(684), 
+  // unxzs: byteArrayToString(unxz).substring(684)
+  // }, (byteArrayToString(ungz)) ==  byteArrayToString(unxz))
 }
 
 async function compressData(data, encoding = GZIP_MARKER, callback) {
   console.debug("Compressing with", encoding)
   if (encoding == GZIP_MARKER) {
-    return import("/js/gzip/pako.min.js").then((module) => {
-      return pako.deflate(data, {level:"9"});
-    });
+    return compressDataGzip(data);
   } else if (encoding == BROT_MARKER) {
     
   } else if (encoding == LZMA_MARKER) {
     return new Promise(function(resolve, reject) {
-      console.log({xz:data})
-
       LZMA.compress(data, 9, function(result, error) {
         if (error) reject(error);
         resolve(result);
@@ -188,66 +220,140 @@ function byteArrayToString(bytes) {
   return String.fromCharCode.apply(null, new Uint8Array(bytes));
 }
 
-function browserDecompressData(data) {
+async function decompressDataGzip(data) {
+  if (typeof DecompressionStream !== 'undefined') {
+    let blob = new Blob([data], {type:"application/gzip"})
+    let stream = blob.stream().pipeThrough(new DecompressionStream("deflate"));
+    let response = await new Response (stream).arrayBuffer().catch(e => {console.error("DecompressionStream error", e)})
 
-  const cs = new DecompressionStream("gzip");
-  const writer = cs.writable.getWriter();
-  writer.write(data);
-  writer.close();
+    if (!response) {
+      console.debug("Trying GZIP")
+      stream = blob.stream().pipeThrough(new DecompressionStream("gzip"));
+      response = await new Response (stream).arrayBuffer().catch(e => {console.error("DecompressionStream error", e)})
+    }
 
-  return new Response(cs.readable).arrayBuffer().then(function (arrayBuffer) {
-    return new TextDecoder().decode(arrayBuffer);
+    if (response) return response
+
+  }
+
+  return import("/js/gzip/pako.min.js").then((module) => {
+    return pako.inflate(data);
   });
+}
 
-  // const stream = new Response(data).body.pipeThrough(new DecompressionStream('gzip'));
-  // return  (new Response(stream).arrayBuffer());
+async function compressDataGzip(data) {
+  if (typeof CompressionStream !== 'undefined') {
+    let blob = new Blob([data])
+    const stream = blob.stream().pipeThrough(new CompressionStream("gzip"));
+    let respose = await new Response (stream).arrayBuffer().catch(e => {console.error("CompressionStream error", e)})
+  }
 
-
-  // var blob = new Blob([data], {type: "octet/stream"});
-  // const ds = new DecompressionStream("gzip");
-  // const decompressedStream = blob.stream().pipeThrough(ds);
-  // data =  await new Response(decompressedStream).arrayBuffer(); 
-  // console.log(blob, data);
-
-  // console.log(blob, data);
-
-  // return data
+  return import("/js/gzip/pako.min.js").then((module) => {
+    return pako.deflate(data, {level:"9"});
+  });
 }
 
 async function decompressData(data, encoding, callback) {
   if (encoding == GZIP_MARKER) {
-    // return await browserDecompressData(data);
-    return import("/js/gzip/pako.min.js").then((module) => {
-      let byteArray = pako.inflate(data);
-      return byteArray;
-    });
+    return decompressDataGzip(data)
   } else if (encoding == BROT_MARKER) {
     return import("/js/brotli/decode.js").then((module) => {
       return module.BrotliDecode(data);
     });
   } else if (encoding == LZMA_MARKER || encoding == LZMA64_MARKER) {
     return new Promise(function(resolve, reject) {
-      LZMA.decompress(data, (result, error) => {
-        if (error) reject(error);
-        resolve(stringToByteArray(result));
-      });
+      loadScript("/js/lzma/lzma_worker-min.js").then((s) => {
+        LZMA.decompress(data, (result, error) => {
+          if (error) reject(error);
+          resolve(stringToByteArray(result));
+        });
+      })
     });
   }
 }
 
 
-async function decryptData(cipher, base64) {
+async function encryptData(cipher, pass, base64) {
+  let encrypted = await subtleEncryptData(base64, pass);
+  return encrypted
   return new Promise((resolve, reject) => {
-    loadScript("/js/crypto-js.min.js", () => {
-      console.log("decrypting", cipher)
-      let pass = prompt("This page is encrypted. What's the passcode?");
-      if (!pass) resolve(base64);
-    
-      let decrypted = CryptoJS[cipher.toUpperCase()].decrypt(base64, pass);
+    loadScript("/js/crypto-js.min.js").then(() => {
+      console.log("encrypting", cipher)
+      let encrypted = CryptoJS[cipher.toUpperCase()].encrypt(base64, pass);
+      return resolve(CryptoJS.enc.Base64.stringify(encrypted));
+    })
+  })
+}
+async function decryptData(cipher, base64, password) {
+  console.log("🔐 Decrypting data:", cipher);
+  let pass = password || prompt("This page is encrypted. What's the passcode?");
+  if (!pass) return (base64);
+  return subtleDecryptData(base64, pass)
+  return new Promise((resolve, reject) => {
+    loadScript("/js/crypto-js.min.js").then(() => {
+      var words = CryptoJS.enc.Base64.parse(base64);
+      let decrypted = CryptoJS[cipher.toUpperCase()].decrypt(words, pass);
+      console.log(decrypted, CryptoJS.enc.Base64.stringify(decrypted))
       return resolve(CryptoJS.enc.Base64.stringify(decrypted));
     })
   })
 }
+/**
+ * Concatenate two buffers
+ * @param {Uint8Array} buffer1 - first buffer
+ * @param {Uint8Array} buffer2 - second buffer
+ * @returns 
+ */
+function concatBuffers(buffer1, buffer2) {
+  const result = new Uint8Array(buffer1.byteLength + buffer2.byteLength)
+  result.set(new Uint8Array(buffer1), 0)
+  result.set(new Uint8Array(buffer2), buffer1.byteLength)
+  return result.buffer
+}
+
+/**
+ * Encrypts data using AES-GCM with supplied password, for decryption with aesGcmDecrypt().
+ * @param   {Uint8Array} data - Data to be encrypted.
+ * @param   {String} password - Password to use to encrypt plaintext.
+ * @param   {String} [cipher=aes-gcm] - Algorithm to use.
+ * @returns {Uint8Array} Encrypted data.
+ * @example const encryptedData = await dataEncrypt(uint8array, 'password');
+ */
+ async function subtleEncryptData(data, password, cipher = 'aes-gcm') {
+  const pwUtf8 = new TextEncoder().encode(password); // encode password as UTF-8
+  const pwHash = await crypto.subtle.digest('SHA-256', pwUtf8); // hash the password
+  const iv = crypto.getRandomValues(new Uint8Array(12)); // get 96-bit random iv
+  const alg = { name: cipher.toUpperCase(), iv: iv }; // specify algorithm to use
+  const key = await crypto.subtle.importKey('raw', pwHash, alg, false, ['encrypt']); // generate key from pw
+
+  const ctBuffer = await crypto.subtle.encrypt(alg, key, data); // encrypt data using key 
+  return concatBuffers(iv, new Uint8Array(ctBuffer)); // ciphertext as byte array
+}
+
+/**
+* Decrypts ciphertext encrypted with dataEncrypt() using supplied password.
+* @param   {Uint8Array} data - Ciphertext to be decrypted.
+* @param   {String} password - Password to use to decrypt ciphertext.
+* @param   {String} [cipher=aes-gcm] - Algorithm to use.
+* @returns {Uint8Array} Decrypted data.
+* @example const data = await aesGcmDecrypt(uint8array, 'password');
+*/
+async function subtleDecryptData(data, password, cipher = 'aes-gcm') {
+  const pwUtf8 = new TextEncoder().encode(password); // encode password as UTF-8
+  const pwHash = await crypto.subtle.digest('SHA-256', pwUtf8); // hash the password
+  const iv = new Uint8Array(data.slice(0,12)); // decode base64 iv
+  const alg = { name: cipher.toUpperCase(), iv: iv }; // specify algorithm to use
+  const key = await crypto.subtle.importKey('raw', pwHash, alg, false, ['decrypt']); // generate key from pw
+
+  const ctUint8 = new Uint8Array(data.slice(12)); // decode base64 ciphertext
+
+  const plainBuffer = await crypto.subtle.decrypt(alg, key, ctUint8); // decrypt ciphertext using key
+  return new Uint8Array(plainBuffer);
+
+}
+
+
+
 
 
 function infoForDataURL(url) {
@@ -266,13 +372,22 @@ function base64ToByteArray(base64) {
   return Uint8Array.from(atob(base64), c => c.charCodeAt(0));
 }
 
-function loadScript(src, callback) {
-  let script = el("script", { src });
-  script.addEventListener('load', function(e) {
-    console.debug("Loaded script", src);
-    if (callback) callback(e);
-  });
-  document.head.appendChild(script);
+function loadScript(src, type, callback) {
+  let script = document.getElementById(src);
+
+  if (script) {
+    return Promise.resolve(script);
+  }
+  let promise = new Promise((resolve, reject) => {
+    console.log("📜 Loading Script:", src)
+
+    script = document.createElement("script")
+    if (type && type.length) script.type = type;
+    script.onload = () => resolve(script);
+    script.src = script.id = src;
+    document.head.appendChild(script);
+  })
+  return callback ? promise.then(callback) : promise;
 }
 
 // iMessage incorrectly handles urls with more than 301 sequential non-breakable characters, so we introduce = to prevent this
@@ -325,71 +440,16 @@ async function hashString(string, base = 36) {
   return hashAsBase64; 
 }
 
-// function compressString(string, encoding = LZMA64_MARKER, callback) {
-//   if (encoding == LZMA64_MARKER) {
-//     loadScript("/js/lzma/lzma_worker-min.js", () => {
-//       LZMA.compress(string, 9, function(result, error) {
-//         if (error) console.error(error);
-//         var base64String = window.btoa(String.fromCharCode.apply(null, new Uint8Array(result)));
-//         return callback(base64String);
-//       });
-//     })
-//   } else if (encoding == BROT64_MARKER) {
-//     // import("/js/brotli/decode.js").then((module) => {
-//     //   console.log("module", module)
-//     //   return callback(module.BrotliDecode(data));
-//     // });
-//   } else if (encoding == GZIP64_MARKER) {
-//     import("/js/gzip/pako.js").then((module) => {
-//       let result = pako.deflate(string, {level:"9"});
-//       var base64String = window.btoa(String.fromCharCode.apply(null, new Uint8Array(result)));
-//       return callback(base64String);
-//     });
-//   }
-// }
-
-// function decompressString(data, encoding, callback) {
-//   if (encoding == LZMA64_MARKER) {
-//     LZMA.decompress(data, function(result, error) {
-//       if (!(typeof result === 'string')) result = new Uint8Array(result)
-//       if (error) console.error(error);
-//       callback(result);
-//     });
-//   } else if (encoding == BROT64_MARKER) {
-//     import("/js/brotli/decode.js").then((module) => {
-//       console.log("module", module)
-//       return callback(module.BrotliDecode(data));
-//     });
-//   } else if (encoding == GZIP64_MARKER) {
-//     import("/js/gzip/pako.js").then((module) => {
-//       let byteArray = pako.inflate(data);
-//       return callback(byteArray);
-//     });
-//   }
-// }
-
-
-// echo -n 'hello world' | brotli | base64
-// DwWAaGVsbG8gd29ybGQD
-
-// echo -n 'hello world' | gzip -9 | base64
-// H4sIAPfMmGICA8tIzcnJVyjPL8pJAQCFEUoNCwAAAA==
-
-// echo -n 'hello world' | lzma -9 | base64 
-// XQAAAAT//////////wA0GUnujekXiTozYAX3z2T/+3ggAA==
-
-
 
 function dataToBase64(data) {
-  return btoa(String.fromCharCode.apply(null, new Uint8Array(data)));
+  return btoa(String.fromCharCode(...new Uint8Array(data)));
 }
 
 function dataToBase64FR(data) {
   return new Promise((resolve, reject) => {
-    if (!data || !data.length) return resolve("");
-    
+    if (!data || !data.byteLength) return resolve("");
     var fr = new FileReader();
-    fr.onload = () => resolve(fr.result.split(',')[1]);
+    fr.onload = () => { resolve(fr.result.split(',')[1]); }
     fr.onerror = reject;
     fr.readAsDataURL(new Blob([data], {encoding:"UTF-8",type:"text/html;charset=UTF-8"}));
   })
@@ -425,7 +485,7 @@ function dataToString(data, callback) {
 }
 
 function newDataURLtoBlob(dataURL) {
-  return fetch(dataURL).then(r => r.blob());
+  return fetch(dataURL).then(r => r.blob())
 }
 
 function dataURLtoBlob(dataURL) {
