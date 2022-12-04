@@ -10,10 +10,12 @@
     .pop();
   if (!ld) alert("No recipe data found on this page. Sorry!");
   ld = JSON.parse(ld);
-  if (ld["@type"] != "Recipe"){ ld=(ld["@graph"]??ld).find((item)=>item["@type"]=="Recipe") }
+  if (Array.isArray(ld)) ld = ld.pop();
+  if (!ld["@type"]?.includes("Recipe")){ ld=(ld["@graph"]??ld).find((item)=>item["@type"]=="Recipe") }
   delete ld.review;
   delete ld.video;
   if (!ld.url) ld.url = location.href;
+  console.log("Found Recipe", ld)
   f = new FileReader();
   f.onload = function(e) {location.href=(ib + '/#/' + e.target.result);};
   f.readAsDataURL(new Blob([JSON.stringify(ld)],{type:'application/ld+json;compress=true;charset=utf-8'}));

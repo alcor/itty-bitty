@@ -20,7 +20,7 @@ loadSyle(script.replace("js", "css")).then(() => {
     el("div", {className:"description"}, params.info?.d ?? ""),
     el("a", {className:"bookmarklet", href:url}, el("span", {className:"capsule", innerText:"" + title || "Bookmarklet"})),
     el("p", {id:"emoji", innerText:"☝️"}),
-      el("p", {innerHTML:`This page contains a bookmarklet. (<a target="_blank" href="https://en.wikipedia.org/wiki/Bookmarklet">learn more</a>)`}),
+      el("p", {innerHTML:`This page contains a bookmarklet.<br>(<a target="_blank" href="https://en.wikipedia.org/wiki/Bookmarklet">learn more</a>)`}),
 
       el("p", {className:"", innerText:`Drag this bookmarklet to your ${managerName} to use it.`}),
       el("p", {className:"hint desktop", innerText:`(Hit ${cmdKey} to toggle the ${managerName} bar)`}),
@@ -29,4 +29,6 @@ loadSyle(script.replace("js", "css")).then(() => {
       
     )
   );  
+  parent.postMessage({}, "*");
+
 })
