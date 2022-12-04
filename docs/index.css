@@ -1,5 +1,6 @@
 body {
   font-family: sans-serif;
+  margin:0;
 }
 
 @media(prefers-color-scheme: dark){
@@ -120,20 +121,22 @@ body:not(.download) #download {
 
 body:not(.loading) #loader {
   /* display:none; */
-  opacity:0.0;
+  /* opacity:1.0;   */
+  top:-6em;
+  transition: top 300ms ease-in;
 }
 #loader{
-  border-radius:50%;
-  width: 1em;
-  height: 1em;
+  border-radius:0.1em;
+  width: 0.5em;
+  height: .5em;
   font-size: 10px;
   margin: 0 auto;
+  top:0em;
   position: relative;
   text-indent: -9999em;
   color: white;
   opacity:1.0;
-  transition: opacity 500ms;
-
+  transition: top 600ms ease-out;
   -webkit-animation-fill-mode: both;
   animation-fill-mode: both;
   -webkit-animation: turntable 2.8s infinite ease-in-out;
