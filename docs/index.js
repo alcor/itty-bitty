@@ -23,19 +23,24 @@
   //   document.body.classList.remove("toasting")
   // }
     
+  let autohideTimeout;
   function showLoader(state) {
     let loader = document.getElementById("loader");
-
+    if (autohideTimeout) {
+      clearTimeout(autohideTimeout);
+      autohideTimeout = undefined;
+    }
     if (state) {
       if (!loader) {
         loader = document.createElement("div");
         loader.id = "loader";
         document.body.appendChild(loader);
-      }      
+      }
+      autohideTimeout = setTimeout(() => {showLoader(false)}, 3000)
     } else if (loader) {
-      setTimeout(() => loader?.parentElement?.removeChild(loader), 500)
+      setTimeout(() => loader?.parentElement?.removeChild(loader), 1000)
     }
-    setTimeout(() => document.body.classList.toggle("loading", state), 1)
+    setTimeout(() => document.body.classList.toggle("loading", state), 500)
   }
   window.showLoader = showLoader;
 
@@ -64,11 +69,12 @@
   }
 
   const renderers = {
-    "application/ld+json": {script:"/render/recipe.min.html"},
+    "application/ld+json": {script:"/render/recipe.html"},
     "text/canvas+javascript": {script:"canvas"},
     "text/javascript": {script:"script"},
     "application/bitsy": {script:"/render/bitsy.html", sandbox:"bitsy"},
     "c": {script:"color"},
+    "e": {rewrite: "data:text/html;cipher=aes;format=gz;base64,"},
     "text/rawhtml": {script:"parse"},
     "javascript": {script:"bookmarklet"},
     "ipfs": {script:"ipfs", sandbox:"ipfs"},
@@ -83,7 +89,7 @@
 
     if (navigator.share) {
       navigator.share(info)
-        .then(() => { console.log('Thanks for sharing!');})
+        .then(() => { console.log('Shared!');})
         .catch(console.error);
     } else {
       copyLink(info)
@@ -111,7 +117,7 @@
       if (navigator.wakeLock) {
         wakeLock = await navigator.wakeLock.request();
         wakeLock.addEventListener('release', () => {});
-        console.log('Keeping Screen Awake:', !wakeLock.released);
+        console.log('💡 Keeping Screen Awake:', !wakeLock.released);
       } else {
         // keepAwake();
       }
@@ -196,11 +202,13 @@
   }, false);  
   
   async function renderContent() {
+    
     showLoader(true)    
 
     var fragment = window.location.hash.substring(1);
 
-    if (fragment.length < 3 && !isFramed) {
+    let content = null //sessionStorage.getItem("editor-content");
+    if (content || (fragment.length < 3 && !isFramed)) {
       return location.href = "/edit";
     }
 
@@ -284,6 +292,10 @@
         renderMode = "download";
       }
 
+      if (durl.params.style == "default") {
+        dataPrefix = bitty.HEAD_TAGS_EXTENDED();
+      }
+
       if (renderer) {
         var script = renderer.script;
         if (script.indexOf("/") == -1)  script = location.origin + '/render/' + script + '.js'
@@ -317,7 +329,13 @@
         'Edge only supports shorter URLs (maximum 2083 bytes).<br>Larger sites may require a different browser.<br><a href="http://reference.bitty.site">Learn more</a>';
     }
 
-    await durl.decompress();
+    await durl.decompress()
+
+    if (durl.error) {
+      writeDocContent(iframe.contentWindow.document, atob(bitty.HEAD_TAGS_EXTENDED()) + `<style>.error{color:red; background:pink; max-width:320px; margin:auto; padding:1em;}</style><div class="error">${durl.error}</div>`)
+      showLoader(false)
+      return
+    }
 
     durl.dataPrefix = dataPrefix;
     let dataURL = durl.href;
@@ -327,16 +345,15 @@
     iframe.sandbox = "allow-same-origin allow-downloads allow-scripts allow-forms allow-top-navigation allow-popups allow-modals allow-popups-to-escape-sandbox";
 
     if (isIE && renderMode == "data") renderMode = "frame";
-    let contentTarget// = iframe.contentWindow.document;
+    let contentTarget = iframe.contentWindow.document;
     if (isWatch) {
       console.log("Rendering for watch")
       contentTarget = document;
     }
     console.log("🖋 Rendering mode: " + "\x1B[1m" + renderMode, {url:durl})
-    // dataURL = dataURL.replace("application/ld+json", "text/plain");
+    
     if (renderMode == "download") {
       try {
-        //let dl = document.querySelector("#download");
         let extension = title.split(".")
         let dl = el("a", {id: "download", href:dataURL, download: title},
           el("div", {id: "dl-image", innerText:extension.pop() ?? ""}),
@@ -420,15 +437,16 @@
       } else { // Render using data url (storage disabled)
         src = "data:text/html," + SCRIPT_LOADER;
       }
-      console.log("📜 Loading script with source:", src)
+      console.log(" Loading script with source:", src)
       iframe.src = src;
     }
   }
 
 function writeDocContent(doc, content) {
-doc.open();
-doc.write(content);
-doc.close();
+  return doc.documentElement.innerHTML = content;
+  doc.open();
+  doc.write(content);
+  doc.close();
 }
 
 function extractTerms(...args) {
@@ -439,20 +457,14 @@ function extractTerms(...args) {
   return Object.keys(wordSet);
 }
 
-async function recordToHistory() {
-  let location = window.location;
-  let fragment = location.hash;
-
-  fragment = fragment.substring(fragment.indexOf("/") + 1);
-  // var slashIndex = fragment.indexOf("/");
-  // var title = fragment.substring(0, slashIndex) || info.title;
-  let hash = await bitty.hashString(fragment);
-  let durl = new bitty.DataURL(fragment)
+async function recordToHistory(durl) {
   let type = durl.mediatype;
-
+  let hash = await bitty.hashString(durl.href);
+  
   let metadata = bitty.pathToMetadata(location.pathname);
-  if (!metadata.title) {
-    let dom = await (await durl.decompress()).parseDom();
+  if (!metadata.title && !metadata.title.length) {
+    if (!durl.rawData) durl = await durl.decompress();
+    let dom = await durl.parseDom();
 
     if (dom) {
       for (let el of dom.getElementsByTagName('script')) { el.parentNode.removeChild(el) }
