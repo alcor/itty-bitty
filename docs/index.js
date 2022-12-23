@@ -204,7 +204,7 @@
       el("div", {}, error),
       el("form", {method: "dialog"}, 
 
-        el("button", {onclick:history.back.bind(history)}, "Learn More"),
+        el("button", {onclick:() => location.href = "https://parse.bitty.site"}, "Learn More"),
         el("button", {onclick:history.back.bind(history)}, "Go Back")));
     document.body.appendChild(dialog)
     dialog.showModal();

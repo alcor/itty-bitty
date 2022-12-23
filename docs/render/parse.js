@@ -126,6 +126,8 @@ let scrapeRecipe =  async document => {
 
 
 let recipe = findLDJsonRecipe(doc) || findMicrodataRecipe(doc) || await scrapeRecipe(doc);
+
+if (!recipe.recipeInstructions) recipe = undefined;
 if (recipe) {
     
   let url = doc.evaluate('//meta[@property="og:url"]/@content', doc, null, XPathResult.STRING_TYPE)?.stringValue;
