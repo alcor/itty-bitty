@@ -172,6 +172,17 @@ function parseBittyURL(url) {
   return {path, hashTitle, hashData}
 }
 
+async function testDecode(rawData) {
+  console.group("Testing decode")
+  let t1 = performance.now()
+  let gz = dataToBase64TD(rawData)
+  let t2 = performance.now()
+  console.log("textdecode", gz.length, Math.round((t2 - t1)*1000));
+  let xz = await dataToBase64FR(rawData);
+  let t3 = performance.now()
+  console.log("reader", xz.length, Math.round((t3 - t2)*1000));
+}
+
 async function testCompression(rawData) {
   console.group("Testing compression")
   let t1 = performance.now()
@@ -442,7 +453,11 @@ async function hashString(string, base = 36) {
 
 
 function dataToBase64(data) {
-  return btoa(String.fromCharCode(...new Uint8Array(data)));
+  return btoa(String.fromCharCode.apply(null, new Uint8Array(data))); 
+}
+
+function dataToBase64TD(data) {
+  return btoa(new TextDecoder('utf8').decode(data));
 }
 
 function dataToBase64FR(data) {

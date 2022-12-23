@@ -27,7 +27,7 @@ var isWatch = (window.outerWidth < 220);
 if (isWatch) document.documentElement.classList.add("watch")
 
 let ignoredTerms = [
-  "freshly", "use", "dry", "but", "broken", "pieces", "tbsp", "tsp", "peeled", "then", "can", "oz", "fresh", "out", "not", "sprig", "sprigs", "room", "temperature", "still", "see", "notes", "with", "beat", "together", "crust", "very", "cold", "hot", "top", "warm", "one", "note", "teaspoon", "teaspoons", "tablespoon", "tablespoons", "cup", "cups", "taste", "more", "melted", "into", "wide", "pound", "pounds", "gram", "grams", "you", "ounce", "ounces", "thinly", "sliced",
+  "extra", "optional", "separate", "freshly", "use", "dry", "but", "broken", "pieces", "tbsp", "tsp", "peeled", "then", "can", "oz", "fresh", "out", "not", "sprig", "sprigs", "room", "temperature", "still", "see", "notes", "with", "beat", "together", "crust", "very", "cold", "hot", "top", "warm", "one", "note", "teaspoon", "teaspoons", "tablespoon", "tablespoons", "cup", "cups", "taste", "more", "melted", "into", "wide", "pound", "pounds", "gram", "grams", "you", "ounce", "ounces", "thinly", "sliced",
   "pan", "cube", "cubes", "finely", "ground", "garnish", "about", "cut", "and", "smashed", "each", "the", "medium", "large", "small", "for", "chopped", "minced", "grated", "box", "softened", "directed", "shredded", "cooked", "from", "frozen", "thawed"
 ]
 let emojiMap = {
@@ -61,6 +61,8 @@ let emojiMap = {
   "carrot": "🥕",
   "corn": "🌽",
   "spicy": "🌶️",
+  "chard": "🥬",
+  "peppers": "🫑",
   "bell pepper": "🫑",
   "cucumber": "🥒",
   "leafy green": "🥬",
@@ -424,12 +426,16 @@ function faviconForTitle(title) {
 
 function render() {
   try {
-    let data = JSON.parse(window.params.body);
-    var json = data; //JSON.parse(data);
-    if (!json["@type"]?.includes("Recipe")) {
-      json = (json["@graph"] ?? json).find((item) => item["@type"] == "Recipe")
+    let r = JSON.parse(window.params.body);
+    
+    if (r["@type"] != "Recipe") {
+      r = Array.isArray(r) ? r : r["@graph"]
+      r = r?.find((item)=>item["@type"]=="Recipe")
     }
-    console.log("🍗 Rendering Recipe:", json);
+  
+    var json = r || JSON.parse(window.params.body)
+    console.log("🍗 Rendering Recipe:", json,  JSON.parse(window.params.body));
+    
   } catch (e) {
 
     document.body.appendChild(m("div", "Error parsing recipe", m("p", e.message), m("p", e.stack), m("pre", window.params.body) ));
@@ -445,9 +451,10 @@ function render() {
 
   if (!json) return;
   let image = json.image;
-  if (Array.isArray(image)) image = image.shift();
+  if (Array.isArray(image)) image = image.pop();
   image = image?.url || image;
-  let instructions = json.recipeInstructions;
+  let instructions = json.recipeInstructions || [];
+  console.log(json.name)
   let title = clean(json.name);
   let description = json.description || json.articleBody;
   description = clean(description?.replace(/\\n/g, "<br>"))
@@ -460,6 +467,7 @@ function render() {
   var ingredientTerms = new Set(
     Array.from(ingredients.join("\n").matchAll(/(\p{L}\p{M}?)+/gu)).map(m => m[0].length > 2 ? m[0].toLowerCase(): "")
   );
+
   if (typeof instructions === "string") instructions = [instructions]
   instructions = flattenInstructions(instructions)
   
@@ -628,7 +636,7 @@ function render() {
         m("div.headercolumns",
           m("header",
             m("a.publisherlink", {href:originalURL, target:"_blank"},
-              publisherImage ? m("img.publisher", { src: publisherImage }) : hostname,
+              publisherImage ? m("img.publisher", { src: publisherImage }) : (json.publisher?.name || hostname),
             ),
             m(".headerflex",
               m(".headerleft",
@@ -659,7 +667,7 @@ function render() {
               ),
               m(".actions.print-hide.watch-hide",
                 originalURL ? m("a.action", { title:"Open original", href: originalURL, target:"_blank"}, m(".icon.public", {innerHTML:icons.public})) : null,
-                m("a.action", { title:"Share", onclick: share}, m(".icon.share", {innerHTML:icons.share})),
+                navigator.share ? m("a.action", { title:"Share", onclick: share}, m(".icon.share", {innerHTML:icons.share})) : undefined,
                 // m("a.action", { title:"Show steps as list", onclick: () => {reformat = !reformat; render(); return false;}}, m(".icon.checklist")),
                 m("a.action", { title:"Print", onclick: () => {window.print(); return false;} }, m(".icon.print", {innerHTML:icons.print})),
               )

@@ -61,12 +61,7 @@
     document.getElementById("favicon").href = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em"><text y=".9em">'+ favicon + '</text></svg>'
   }
 
-  window.el = function (tagName, attrs, ...children) {
-    let l = document.createElement(tagName);
-    Object.entries(attrs).forEach(([k,v]) => l[k] = v);
-    children.forEach((c) => l.appendChild(c));
-    return l;
-  }
+  window.el = bitty.el;
 
   const renderers = {
     "application/ld+json": {script:"/render/recipe.html"},
@@ -85,8 +80,7 @@
 
   function share(info) { // {title, text, url}
     if (!info.url) info = {title:document.title, text:document.title, url:location.href};
-    console.log("Share", info);
-
+    
     if (navigator.share) {
       navigator.share(info)
         .then(() => { console.log('Shared!');})
@@ -196,10 +190,25 @@
           renderContent();
         }
       }
-      
+      if (e.data.error) {
+        showError(e.data.error)
+      }
       if (e.data.setStorage) document.localStorage.setItem(contentHash, e.data.set);
       if (e.data.getStorage) document.getElementById("iframe").postMessage(document.localStorage.getItem(contentHash), e.origin)
   }, false);  
+  
+
+  function showError(error) {
+    console.warn("🛑", error)
+    let dialog = el("dialog",
+      el("div", {}, error),
+      el("form", {method: "dialog"}, 
+
+        el("button", {onclick:history.back.bind(history)}, "Learn More"),
+        el("button", {onclick:history.back.bind(history)}, "Go Back")));
+    document.body.appendChild(dialog)
+    dialog.showModal();
+  }
   
   async function renderContent() {
     

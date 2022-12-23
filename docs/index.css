@@ -1,5 +1,5 @@
 body {
-  font-family: sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   margin:0;
 }
 
@@ -213,4 +213,39 @@ body:not(.loading) #loader {
   85% {box-shadow:var(--ld17),var(--ld1), var(--ld5),var(--ld9),var(--ld13)}
   90% {box-shadow:var(--ld18),var(--ld2), var(--ld6),var(--ld10),var(--ld14)}
   95% {box-shadow:var(--ld19),var(--ld3), var(--ld7),var(--ld11),var(--ld15)}
+}
+
+
+dialog {
+    border: 2px solid white;
+    border-radius: 4px;
+    box-shadow: 0 0 0 2px black, inset 0 0 0 3px black;
+    min-width: 320px;
+    padding: 1.2em;
+}
+dialog, dialog button {font-size: 18px;font-weight: 600;font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";}
+
+dialog::backdrop {
+  background: repeating-conic-gradient(rgba(128,128,128,.5) 0% 25%, transparent 0% 50%) 50% / 4px 4px;
+}
+
+
+dialog button {
+  border: 1px solid white;
+  border-radius: 9px;
+  box-shadow: inset 0 0 0 2px black;
+  min-width: 4em;
+  min-height: 1.8em;
+  background-color: white;
+  margin-left:1em;
+  padding: 0 0.8em;
+}
+dialog button:last-child {
+  box-shadow: 0 0 0 4px black, inset 0 0 0 2px black;
+}
+
+dialog form {
+    text-align: right;
+    margin-top: 1em;
+    font-size: 18px;
 }
