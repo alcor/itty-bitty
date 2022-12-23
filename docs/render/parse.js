@@ -34,6 +34,8 @@ function findMicrodataRecipe(doc) {
   return parseMicrodata(doc).find((item)=>item["@type"]=="Recipe");
 }
 
+
+
 let scrapeRecipe =  async document => {
   
   // Get title
@@ -128,11 +130,17 @@ let scrapeRecipe =  async document => {
 let recipe = findLDJsonRecipe(doc) || findMicrodataRecipe(doc) || await scrapeRecipe(doc);
 
 if (!recipe.recipeInstructions) recipe = undefined;
+
 if (recipe) {
     
   let url = doc.evaluate('//meta[@property="og:url"]/@content', doc, null, XPathResult.STRING_TYPE)?.stringValue;
   if (url) recipe.mainEntityOfPage = url
 
+  if (!recipe.image) {
+    recipe.image = doc.evaluate('//meta[@property="og:image"]/@content', doc, null, XPathResult.STRING_TYPE)?.stringValue;
+  }
+
+  console.log(recipe);
   let f = new FileReader();
   f.onload = function(e) { 
     parent.postMessage({replaceURL:e.target.result, compressURL:"true"}, "*");
@@ -141,8 +149,6 @@ if (recipe) {
 } else {
   parent.postMessage({title:"No Recipe Found...", error:"No recipe was found on this page."}, "*");
 }
-
-
 
 
 function parseMicrodata(doc) {

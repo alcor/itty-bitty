@@ -141,8 +141,15 @@ class DataURL {
       compressedData = encryptedData
     }
 
-    var base64String = dataToBase64(compressedData);
-    base64String = base64String.replace(/=+$/, "");
+    var base64String
+    try {
+      base64String = dataToBase64(compressedData);
+    } catch (e) {
+      console.log("dataToBase64FR used:", e);
+      base64String = await dataToBase64FR(compressedData);
+    }
+
+    // base64String = base64String.replace(/=+$/, "");
     this.data = base64String;
     this.params.format = format;
 
@@ -256,7 +263,8 @@ async function compressDataGzip(data) {
   if (typeof CompressionStream !== 'undefined') {
     let blob = new Blob([data])
     const stream = blob.stream().pipeThrough(new CompressionStream("gzip"));
-    let respose = await new Response (stream).arrayBuffer().catch(e => {console.error("CompressionStream error", e)})
+    let response = await new Response (stream).arrayBuffer().catch(e => {console.error("CompressionStream error", e)})
+    if (response) return response
   }
 
   return import("/js/gzip/pako.min.js").then((module) => {
