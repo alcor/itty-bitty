@@ -202,6 +202,5 @@ function parseMicrodata(doc) {
       microdata.push(parseItem(elem));
     }
   });
-  console.log("micro", doc, microdata)
   return microdata;
 }

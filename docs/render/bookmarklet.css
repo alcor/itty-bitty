@@ -3,6 +3,21 @@
   font-family:  -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
+:root {
+  --capsule-color: hsla(196, 100%, 50%, 0.338);
+}
+
+@media (prefers-color-scheme: dark) {
+  /* Dark theme styles go here */
+  :root {
+    background-color:#111111;
+    color:white;
+  }
+  #emoji {
+    filter:grayscale() brightness(0.8);
+  }
+}
+
 body {
   text-align: center;
 }
@@ -24,12 +39,12 @@ a.bookmarklet {
   border-radius: 2em;
   box-shadow:1px 1px black;
 
-  background-color:hsl(196, 69%, 85%);
+  background-color:var(--capsule-color);
   transition:transform 1s;
 }
 
 .description {
-  opacity:0.2;
+  opacity:0.5;
   margin-bottom:10px;
 }
 .hint {
@@ -51,16 +66,8 @@ div#content {
 }
 
 :root { color-scheme: light dark; }
-@media (prefers-color-scheme: dark) {
-  /* Dark theme styles go here */
-  body {
-    background-color:#111111;
-    color:white;
-  }
-  #emoji {
-    filter:grayscale() brightness(0.8);
-  }
-}
+
+
 
 .mobile {
   display:none;
