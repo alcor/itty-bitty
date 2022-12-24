@@ -283,6 +283,7 @@
       
       renderer = durl.params?.render ? {script:durl.params.render, sandbox:"hash"} : renderers[durl.mediatype];
 
+      //if (render.script == "parse") renderer.sandbox = "none"
       type = "data:" + durl.mediaype;
       if (durl.mediatype == "text/html") {
         dataPrefix = bitty.HEAD_TAGS();
@@ -354,11 +355,8 @@
     iframe.sandbox = "allow-same-origin allow-downloads allow-scripts allow-forms allow-top-navigation allow-popups allow-modals allow-popups-to-escape-sandbox";
 
     if (isIE && renderMode == "data") renderMode = "frame";
-    let contentTarget = iframe.contentWindow.document;
-    if (isWatch) {
-      console.log("Rendering for watch")
-      contentTarget = document;
-    }
+    let overwriteSelf = isWatch;
+
     console.log("🖋 Rendering mode: " + "\x1B[1m" + renderMode, {url:durl})
     
     if (renderMode == "download") {
@@ -384,9 +382,9 @@
     } else {
       bitty.dataToString(dataURL, function(content) {
         if (renderMode == "frame") {
-          writeDocContent(contentTarget, content)
+          writeDocContent(overwriteSelf ? document : iframe.contentWindow.document, content)
         } else if (renderMode == "script") {
-          renderContentWithScript({renderer, title, info, body:content, url:dataURL, overwrite:contentTarget == document});
+          renderContentWithScript({renderer, title, info, body:content, url:dataURL, overwrite:overwriteSelf});
         }
       });
     }
