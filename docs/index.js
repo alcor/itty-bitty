@@ -352,10 +352,11 @@
     let dataContent = durl.rawData;
 
     if (!dataURL) return;
-    iframe.sandbox = "allow-same-origin allow-downloads allow-scripts allow-forms allow-top-navigation allow-popups allow-modals allow-popups-to-escape-sandbox";
+    iframe.sandbox = "allow-same-origin allow-scripts allow-forms allow-top-navigation allow-popups allow-modals allow-popups-to-escape-sandbox";
+    if (iframe.sandbox.supports('allow-downloads')) iframe.sandbox.add('allow-downloads');
 
     if (isIE && renderMode == "data") renderMode = "frame";
-    let overwriteSelf = isWatch;
+    let overwriteSelf = isWatch && !params.script.endsWith(".html");
 
     console.log("🖋 Rendering mode: " + "\x1B[1m" + renderMode, {url:durl})
     
@@ -406,14 +407,27 @@
     if (params.script.indexOf("/") == -1)  params.script = location.origin + '/render/' + params.script + '.js'
     
     if (params.overwrite) { 
-        // Overwrite the current page with the script. Dangerous, but required for browsers on apple watch to scroll.
-        let scriptEl = document.createElement("script")
-        scriptEl.src = "/render.js"
-        scriptEl.addEventListener('load', function(e) {
-          console.log("Loaded script", scriptEl.src);
-          renderScriptContent(params, "*");
-        });
-        document.head.appendChild(scriptEl);
+      
+        if (params.script.endsWith(".html")) {
+          fetch(params.script, /*, options */)
+          .then((response) => response.text())
+          .then((html) => {
+            console.log("html", html)
+              document.documentElement.innerHTML = html;
+          })
+          .catch((error) => {
+              console.warn(error);
+          });
+        } else {
+          // Overwrite the current page with the script. Dangerous, but required for browsers on apple watch to scroll.
+          let scriptEl = document.createElement("script")
+          scriptEl.src = "/render.js"
+          scriptEl.addEventListener('load', function(e) {
+            console.log("Loaded script", scriptEl.src);
+            renderScriptContent(params, "*");
+          });
+          document.head.appendChild(scriptEl);
+        } 
     } else { 
       // Render in an iframe, either via sandboxed subdomain or a data url (disables storage APIs)
       iframe.onload = (() => {
