@@ -613,7 +613,7 @@ function render() {
     
     let blur = 1;
     blur = Math.max(blur, Math.max(thumbnailContainer.offsetHeight * window.devicePixelRatio / bgImg.naturalHeight, thumbnailContainer.offsetWidth * window.devicePixelRatio / bgImg.naturalWidth))
-    if (blur > 1) thumbnail.style.filter = `blur(${blur/2}px)`;
+    if (blur > 1) thumbnail.style.filter = `blur(${blur}px)`;
 
     setTimeout(() => thumbnail.style.opacity = 1.0, 0);
     // if (window.scrollY == 0) setTimeout(() => {
@@ -633,7 +633,7 @@ function render() {
 
   document.body.appendChild(
     m(".recipe", {},
-      image ? m("#thumbnail-container", m("#thumbnail.thumbnail.print-hide", { style: "background-image:url(" + image + ");" })) : null,
+      image ? m("#thumbnail-container", m("#thumbnail.thumbnail.print-hide", { onclick:(e) => document.body.classList.toggle('noblur'), style: "background-image:url(" + image + ");" })) : null,
       m(".recipe-content",
         m("div.headercolumns",
           m("header",
@@ -668,7 +668,7 @@ function render() {
                 ),
               ),
               m(".actions.print-hide.watch-hide",
-                originalURL ? m("a.action", { title:"Open original", href: originalURL, target:"_blank"}, m(".icon.public", {innerHTML:icons.public})) : null,
+                // originalURL ? m("a.action", { title:"Open original", href: originalURL, target:"_blank"}, m(".icon.public", {innerHTML:icons.public})) : null,
                 navigator.share ? m("a.action", { title:"Share", onclick: share}, m(".icon.share", {innerHTML:icons.share})) : undefined,
                 // m("a.action", { title:"Show steps as list", onclick: () => {reformat = !reformat; render(); return false;}}, m(".icon.checklist")),
                 m("a.action", { title:"Print", onclick: () => {window.print(); return false;} }, m(".icon.print", {innerHTML:icons.print})),
