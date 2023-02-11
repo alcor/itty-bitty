@@ -1,5 +1,9 @@
 const padForBase64 = (s, c = " ") => s.padEnd(s.length + (3 - s.length % 3) % 3, c)
-const HEAD_TAGS = () => btoa(padForBase64('<base target="_top">\n'));
+const HEAD_TAGS = (prefixes) => {
+  let tags = ['<base target="_top">']
+  prefixes?.split(" ").forEach((p) => tags.push(p.endsWith(".css") ? `<link rel="stylesheet" href="${p}">` : `<script src="${p}"></script>`))
+  return btoa(padForBase64(tags.join("\n")));
+};
 const HEAD_TAGS_EXTENDED = () => btoa(padForBase64(`<meta charset="utf-8"><meta name="viewport" content="width=device-width"><base target="_top"><style type="text/css">body{margin:0 auto;padding:12vmin 10vmin;max-width:35em;line-height:1.5em;font-family:-apple-system,BlinkMacSystemFont,sans-serif;word-wrap:break-word;}@media(prefers-color-scheme: dark){body{color:white;background-color:black;}}</style>`));
 
 const dataUrlRE =
@@ -132,8 +136,8 @@ class DataURL {
   }
 
   compress = async (format = GZIP_MARKER) => {
-    let rawData = this.encoding ? await base64ToByteArray(this.data) : stringToByteArray(this.data);
-    let compressedData = await compressData(rawData, format);
+    this.rawData = this.encoding ? await base64ToByteArray(this.data) : stringToByteArray(this.data);
+    let compressedData = await compressData(this.rawData, format);
 
     if (this.params.cipher && this.params._password) {
       let encryptedData = await encryptData(this.params.cipher, this.params._password, compressedData);
@@ -262,7 +266,7 @@ async function decompressDataGzip(data) {
 async function compressDataGzip(data) {
   if (typeof CompressionStream !== 'undefined') {
     let blob = new Blob([data])
-    const stream = blob.stream().pipeThrough(new CompressionStream("gzip"));
+    const stream = blob.stream().pipeThrough(new CompressionStream("deflate"));
     let response = await new Response (stream).arrayBuffer().catch(e => {console.error("CompressionStream error", e)})
     if (response) return response
   }

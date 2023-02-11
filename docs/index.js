@@ -1,4 +1,5 @@
   import * as bitty from '/bitty.js';
+  import * as bitty_menu from '/bitty-menu.js';
 
   window.bitty = bitty;
 
@@ -22,7 +23,35 @@
   //   if (document.getElementById("never").checked) window.localStorage.setItem('toasted', true);
   //   document.body.classList.remove("toasting")
   // }
-    
+
+  function getIframe() {
+    if (!document.iframe) {  
+      let iframe = document.createElement('iframe');
+      iframe.id = "iframe";
+      iframe.sandbox = "allow-same-origin allow-scripts allow-forms allow-top-navigation allow-popups allow-modals allow-popups-to-escape-sandbox";
+      if (iframe.sandbox.supports('allow-downloads')) iframe.sandbox.add('allow-downloads');
+      document.body.appendChild(iframe);
+      document.iframe = iframe;
+    }
+    return document.iframe;
+  }
+
+  async function getMenu() {
+    if (!document.menuButton) {  
+      let menuButton = document.createElement('div');
+      menuButton.id = "menu";
+      menuButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><g fill-rule="evenodd" class="logo" clip-rule="evenodd"><path fill="#fff" d="M6.5 19.5a2 2 0 0 1-2-2v-11a2 2 0 0 1 2-2h8a5 5 0 0 1 4.33 7.5 5 5 0 0 1-4.33 7.5h-8Z" class="outer"/><path fill="#16161D" d="M6.5 5.5a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h2v-13h-2Zm8 3h-2v2h2a1 1 0 1 0 0-2Zm-5 0v10h5a4 4 0 0 0 3.123-6.5A4 4 0 0 0 14.5 5.5h-5v3Zm3 5h2a1 1 0 1 1 0 2h-2v-2Z" class="inner"/></g></svg>`
+      menuButton.onclick = () => {
+        let menu = new bitty_menu.Menu(menuButton);
+        console.log("men", menu)
+        menu.show()
+      }
+      document.body.appendChild(menuButton);
+      document.menuButton = menuButton;
+    }
+    return document.menuButton;
+  }
+  getMenu()
   let autohideTimeout;
   function showLoader(state) {
     let loader = document.getElementById("loader");
@@ -79,6 +108,13 @@
 
 
   function share(info) { // {title, text, url}
+
+    let menu = new bitty_menu.Menu();
+    console.log("men", menu)
+    menu.show(info)
+    return;
+  }
+  function systemShare(info) {
     if (!info.url) info = {title:document.title, text:document.title, url:location.href};
     
     if (navigator.share) {
@@ -155,7 +191,7 @@
  
 
   window.addEventListener("message", function(e) {
-    console.debug("Message:", e.origin, e.data)
+    console.debug("Message:", e.origin, e.data, e)
     showLoader(false);
       if (e.data.loading != undefined) showLoader(e.data.loading);
 
@@ -200,7 +236,7 @@
 
   function showError(error) {
     console.warn("🛑", error)
-    let dialog = el("dialog",
+    let dialog = el("dialog.dialog",
       el("div", {}, error),
       el("form", {method: "dialog"}, 
 
@@ -244,7 +280,7 @@
 
     // if (!window.localStorage.getItem('toasted')) document.body.classList.add("toasting");
 
-    var iframe = document.getElementById("iframe");
+    var iframe = getIframe();
     var dataPrefix = undefined;
     var renderMode = "data";
     var renderer;
@@ -286,7 +322,7 @@
       //if (render.script == "parse") renderer.sandbox = "none"
       type = "data:" + durl.mediaype;
       if (durl.mediatype == "text/html") {
-        dataPrefix = bitty.HEAD_TAGS();
+        dataPrefix = bitty.HEAD_TAGS(durl.params?.prefix);
       } else if (durl.mediatype == "text/plain" || durl.mediatype == undefined) {
 
         dataPrefix = bitty.HEAD_TAGS_EXTENDED();
@@ -352,8 +388,6 @@
     let dataContent = durl.rawData;
 
     if (!dataURL) return;
-    iframe.sandbox = "allow-same-origin allow-scripts allow-forms allow-top-navigation allow-popups allow-modals allow-popups-to-escape-sandbox";
-    if (iframe.sandbox.supports('allow-downloads')) iframe.sandbox.add('allow-downloads');
 
     if (isIE && renderMode == "data") renderMode = "frame";
     let overwriteSelf = isWatch && !params.script.endsWith(".html");
