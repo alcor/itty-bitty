@@ -1,3 +1,9 @@
+[functions]
+  external_node_modules = [
+    "sharp"
+  ]
+  directory = "functions/"
+
 [[edge_functions]]
   path = "/*"
   function = "metadata"

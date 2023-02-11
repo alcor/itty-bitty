@@ -3,6 +3,14 @@ function decodePrettyComponent(s) {
   return decodeURIComponent(s.replace(/-+/g, e => replacements[e] ?? '-'))
 }
 
+function decodeURL(s) {
+  if (s.startsWith("http")) return s;
+  return atob(s.replace(/=/g,''));
+}
+
+function atou(b64) { return decodeURIComponent(escape(atob(b64))); }
+function utoa(data) { return btoa(unescape(encodeURIComponent(data))); }
+
 function pathToMetadata(path) {
   let components = path.substring(1).split("/");
   let info = {title: decodePrettyComponent(components.shift())}
@@ -17,6 +25,10 @@ function pathToMetadata(path) {
   return info;
 }
 
+function mProp(prop, content) { return `<meta property="${prop}" content="${content}"/>` }
+function mName(name, content) { return `<meta name="${name}" content="${content}"/>` }
+
+// Valid URL Chars A-Za-z0-9-._~:?@!$&()*;=+/
 export default async (request, context) => {
   try {
     const ua = request.headers.get("user-agent");
@@ -26,14 +38,9 @@ export default async (request, context) => {
 
     let uaArray = Deno.env.get("UA_ARRAY")?.split(",") || [];
     let uaMatch = uaArray.some(a => ua.indexOf(a) != -1);
-
-    if (uaMatch) {
-      //console.log("Redirecting legacy client", )
-      return new Response('', { status: 401 });
-    }
+    if (uaMatch) { return new Response('', { status: 401 }); }
     
     if (path != "/" ) {
-      // context.log(path, request.headers, geo);
       let metadataBots = [ "Twitterbot", "curl", "facebookexternalhit", "Slackbot-LinkExpanding", "Discordbot", "snapchat"]
       let isMetadataBot = metadataBots.some(bot => ua.indexOf(bot) != -1);
 
@@ -41,37 +48,37 @@ export default async (request, context) => {
         let info = pathToMetadata(path)
 
         let content = ['<meta charset="UTF-8">'];
-        if (info.title) { content.push(`<title>${info.title}</title>`,`<meta property="og:title" content="${info.title}"/>`); }
-        if (info.s) { content.push(`<meta property="og:site_name" content="${info.s}"/>`); }
-        if (info.t) { content.push(`<meta property="og:type" content="${info.t}"/>`); }
-        if (info.d) { content.push(`<meta property="og:description" content="${info.d}"/>`,`<meta name="description" content="${info.d}"/>`); }
-        if (info.i) { 
-          if (!info.i.startsWith("http")) info.i = atob(info.i.replace(/=/g,''));
-          content.push(`<meta property="og:image" content="${info.i}"/>`); 
-          content.push(`<meta name="twitter:card" content="summary_large_image">`);
-          if (info.iw) content.push(`<meta property="og:image:width" content="${info.iw}"/>`); 
-          if (info.ih) content.push(`<meta property="og:image:width" content="${info.ih}"/>`); 
+        if (info.title) { content.push(`<title>${info.title}</title>`,mProp("og:title", info.title)) }
+        if (info.s) { content.push(mProp("og:site_name", info.s)) }
+        if (info.t) { content.push(mProp("og:type", info.t)) }
+        if (info.d) { content.push(mProp("og:description", info.d),mName("description",info.d)) }
+        if (info.c) { content.push(mName("theme-color","#" + info.c)) }
+
+        if (info.i) {
+          info.i = decodeURL(info.i)
+          if (!info.i.startsWith("http")) info.i = "/.netlify/functions/rasterize/" + info.i
+          content.push(mProp("og:image", info.i)); 
+          if (info.iw) content.push(mProp("og:image:width", info.iw)); 
+          if (info.ih) content.push(mProp("og:image:width", info.ih)); 
+          content.push(mName("twitter:card", "summary_large_image"));
         } 
-        if (info.c) { content.push(`<meta name="theme-color" content="#${info.c}"/>`); }
-        if (info.v) { 
-          if (!info.v.startsWith("http")) info.v = atob(info.v.replace(/=/g,''));
-          content.push(`<meta property="og:video" content="${info.v}"/>`); 
-          if (info.vw) content.push(`<meta property="og:image:width" content="${info.vw}"/>`); 
-          if (info.vh) content.push(`<meta property="og:image:width" content="${info.vh}"/>`); 
+        if (info.v) {
+          content.push(mProp("og:video", decodeURL(info.v))); 
+          if (info.vw) content.push(mProp("og:image:width", info.vw)); 
+          if (info.vh) content.push(mProp("og:image:width", info.vh)); 
         } 
-        if (info.f) {
+        if (info.f) { // Favicon: URL Encoded
           if (info.f.length > 9){
-            if (!info.f.startsWith("http")) info.f = atob(info.f.replace(/=/g,''));
+            info.f = decodeURL(info.f);
             content.push(`<link rel="icon" type="image/png" href="${info.f}">`);
           } else {
             let codepoints = Array.from(info.f).map(c => c.codePointAt(0).toString(16));
             content.push(`<link rel="icon" type="image/png" href="https://fonts.gstatic.com/s/e/notoemoji/14.0/${codepoints.join("_")}/128.png">`);
           }
         }
-        content.push(`<meta property="og:url" content="${request.url}" />`);
+        // content.push(mProp("og:url", request.url)`);
         
         console.log(["Metadata Request", JSON.stringify(info), geo, ua].join('\t')); 
-
         return new Response(content.join("\n"), {
           headers: { "content-type": "text/html" },
         });
