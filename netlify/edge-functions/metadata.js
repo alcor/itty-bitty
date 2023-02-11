@@ -37,12 +37,12 @@ export default async (request, context) => {
     let geo = context?.geo?.city + ", " + context?.geo?.subdivision?.code + ", " + context?.geo?.country?.code
 
     let uaArray = Deno.env.get("UA_ARRAY")?.split(",") || [];
-    let uaMatch = uaArray.some(a => ua.indexOf(a) != -1);
+    let uaMatch = uaArray.some(a => ua?.indexOf(a) != -1);
     if (uaMatch) { return new Response('', { status: 401 }); }
     
     if (path != "/" ) {
       let metadataBots = [ "Twitterbot", "curl", "facebookexternalhit", "Slackbot-LinkExpanding", "Discordbot", "snapchat", "Googlebot"]
-      let isMetadataBot = metadataBots.some(bot => ua.indexOf(bot) != -1);
+      let isMetadataBot = metadataBots.some(bot => ua?.indexOf(bot) != -1);
 
       if (isMetadataBot && path.endsWith("/")) {
         let info = pathToMetadata(path)
