@@ -85,11 +85,12 @@ class Menu {
     target.scrollLeft = 0;
   }
 
-  close() {
-    let menu = document.querySelector("dialog.menu");
-    menu?.close();
+  close(dialog) {
+    dialog.close();
+    dialog.parentNode.removeChild(dialog);
     this.button?.classList.remove("open")
   }
+
   show(info) {
     let url = location.href;
     let fullMenu = !info;
@@ -97,10 +98,7 @@ class Menu {
     let urlField = el("input.url", {value:url, readonly:true});
     urlField.onclick = (e) => this.selectField(urlField);
     let menu = el("dialog.menu", {onclick: (e) => {
-      if (e.target.tagName == 'DIALOG') {
-        e.target.close();
-        this.button?.classList.remove("open")
-      }
+      if (e.target.tagName == 'DIALOG') { this.close(menu); }
     }}, el("div.menu-container", {},
       urlField,
       el("div.menu-icons",

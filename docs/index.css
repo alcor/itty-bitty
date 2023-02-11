@@ -61,14 +61,16 @@ body {
   font-size: 48px;
   /* transition: font-size 1000ms ease-in; */
 }
+#menu.open svg,
 #menu:hover svg{
   background:#16161d;
 
 }
-
+#menu.open svg .inner,
 #menu:hover svg .inner {
   fill:white;
 }
+#menu.open svg .outer,
 #menu:hover svg .outer {
   fill:transparent;
 }
