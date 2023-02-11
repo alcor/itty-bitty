@@ -41,7 +41,7 @@ export default async (request, context) => {
     if (uaMatch) { return new Response('', { status: 401 }); }
     
     if (path != "/" ) {
-      let metadataBots = [ "Twitterbot", "curl", "facebookexternalhit", "Slackbot-LinkExpanding", "Discordbot", "snapchat"]
+      let metadataBots = [ "Twitterbot", "curl", "facebookexternalhit", "Slackbot-LinkExpanding", "Discordbot", "snapchat", "Googlebot"]
       let isMetadataBot = metadataBots.some(bot => ua.indexOf(bot) != -1);
 
       if (isMetadataBot && path.endsWith("/")) {
