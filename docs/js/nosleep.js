@@ -31,7 +31,6 @@ class NoSleep {
     async _keepAwake() {
         while(this._noSleep) {
             if (video) video.play()
-            document.body.innerHTML += "<br>Played"
             await wait(10000)
         }
     }
@@ -57,8 +56,8 @@ window.addEventListener("click", function enable() {
     video.append(source)
 
     // Play it as a result of user interaction
+    console.log("video", video)
     video.play()
-    document.body.innerHTML = "Activated"
     activate()
 })
 
