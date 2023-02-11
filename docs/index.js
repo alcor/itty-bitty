@@ -336,7 +336,7 @@
       } else if (durl.type == undefined) {
       } else if (!renderer) {
         console.log("unknown type, rendering as download")
-        renderMode = "download";
+        renderer = {script:"download"}
       }
 
       if (durl.params.style == "default") {
@@ -395,24 +395,7 @@
 
     console.log("🖋 Rendering mode: " + "\x1B[1m" + renderMode, {url:durl})
     
-    if (renderMode == "download") {
-      try {
-        let extension = title.split(".")
-        let dl = el("a", {id: "download", href:dataURL, download: title},
-          el("div", {id: "dl-image", innerText:extension.pop() ?? ""}),
-          el("div", {id: "dl-name", innerText:"title"}),
-          el("div", {id: "dl-button"}),
-        )
-        document.body.append(dl)
-        document.body.classList.add("download");
-        dl.click();
-        return;
-      } catch (e) {
-        console.log("DL error", e)
-        iframe.src = dataURL;
-        showLoader(false)   
-      }
-    } else if (renderMode == "data") {
+    if (renderMode == "data") {
       iframe.src = dataURL;
       showLoader(false)   
     } else {
