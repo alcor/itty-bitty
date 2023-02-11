@@ -623,6 +623,7 @@ export {
   pathToMetadata,
   parseBittyURL,
   el,
+  loadScript,
   BASE64_MARKER,
   LZMA64_MARKER,
   BASE_MARKER,

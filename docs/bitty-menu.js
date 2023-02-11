@@ -1,3 +1,4 @@
+import * as bitty from '/bitty.js';
 class Menu {
   /**
    * @constructor
@@ -17,7 +18,27 @@ class Menu {
   }  
 
   makeQR() {
-
+    
+    bitty.loadScript('/js/qrious.min.js', null, "").then(() => {
+      console.log("qrious loaded", location.href);
+      let qrDialog = el("dialog#qr-dialog.dialog",
+        el("canvas", {id: "qr"}),
+        el("div", document.title)
+        );
+        qrDialog.onclick = () => {
+          qrDialog.close();
+          qrDialog.parentNode.removeChild(qrDialog)
+        }
+      document.body.append(qrDialog);
+      qrDialog.showModal();
+      var qr = new QRious({
+        element: document.getElementById("qr"),
+        background: 'transparent',
+        foreground: 'currentColor',
+        size: 500,
+        value: location.href,
+      });
+    })
   }  
   sendEmail() {
     console.log("url", location.href)

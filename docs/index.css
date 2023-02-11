@@ -279,6 +279,7 @@ body:not(.loading) #loader {
     box-shadow: 0 0 0 2px black, inset 0 0 0 3px black;
     min-width: 300px;
     padding: 1.2em;
+    display:flex;
 }
 .dialog, .dialog button {font-size: 18px;font-weight: 600;font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";}
 
@@ -287,6 +288,13 @@ dialog::backdrop {
   /* repeating-conic-gradient(rgba(255,255,255,.5) 0% 25%, transparent 0% 50%) 50% / 4px 4px; */
 }
 
+dialog#qr-dialog {
+  display: flex;
+  flex-direction: column;
+}
+dialog#qr-dialog div {
+  text-align: center;
+}
 
 .dialog button {
   border: 1px solid white;
