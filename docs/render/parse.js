@@ -35,6 +35,10 @@ function findMicrodataRecipe(doc) {
 }
 
 
+let textRecipe = async document => {
+console.log("text recipe", document, document.documentElement.textContent)
+return {};
+}
 
 let scrapeRecipe =  async document => {
   
@@ -121,13 +125,13 @@ let scrapeRecipe =  async document => {
   
   console.warn("Extracted", JSON.stringify(recipe,undefined,2))
 
-  // return undefined
+  if (!recipe.recipeInstructions) return undefined
   return recipe;
 }
 
 
 
-let recipe = findLDJsonRecipe(doc) || findMicrodataRecipe(doc) || await scrapeRecipe(doc);
+let recipe = findLDJsonRecipe(doc) || findMicrodataRecipe(doc) || await scrapeRecipe(doc) || await textRecipe(doc);
 
 if (!recipe.recipeInstructions) recipe = undefined;
 

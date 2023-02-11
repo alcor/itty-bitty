@@ -412,8 +412,10 @@ function startTimer(e, t1, t2) {
 
 window.startTimer = startTimer;
 
-function share() {
-  parent.postMessage({share:{}}, "*");
+function share(e) {
+  var viewportOffset = e.target.getBoundingClientRect();
+  console.log(e, viewportOffset)
+  parent.postMessage({share:{clientX:e.clientX, clientY:e.clientY, offset:viewportOffset}}, "*");
 }
 
 function faviconForTitle(title) {
@@ -669,7 +671,7 @@ function render() {
               ),
               m(".actions.print-hide.watch-hide",
                 // originalURL ? m("a.action", { title:"Open original", href: originalURL, target:"_blank"}, m(".icon.public", {innerHTML:icons.public})) : null,
-                navigator.share ? m("a.action", { title:"Share", onclick: share}, m(".icon.share", {innerHTML:icons.share})) : undefined,
+                m("a.action", { title:"Share", onclick: share}, m(".icon.share", {innerHTML:icons.share})),
                 // m("a.action", { title:"Show steps as list", onclick: () => {reformat = !reformat; render(); return false;}}, m(".icon.checklist")),
                 m("a.action", { title:"Print", onclick: () => {window.print(); return false;} }, m(".icon.print", {innerHTML:icons.print})),
               )
