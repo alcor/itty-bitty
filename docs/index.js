@@ -103,7 +103,8 @@
     "javascript": {script:"bookmarklet"},
     "ipfs": {script:"ipfs", sandbox:"ipfs"},
     "web3": {script:"web3"},
-    "text/directory": {script:"download", args: {extension:"vcf", filename:"contact"}}
+    "text/directory": {script:"download", args: {extension:"vcf", filename:"contact"}},
+    "text/calendar": {script:"download", args: {extension:"ics", filename:"calendar"}}
   }
 
 

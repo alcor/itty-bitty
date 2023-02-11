@@ -9,8 +9,10 @@ try {
     extension = components.pop();
     title = components.join(".");
   }
+  let dataURL = params.url;
+  dataURL = encodeURI(dataURL)
 
-  let dl = el("a", {id: "download", href:params.url, download: title},
+  let dl = el("a", {id: "download", href:dataURL, download: title},
     el("div", {id: "dl-image", innerText:extension ?? ""}),
     el("div", {id: "dl-name", innerText:title}),
     el("div", {id: "dl-button"}),
