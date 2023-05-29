@@ -30,3 +30,6 @@ const m = (selector, ...args) => {
 
   return node;
 };
+
+
+const el = m;

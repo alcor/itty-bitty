@@ -56,7 +56,6 @@ window.addEventListener("click", function enable() {
     video.append(source)
 
     // Play it as a result of user interaction
-    console.log("video", video)
     video.play()
     activate()
 })

@@ -96,6 +96,8 @@
     "application/ld+json": {script:"/render/recipe.html"},
     "text/canvas+javascript": {script:"canvas"},
     "text/javascript": {script:"script"},
+    // "text/vcard": {script:"/render/contact.html"},
+    "mecard": {script:"contact"},
     "application/bitsy": {script:"/render/bitsy.html", sandbox:"bitsy"},
     "c": {script:"color"},
     "e": {rewrite: "data:text/html;cipher=aes;format=gz;base64,"},
@@ -356,7 +358,8 @@
         let scheme = fragment.substring(0,colon);
         type = scheme;
       
-        let renderer = renderers[scheme];
+        let renderer = renderers[scheme.toLowerCase()];
+        
         if (renderer) {
           return renderContentWithScript({renderer, title, info, body:fragment, url:fragment});
         }

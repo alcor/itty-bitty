@@ -1,0 +1,91 @@
+* {
+  font-family:  -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+:root {
+  --shadow-color: 0deg 0% 63%;
+  --shadow-elevation-low:
+    0px 0.5px 0.6px hsl(var(--shadow-color) / 0.34),
+    0px 0.8px 0.9px -1.2px hsl(var(--shadow-color) / 0.34),
+    0px 1.9px 2.1px -2.5px hsl(var(--shadow-color) / 0.34);
+  --shadow-elevation-medium:
+    0px 0.5px 0.6px hsl(var(--shadow-color) / 0.36),
+    0px 1.5px 1.7px -0.8px hsl(var(--shadow-color) / 0.36),
+    0px 3.8px 4.3px -1.7px hsl(var(--shadow-color) / 0.36),
+    -0.1px 9.4px 10.6px -2.5px hsl(var(--shadow-color) / 0.36);
+  --shadow-elevation-high:
+    0px 0.5px 0.6px hsl(var(--shadow-color) / 0.34),
+    0px 2.7px 3px -0.4px hsl(var(--shadow-color) / 0.34),
+    0px 5.1px 5.7px -0.7px hsl(var(--shadow-color) / 0.34),
+    -0.1px 8.4px 9.5px -1.1px hsl(var(--shadow-color) / 0.34),
+    -0.1px 13.4px 15.1px -1.4px hsl(var(--shadow-color) / 0.34),
+    -0.2px 20.9px 23.5px -1.8px hsl(var(--shadow-color) / 0.34),
+    -0.2px 31.8px 35.8px -2.1px hsl(var(--shadow-color) / 0.34),
+    -0.4px 46.8px 52.7px -2.5px hsl(var(--shadow-color) / 0.34);
+}
+
+body {
+  color:#16161d;
+  background-color: #eeeeef;
+  display:flex;
+  justify-content:center;
+  align-items: center;
+  min-height:100vh;
+}
+
+.contact {
+  background-color: white;
+  width:320px;
+  height:518px;
+  box-shadow: var(--shadow-elevation-medium);
+  margin-bottom:20vh;
+  padding-top:24px;
+  border-radius:3px;
+  display:flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding:8px 0;
+}
+
+
+.header {
+  flex: 1 1 auto;
+}
+
+
+
+.icon {
+  order:1;
+  padding: 12px 0;
+}
+
+.row {
+  display:flex;
+  text-decoration:none;
+  color:black;
+  flex-direction: row;
+  border-top:1px solid #eee;
+  min-height:48px;
+  align-items: center;
+}
+.field {
+  flex: 1 1 auto;
+}
+
+.icon svg {
+
+}
+
+a, h1, div.memo {
+  padding: 0 12px;
+  margin:0;
+}
+
+h1 {
+  font-weight:normal;
+  font-size:24px;
+}
+
+.contact a:hover {
+  background-color: #eee;
+}
