@@ -78,6 +78,8 @@ body {
 }
 .field {
   flex: 1 1 auto;
+  overflow:hidden;
+  text-overflow: ellipsis;
 }
 
 .icon svg {

@@ -52,17 +52,17 @@ function render() {
         el("div.header", {}, 
           el("h1", {}, mecard.n),
         ),
-        mecard.tel.map(tel => el("a.row.tel", {href:"tel:" + tel}, 
+        mecard.tel?.map(tel => el("a.row.tel", {href:"tel:" + tel}, 
           el("div.icon", {innerHTML:icon.tel}), el("div.field", {}, tel))),
-        mecard.email.map(email => el("a.row.email", {target:"top", href:"mailto:" + email}, 
+        mecard.email?.map(email => el("a.row.email", {target:"top", href:"mailto:" + email}, 
           el("div.icon", {innerHTML:icon.email}), el("div.field", {}, email))),
-        mecard.adr.map(adr => el("a.row.adr", {href:"https://address.fyi/" + adr}, 
+        mecard.adr?.map(adr => el("a.row.adr", {href:"https://address.fyi/" + adr}, 
           el("div.icon", {innerHTML:icon.adr}), el("div.field", {}, adr))),
-        mecard.bday.map(bday => el("a.row.bday", {href:"https://address.fyi/" + bday}, 
+        mecard.bday?.map(bday => el("a.row.bday", {href:"https://address.fyi/" + bday}, 
           el("div.icon", {innerHTML:icon.bday}), el("div.field", {}, bday))),
-        mecard.url.map(url => el("a.row.url", {href:url}, 
+        mecard.url?.map(url => el("a.row.url", {href:url}, 
           el("div.icon", {innerHTML:icon.url}), el("div.field", {}, url.replace(/https?:\/\//, "")))),
-        mecard.memo.map(memo => el("div.row.memo", {}, el("div.field", {}, memo))),
+        mecard.memo?.map(memo => el("div.row.memo", {}, el("div.field", {}, memo))),
         
       )
     )
