@@ -35,12 +35,17 @@ function render() {
       )
     )
   } else if (params.body.match(/MECARD:/)){
-    let lines = decodeURIComponent(params.body.substring(7)).trim().replace(/\\n/g, "\n").replace(/\\:/g, "\:").split(";");
+    document.body.appendChild(el("#arc-theme"));
+
+    console.log("params.body", decodeURI(params.body))
+    let lines = decodeURIComponent(decodeURIComponent(params.body.substring(7))).trim().replace(/\\n/g, "\n").replace(/\\:/g, "\:").split(";");
     let mecard = {}
     lines.forEach(line => {
       let parts = line.split(":");
       mecard[parts.shift().toLowerCase()] = [parts.join(":")];
     })
+
+    if (mecard.color) document.body.style.backgroundColor = mecard.color;
 
     document.body.appendChild(
       el("div.contact", {}, 
