@@ -36,6 +36,13 @@ const el = (selector, ...args) => {
 
   return node;
 };
+el.trust = function (html) {
+  if (!html?.length) return undefined;
+  var template = document.createElement('template');
+  template.innerHTML = html;
+  console.log(template.content.childNodes);
+  return Array.from(template.content.childNodes);
+}
 window.el = el;
 
 function async(u, c) {

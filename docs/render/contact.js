@@ -1,6 +1,6 @@
 let script = window.script;
 
-let icon = {
+let fieldIcons = {
   bday: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><mask id="a" width="24" height="24" x="0" y="0" maskUnits="userSpaceOnUse" style="mask-type:alpha"><path d="M0 0h24v24H0z"/></mask><g mask="url(#a)"><path d="M4 22a.967.967 0 0 1-.712-.288A.968.968 0 0 1 3 21v-5c0-.55.196-1.02.587-1.412A1.926 1.926 0 0 1 5 14v-4c0-.55.196-1.02.588-1.412A1.926 1.926 0 0 1 7 8h4V6.55c-.3-.2-.542-.442-.725-.725C10.092 5.542 10 5.2 10 4.8c0-.25.05-.496.15-.737.1-.242.25-.463.45-.663L12 2l1.4 1.4c.2.2.35.42.45.663.1.241.15.487.15.737 0 .4-.092.742-.275 1.025A2.503 2.503 0 0 1 13 6.55V8h4c.55 0 1.02.196 1.413.588.391.391.587.862.587 1.412v4c.55 0 1.02.196 1.413.588.391.391.587.862.587 1.412v5c0 .283-.096.52-.288.712A.968.968 0 0 1 20 22H4Zm3-8h10v-4H7v4Zm-2 6h14v-4H5v4Z"/></g></svg>',
   tel: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><mask id="a" width="24" height="24" x="0" y="0" maskUnits="userSpaceOnUse" style="mask-type:alpha"><path d="M0 0h24v24H0z"/></mask><g mask="url(#a)"><path d="M19.95 21c-2.15 0-4.246-.48-6.287-1.438a19.066 19.066 0 0 1-5.425-3.8 19.067 19.067 0 0 1-3.8-5.425C3.478 8.296 3 6.2 3 4.05c0-.3.1-.55.3-.75.2-.2.45-.3.75-.3H8.1a.96.96 0 0 1 .625.225.88.88 0 0 1 .325.575l.65 3.5c.033.233.03.446-.012.638a1.023 1.023 0 0 1-.288.512L6.975 10.9a16.4 16.4 0 0 0 2.638 3.375A18.64 18.64 0 0 0 13.1 17l2.35-2.35a1.4 1.4 0 0 1 .588-.338 1.61 1.61 0 0 1 .712-.062l3.45.7c.233.05.425.163.575.338.15.175.225.379.225.612v4.05c0 .3-.1.55-.3.75-.2.2-.45.3-.75.3ZM6.025 9l1.65-1.65L7.25 5H5.025c.083.683.2 1.358.35 2.025.15.667.367 1.325.65 1.975Zm8.95 8.95c.65.283 1.313.508 1.987.675.675.167 1.355.275 2.038.325v-2.2l-2.35-.475-1.675 1.675Z"/></g></svg>',
   text: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><mask id="a" width="24" height="24" x="0" y="0" maskUnits="userSpaceOnUse" style="mask-type:alpha"><path d="M0 0h24v24H0z"/></mask><g mask="url(#a)"><path d="M2 22V4c0-.55.196-1.02.587-1.413A1.926 1.926 0 0 1 4 2h16c.55 0 1.02.196 1.413.587.39.393.587.863.587 1.413v12c0 .55-.196 1.02-.587 1.413A1.926 1.926 0 0 1 20 18H6l-4 4Zm3.15-6H20V4H4v13.125L5.15 16Z"/></g></svg>',
@@ -12,12 +12,36 @@ let icon = {
   vid: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><mask id="a" width="24" height="24" x="0" y="0" maskUnits="userSpaceOnUse" style="mask-type:alpha"><path d="M0 0h24v24H0z"/></mask><g mask="url(#a)"><path d="M4 20c-.55 0-1.02-.196-1.413-.587A1.926 1.926 0 0 1 2 18V6c0-.55.196-1.02.587-1.412A1.926 1.926 0 0 1 4 4h12c.55 0 1.02.196 1.413.588.391.391.587.862.587 1.412v4.5l4-4v11l-4-4V18c0 .55-.196 1.02-.587 1.413A1.926 1.926 0 0 1 16 20H4Zm0-2h12V6H4v12Z"/></g></svg>',
 }
 
+let siteIcons = {
+  "twitter.com": "twitter",
+  "facebook.com": "facebook",
+  "instagram.com": "instagram",
+  "linkedin.com": "linkedin",
+  "youtube.com": "youtube",
+  "tiktok.com": "tiktok",
+  "snapchat.com": "snapchat",
+  "pinterest.com": "pinterest",
+  "tumblr.com": "tumblr",
+  "reddit.com": "reddit",
+  "github.com": "github",
+  "medium.com": "medium",
+  "twitch.tv": "twitch",
+}
+
 
 
 
 
 function share() {
   parent.postMessage({share:{}}, "*");
+}
+
+function formatBday(date) {
+  const year = date.slice(0, 4);
+  const month = date.slice(4, 6) - 1; // months are zero-indexed in JavaScript
+  const day = date.slice(6, 8);
+  const options = { month: 'long', day: 'numeric' };
+  return new Date(year, month, day).toLocaleDateString(undefined, options)
 }
 
 function render() {
@@ -36,40 +60,63 @@ function render() {
     )
   } else if (params.body.match(/MECARD:/)){
     document.body.appendChild(el("#arc-theme"));
+    let queryString = params.body.substring(7);
+    queryString = queryString.split(";").map(line => line.replace(/\:/, "=")).join("&");
 
-    console.log("params.body", decodeURI(params.body))
-    let lines = decodeURIComponent(decodeURIComponent(params.body.substring(7))).trim().replace(/\\n/g, "\n").replace(/\\:/g, "\:").split(";");
-    let mecard = {}
-    lines.forEach(line => {
-      let parts = line.split(":");
-      mecard[parts.shift().toLowerCase()] = [parts.join(":")];
-    })
+    let searchParams = new URLSearchParams(queryString);
+    
+    let headingElements = [];
+    let contentElements = [];
+    let imgElement = undefined;
 
-    if (mecard.color) document.body.style.backgroundColor = mecard.color;
+    searchParams.forEach((value, key) => {
+      key = key.toLowerCase();
+      value = decodeURIComponent(value);
+      console.log(value, key);
+      if (key == 'color') {
+        document.body.style.backgroundColor = value;
+      } else if (key == 'n') {
+        headingElements.push(el("h1", {}, value))
+      } else if (key == 'img') {
+        imgElement = (el("img.profile", {src:value}));
+      } else {
+        let href = undefined;
+        if (key == "email") {
+          href = "mailto:" + value;    
+        }
+        if (key == "url") {
+          href = value;  
+          value = value.replace(/https?:\/\/(www.)?/, "") 
+        }
 
+        if (!fieldIcons[key]) {
+          headingElements.push(el("div", value));
+        } else {
+          let img = el.trust(fieldIcons[key]);
+          if (key == "url") {
+            img = el("img", {src:"https://www.google.com/s2/favicons?sz=48&domain=" + href});
+          }
+          contentElements.push(
+            el("a.row." + key, {target:"top", href}, 
+              el("div.icon", img), 
+              el("div.field", value)
+            )
+          )
+        }
+      }
+
+    });
     document.body.appendChild(
       el("div.contact", {}, 
-        el("div.header", {}, 
-          el("h1", {}, mecard.n),
-        ),
-        mecard.tel?.map(tel => el("a.row.tel", {href:"tel:" + tel}, 
-          el("div.icon", {innerHTML:icon.tel}), el("div.field", {}, tel))),
-        mecard.email?.map(email => el("a.row.email", {target:"top", href:"mailto:" + email}, 
-          el("div.icon", {innerHTML:icon.email}), el("div.field", {}, email))),
-        mecard.adr?.map(adr => el("a.row.adr", {href:"https://address.fyi/" + adr}, 
-          el("div.icon", {innerHTML:icon.adr}), el("div.field", {}, adr))),
-        mecard.bday?.map(bday => el("a.row.bday", {href:"https://address.fyi/" + bday}, 
-          el("div.icon", {innerHTML:icon.bday}), el("div.field", {}, bday))),
-        mecard.url?.map(url => el("a.row.url", {href:url}, 
-          el("div.icon", {innerHTML:icon.url}), el("div.field", {}, url.replace(/https?:\/\//, "")))),
-        mecard.memo?.map(memo => el("div.row.memo", {}, el("div.field", {}, memo))),
-        
+        imgElement, 
+        el("div.header", {}, headingElements),
+        el("div.content", {}, contentElements)
       )
     )
-    console.log("mecard", lines, mecard);
   }
-
 }
+
+
 
 var path = script.substring(0, script.lastIndexOf("."));
 var cssURL = path + ".css";
