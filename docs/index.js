@@ -97,7 +97,7 @@
     "text/canvas+javascript": {script:"canvas"},
     "text/javascript": {script:"script"},
     // "text/vcard": {script:"/render/contact.html"},
-    "mecard": {script:"contact"},
+    "mecard": {script:"/render/contact.html"},
     "application/bitsy": {script:"/render/bitsy.html", sandbox:"bitsy"},
     "c": {script:"color"},
     "e": {rewrite: "data:text/html;cipher=aes;format=gz;base64,"},

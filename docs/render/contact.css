@@ -52,13 +52,25 @@ body {
   overflow:hidden;
 }
 
+.firstGroup {
+  display:flex;
+  flex-direction: column;
+  width:320px;
+}
+
+@media only screen and (min-width: 640px) {
+  .contact {
+    flex-direction: row;
+    width:640px;
+  }
+}
 
 .header {
   flex: 1 1 auto;
   padding-top:1em;
   display:flex;
   flex-direction: column;
-  padding: 24px 8px;
+  padding: 24px 8px 8px 0px;
 }
 
 .content {
@@ -68,6 +80,7 @@ body {
 img.profile {
   aspect-ratio: 1.0;
   background-color:rgba(0,0,0, 0.025);
+  width:100%;
 }
 
 /* .header img {
@@ -83,9 +96,11 @@ img.profile {
 .icon {
   order:-1;
   padding: 6px 0;
-  margin-right:32px;
+  margin-right:0;
   align-self: flex-start;
   height: 8px;
+  min-width:24px;
+  height:24px;
 }
 
 .icon img {
@@ -104,17 +119,30 @@ img.profile {
   align-items: center;
   background:white;
 }
+
+.header div.row {
+  padding: 0 0px;
+  margin: 8px 16px 0 16px;
+  order:1;
+  background-color:transparent
+}
+
+div.row a {
+padding: 8px;
+color:black;
+}
+
 .field {
   flex: 1 1 auto;
   overflow:hidden;
   text-overflow: ellipsis;
   white-space: pre-wrap;
   padding:4px 0;
-}
-
-.icon svg {
+  padding-left:16px;
 
 }
+
+.icon svg {width: 24px;height: 24px;}
 
 a, h1, div.memo, .header div {
   padding: 0 24px;

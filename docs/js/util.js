@@ -1,4 +1,4 @@
-const m = (selector, ...args) => {
+const el = (selector, ...args) => {
   var attrs = (args[0] && typeof args[0] === 'object' && !Array.isArray(args[0]) && !(args[0] instanceof HTMLElement)) ? args.shift() : {};
 
   let classes = selector.split(".");
@@ -16,7 +16,11 @@ const m = (selector, ...args) => {
         let dataProp = prop.substring(5).replace(/-([a-z])/g, function(g) { return g[1].toUpperCase(); });
         node.dataset[dataProp] = attrs[prop];
       } else {
-        node[prop] = attrs[prop];
+        if (typeof attrs[prop] === 'function' || prop == "className") {
+          node[prop] = attrs[prop];
+        } else {
+          node.setAttribute(prop, attrs[prop]);
+        }
       }
     }
   }
@@ -30,6 +34,12 @@ const m = (selector, ...args) => {
 
   return node;
 };
+el.trust = function (html) {
+  if (!html?.length) return undefined;
+  var template = document.createElement('template');
+  template.innerHTML = html;
+  return Array.from(template.content.childNodes);
+}
 
-
-const el = m;
+const m = el;
+window.el = el;
